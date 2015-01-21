@@ -1,6 +1,7 @@
 package com.mygdx.game.LogicBlocks;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -54,13 +55,35 @@ public class FullBlockScript
     {
         if(blockChains.get(blockChains.size() - 1).GetIsOnEndOfChain() == true)
         {
-            AddNewChain(blockChainStartPos.x, blockChainStartPos.y + blockChains.size() * chainYSeperation);
+            AddNewChain(blockChainStartPos.x, blockChainStartPos.y - (blockChains.size() * chainYSeperation));
         }
     }
 
     private void AddNewChain(float x, float y)
     {
-        blockChains.add(new BlockChain(blockChainStartPos.x, blockChainStartPos.y - blockChains.size() * chainYSeperation, blockTextureSheet, this));
+        BlockChain chainToAdd = new BlockChain(x, y, blockTextureSheet, this);
+        blockChains.add(chainToAdd);
+        if(blockChains.size() >= 2){
+            chainToAdd.SetAboveBlockChain(blockChains.get(blockChains.size() - 2));
+            blockChains.get(blockChains.size() - 2).SetBelowBlockChain(chainToAdd);
+
+            if(chainToAdd.GetAboveBlockChain() != null) {
+                if (chainToAdd.GetAboveBlockChain().GetIsOnEndOfChain() == true) {
+                    if (chainToAdd.GetAboveBlockChain().GetAboveBlockChain() != null) {
+                        TweenChainToAboveChain(chainToAdd.GetAboveBlockChain());
+                        //Move the new chain so it is the same distance away from the newly tweened chain
+                        chainToAdd.SetPosition(chainToAdd.GetX(), chainToAdd.GetAboveBlockChain().GetY() - chainYSeperation);
+                    }
+                }
+            }
+        }
+
+    }
+
+    //Tweens the chain to the above
+    private void TweenChainToAboveChain(BlockChain chain)
+    {
+        chain.SetPosition(chain.GetX(), chain.GetAboveBlockChain().GetBlockBounds().getY() - LogicBlock.GetBlockHeight());
     }
 
     //Called by the blockchains when one of their lists opens, so that only one list may be open at a time.

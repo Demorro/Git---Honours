@@ -12,6 +12,7 @@ import com.mygdx.game.UI.BlockSelectionList;
 import com.mygdx.game.UI.CancelBlockButton;
 import com.mygdx.game.UI.NextBlockButton;
 import com.mygdx.game.Utility.SpriteAccessor;
+import jdk.nashorn.internal.ir.Block;
 
 import java.util.ArrayList;
 import java.util.Observable;
@@ -25,6 +26,10 @@ public class BlockChain {
     private FullBlockScript fullScript; //Reference to the full script.
     private CancelBlockButton cancelButton; //The button that cancels a block, not the button that cancels a list, THEYRE DIFFERENT THINGS DAMMIT
     private NextBlockButton nextButton; //The button that either summons a new list or alternatively lets you select the block in the list
+
+    //References to the above and below blockchain. Only accessed by the fullBlockScript.
+    private BlockChain aboveBlockChain = null;
+    private BlockChain belowBlockChain = null;
 
     private Vector2 position = new Vector2(); //Position of the chain, changing this wont actually change anything, gotta do dat yoself son
     private ArrayList<LogicBlock> blocks = new ArrayList<LogicBlock>(); //Main storage for the blocks in the chain, stored from left to right
@@ -73,7 +78,8 @@ public class BlockChain {
         previousBlock = null;
 
         blockChainBounds = new Rectangle();
-        blockChainBounds.setPosition(position.x, position.y);
+        blockChainBounds.setPosition(position.x, position.y - (LogicBlock.blockHeight - nextButton.getHeight())/2);
+        blockChainBounds.setHeight(LogicBlock.blockHeight);
 
         startingGroups.clear();
         startingGroups.add(LogicGroups.LogicGroup.COMMAND);
@@ -87,8 +93,8 @@ public class BlockChain {
     //Called by the blockList when the next block is selected
     public void ListBlockSelected(final LogicBlock nextBlock, float timeToWaitTillDestroy)
     {
-
         nextGroups.clear();
+
 
         if(previousBlock != null) {
             if (previousBlock.GetBlockType() == null) {
@@ -109,13 +115,12 @@ public class BlockChain {
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
-                    // \/ removes both Timer1 and Timer2
-                    position.x += nextBlock.GetFullBlockWidth();
-                    selectionList.ResetList(nextGroups, new Vector2(position.x + spacingBetweenBlocks, position.y), false, false);
+                    selectionList.ResetList(nextGroups, new Vector2(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenBlocks, position.y), false, false);
                     selectionList.OpenList();
                 }
             }, timeToWaitTillDestroy);
         }
+
 
         //Tween the selected block to its rightful place in the block chain
         blocks.add(nextBlock);
@@ -125,14 +130,17 @@ public class BlockChain {
                 .start(chainTweenManager);
 
         blockChainBounds.setWidth(blockChainBounds.getWidth() + nextBlock.GetFullBlockWidth());
+
         nextButton.setX(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenNextButton);
         cancelButton.SetEnabled(false);
         cancelButton.SetVisible(false);
 
+
+
         //If there is no logic group to go too, the chain is ended
         if(nextBlock.GetNextLogicGroup(previousBlock) == null)
         {
-            position.x += nextBlock.GetFullBlockWidth();
+            //position.x += nextBlock.GetFullBlockWidth();
             FadeInCancelButtonAtLastBlock();
             nextButton.SetEnabled(false);
             nextButton.SetVisible(false);
@@ -230,7 +238,7 @@ public class BlockChain {
         if(selectionList == null)
         {
             fullScript.AnyListOpened(); //This needs to happen before you open the list, trust me my son, (For reals, its because Anylistopens closes all the list, and we want to open dis one)
-            selectionList = new BlockSelectionList(startingGroups, blockTextureSheet, new Vector2(position.x + nextButton.getWidth() + spacingBetweenNextButton , position.y), false, this);
+            selectionList = new BlockSelectionList(startingGroups, blockTextureSheet, new Vector2(blockChainBounds.getX() + blockChainBounds.getWidth() + nextButton.getWidth() + spacingBetweenNextButton , position.y), false, this);
             selectionList.OpenList();
         }
         else
@@ -244,7 +252,7 @@ public class BlockChain {
             }
             else {
                 fullScript.AnyListOpened();  //This needs to happen before you open the list, trust me my son, (For reals, its because Anylistopens closes all the list, and we want to open dis one)
-                selectionList.SetPosition(position.x + nextButton.getWidth() + spacingBetweenNextButton, position.y);
+                selectionList.SetPosition(blockChainBounds.getX() + blockChainBounds.getWidth() + nextButton.getWidth() + spacingBetweenNextButton, position.y);
                 selectionList.OpenList();
             }
         }
@@ -296,6 +304,16 @@ public class BlockChain {
         return  nextButton;
     }
 
+    private void SetCancelButtonPosToLastBlock()
+    {
+        if(blocks.size() > 0) {
+            cancelButton.setPosition(blockChainBounds.getX() + blockChainBounds.getWidth() - (cancelButton.getWidth() / 2) + LogicBlock.cancelButtonOffset.x, blocks.get(blocks.size() - 1).GetY() + LogicBlock.GetBlockHeight() - (cancelButton.getHeight() / 2) + LogicBlock.cancelButtonOffset.y);
+        }
+        else{
+            cancelButton.setPosition(position.x, position.y);
+        }
+    }
+
     private void FadeInCancelButtonAtLastBlock()
     {
         //Set the cancel button to the position of the last block, and fade it in
@@ -334,7 +352,7 @@ public class BlockChain {
         return isOnEndOfChain;
     }
 
-    private void Move(float xMov, float yMov) //Move, DO NOT MOVE WHILE THE LIST IS DOING ANYTHING FFS
+    public void Move(float xMov, float yMov) //Move, DO NOT MOVE WHILE THE LIST IS DOING ANYTHING FFS
     {
         position.x += xMov;
         position.y += yMov;
@@ -375,6 +393,57 @@ public class BlockChain {
         if(selectionList != null) {
             selectionList.CloseList();
             ListClosed();
+        }
+    }
+
+    public void SetAboveBlockChain(BlockChain chain)
+    {
+        aboveBlockChain = chain;
+    }
+    public BlockChain GetAboveBlockChain()
+    {
+        return aboveBlockChain;
+    }
+    public void SetBelowBlockChain(BlockChain chain)
+    {
+        belowBlockChain = chain;
+    }
+    public BlockChain GetBelowBlockChain()
+    {
+        return belowBlockChain;
+    }
+    public Rectangle GetBlockBounds()
+    {
+        return blockChainBounds;
+    }
+    public float GetX()
+    {
+        return position.x;
+    }
+    public float GetY()
+    {
+        return position.y;
+    }
+    public void SetPosition(float x, float y)
+    {
+        position.x = x;
+        position.y = y;
+
+        int blockWidth = 0; //The width of the entire chain
+        for(int i = 0; i < blocks.size(); i++)
+        {
+            blocks.get(i).SetPosition(x + blockWidth, y  - (LogicBlock.blockHeight - nextButton.getHeight())/2);
+            blockWidth += blocks.get(i).GetFullBlockWidth();
+        }
+
+        blockChainBounds.setPosition(x, y - (LogicBlock.blockHeight - nextButton.getHeight())/2);
+        blockChainBounds.setWidth(blockWidth);
+        nextButton.setPosition(x + blockWidth, y);
+        cancelButton.setPosition(x + blockWidth, y);
+        SetCancelButtonPosToLastBlock();
+
+        if(selectionList != null) {
+            selectionList.SetPosition(x, y);
         }
     }
 
