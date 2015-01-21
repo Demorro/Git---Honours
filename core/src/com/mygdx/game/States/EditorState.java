@@ -30,7 +30,7 @@ public class EditorState extends State implements InputProcessor
 
     private Texture blockSpriteSheet = new Texture(Gdx.files.internal("Images/BlockSpriteSheet.png"));
 
-    private BlockChain testChain;
+    private FullBlockScript scriptContainer;
 
     private BitmapFont fpsFont;
 
@@ -54,8 +54,7 @@ public class EditorState extends State implements InputProcessor
         camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
         blockSpriteSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-      //  testBlock = new LogicBlock(blockSpriteSheet, "Attack", LogicBlock.BlockType.COMMAND_BLOCK, 300,300);
-        testChain = new BlockChain(25,600,blockSpriteSheet);
+        scriptContainer = new FullBlockScript(blockSpriteSheet);
 
         return true;
     }
@@ -67,14 +66,14 @@ public class EditorState extends State implements InputProcessor
     // Abstract method intended to act as the main loop of the state.
     public void Update(HashMap<Integer,TouchInfo> touches)
     {
-        testChain.Update();
+        scriptContainer.Update();
     }
     // Abstract method intended to render all objects of the state.
     public void Draw(SpriteBatch spriteBatch)
     {
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        testChain.Render(spriteBatch);
+        scriptContainer.Render(spriteBatch);
         fpsFont.draw(spriteBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 50, 50);
     }
 

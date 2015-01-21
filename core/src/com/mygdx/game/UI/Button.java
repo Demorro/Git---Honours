@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.Utility.Utility;
 
 /**
@@ -15,6 +16,7 @@ public abstract class Button extends Sprite {
     private static float pressedScalar = 0.9f;
 
     protected boolean enabled = true;
+    protected  boolean visible = true;
 
     public Button(Texture blockSpriteSheet, int buttonX, int buttonY, int buttonWidth, int buttonHeight)
     {
@@ -27,7 +29,7 @@ public abstract class Button extends Sprite {
         if(Gdx.app.getType() == Application.ApplicationType.Desktop)
         {
 
-            if(Gdx.app.getInput().isTouched())
+            if(Gdx.app.getInput().justTouched())
             {
                 if(this.getBoundingRectangle().contains(Utility.GetScreenSpaceInput())) {
                     isBeingHeld = true;
@@ -54,7 +56,9 @@ public abstract class Button extends Sprite {
                 {
                     isBeingHeld = false;
                     setScale(1.0f);
-                    Trigger();
+                    if(enabled) {
+                        Trigger();
+                    }
                 }
             }
             else if(Gdx.app.getType() == Application.ApplicationType.Android)
@@ -63,9 +67,18 @@ public abstract class Button extends Sprite {
                 {
                     isBeingHeld = false;
                     setScale(1.0f);
-                    Trigger();
+                    if(enabled) {
+                        Trigger();
+                    }
                 }
             }
+        }
+    }
+
+    public void Render(SpriteBatch batch)
+    {
+        if(visible) {
+            this.draw(batch);
         }
     }
 
@@ -79,4 +92,7 @@ public abstract class Button extends Sprite {
     {
         return enabled;
     }
+
+    public void SetVisible(boolean visible){ this.visible = visible;}
+    public  Boolean GetVisible() {return visible;}
 }

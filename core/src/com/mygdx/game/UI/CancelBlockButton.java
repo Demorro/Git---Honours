@@ -23,6 +23,7 @@ public class CancelBlockButton extends Button
     @Override
     protected void Trigger()
     {
+        System.out.println("CancelBlockButtonTriggered");
         blockChain.CancelButtonPushed();
     }
 }

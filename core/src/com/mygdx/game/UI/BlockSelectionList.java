@@ -2,9 +2,7 @@ package com.mygdx.game.UI;
 
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
-import aurelienribon.tweenengine.equations.Bounce;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -14,41 +12,39 @@ import com.mygdx.game.LogicBlocks.LogicBlock;
 import com.mygdx.game.LogicBlocks.LogicBlockAccessor;
 import com.mygdx.game.LogicBlocks.LogicGroups;
 import com.mygdx.game.Utility.Utility;
-import jdk.internal.org.objectweb.asm.Handle;
-import jdk.nashorn.internal.ir.Block;
 
 import java.util.ArrayList;
 
 /**
  * Created by Elliot Morris on 15/01/2015.
+ * Vertically scrollable list used for selecting the next logic block in a BlockChain
  */
 public class BlockSelectionList {
 
-    private ArrayList<LogicBlock> selectionBlocks = new ArrayList<LogicBlock>();
+    private ArrayList<LogicBlock> selectionBlocks = new ArrayList<LogicBlock>(); //Main storage container for the blocks that are part of this list.
     private int currentSelectionIndex = 0; //Index to the selectionBlocks array that is the current selection.
 
-    private Vector2 position;
+    private Texture blockSpriteSheet; //Reference to the block sprite sheet passed in the constructor
+
+    private Vector2 position; //List position. Changing this won't actually do anything, only used as a aid for placing the LogicBlocks
 
     private final static float YSeperationDistance = 68; //Distance of seperation between each logic block in the list
-
-    private final static float adjacentListBlockOpacity = 0.65f;
-    private final static float adjacentListBlockScale = 0.85f;
-
-    private float listScrollTime = 0.18f;
+    private final static float adjacentListBlockOpacity = 0.65f; //Opacity of the blocks above/below the main central one
+    private final static float adjacentListBlockScale = 0.85f; //Scale of the blocks above/below the main central one
+    private float listScrollTime = 0.18f; //Time it takes to do one scroll
+    public final static float tweenInOutTime = 0.2f; //Time the tweens in the list take
+    private final static float tweenInOutDistance = 30.0f; //Distance to the right the list tweens in/out from
 
     TweenManager listTweenManager = new TweenManager();
-    private boolean isScrolling = false; //Whether the list is beingScrolled
+
+    private boolean isScrolling = false;
     private boolean isTweeningIn = false;
     private boolean isTweeningOut = false;
     private boolean isOpen = false;
-    public final static float tweenInOutTime = 0.2f;
-    private final static float tweenInOutDistance = 30.0f;
 
     private CancelBlockSelectionListButton cancelButton; //Button for closing the list
-
     private BlockChain blockChain; //Reference to the blockChain, passed in so the blockchain knows when a block is selected
 
-    private Texture blockSpriteSheet;
 
     public BlockSelectionList(ArrayList<LogicGroups.LogicGroup> groupsToLoad, Texture blockSpriteSheets, Vector2 pos, boolean startOpen, BlockChain blockChain)
     {
@@ -69,7 +65,7 @@ public class BlockSelectionList {
     public void Render (SpriteBatch batch)
     {
 
-        if((isOpen) || (isTweeningIn)) {
+        if((isOpen) || (isTweeningIn) || (isTweeningOut)) {
             int upperIndex = GetUpperIndex();
             int lowerIndex = GetLowerIndex();
             int doubleLowerIndex = GetDoubleLowerIndex();
@@ -83,8 +79,7 @@ public class BlockSelectionList {
                 selectionBlocks.get(doubleLowerIndex).Render(batch);
                 selectionBlocks.get(doubleUpperIndex).Render(batch);
             }
-
-            cancelButton.draw(batch);
+            cancelButton.Render(batch);
         }
     }
 
@@ -94,32 +89,35 @@ public class BlockSelectionList {
         isTweeningIn = false;
         isTweeningOut = false;
         isScrolling = false;
-
         selectionBlocks.clear();
         currentSelectionIndex = 0;
 
-
+        //Reload the proper groups inthe list
         for(LogicGroups.LogicGroup group : groupsToLoad)
         {
             selectionBlocks.addAll(LogicGroups.ConstructLogicGroup(group, blockSpriteSheet));
         }
+
         //List needs to be at least 4 big
         while(selectionBlocks.size() < 4) {
             for (LogicGroups.LogicGroup group : groupsToLoad) {
                 selectionBlocks.addAll(LogicGroups.ConstructLogicGroup(group, blockSpriteSheet));
             }
         }
-
+        //Set the position
         position = pos;
         if(moveOverHalfLargestBlockWidth)
         {
             position.x = pos.x + GetLargestBlockWidth()/2;
         }
+
+        //Set all blocks to the adjacent settings, and an opacity of 0.0f so they can fade in. The center one will fade in to full opacity by virtue of the tween
         for(LogicBlock block : selectionBlocks)
         {
             block.SetScaleXY(adjacentListBlockScale);
             block.SetOpacity(0.0f);
         }
+        //Reassert the positions based on position
         AssertPositions();
 
         isOpen = startOpen;
@@ -144,7 +142,7 @@ public class BlockSelectionList {
     {
         blockChain.ListBlockSelected(selectionBlocks.get(currentSelectionIndex), tweenInOutTime);
         selectionBlocks.remove(currentSelectionIndex);
-        TweenOut();
+        CloseList();
     }
 
     private void ClickToScroll()
@@ -299,7 +297,7 @@ public class BlockSelectionList {
         }
     }
 
-    public void TweenIn()
+    public void OpenList()
     {
         if((isOpen == false) && (isScrolling == false)) {
             if ((isTweeningIn) || (isTweeningOut)) {
@@ -346,10 +344,10 @@ public class BlockSelectionList {
             }
 
             //Cancelbutton tween
-            cancelButton.setPosition(position.x + selectionBlocks.get(currentSelectionIndex).GetFullBlockWidth() - (cancelButton.getWidth() / 2) + tweenInOutDistance, selectionBlocks.get(currentSelectionIndex).GetY() + LogicBlock.GetBlockHeight() - cancelButton.getHeight() / 2);
+            cancelButton.setPosition(position.x + selectionBlocks.get(currentSelectionIndex).GetFullBlockWidth() - (cancelButton.getWidth() / 2) + tweenInOutDistance + LogicBlock.cancelButtonOffset.x, selectionBlocks.get(currentSelectionIndex).GetY() + LogicBlock.GetBlockHeight() - (cancelButton.getHeight() / 2) + LogicBlock.cancelButtonOffset.y);
             cancelButton.setAlpha(0.0f);
             Tween.to(cancelButton, LogicBlockAccessor.POSITION_X, tweenInOutTime)
-                    .target(selectionBlocks.get(currentSelectionIndex).GetX() + selectionBlocks.get(currentSelectionIndex).GetFullBlockWidth() - (cancelButton.getWidth() / 2) - tweenInOutDistance)
+                    .target(selectionBlocks.get(currentSelectionIndex).GetX() + selectionBlocks.get(currentSelectionIndex).GetFullBlockWidth() - (cancelButton.getWidth() / 2) - tweenInOutDistance + LogicBlock.cancelButtonOffset.x)
                     .start(listTweenManager);
             Tween.to(cancelButton, LogicBlockAccessor.OPACITY, tweenInOutTime)
                     .target(1.0f)
@@ -368,7 +366,7 @@ public class BlockSelectionList {
         }
     }
 
-    public void TweenOut()
+    public void CloseList()
     {
         if((isOpen == true) && (isScrolling == false)) {
             if ((isTweeningIn) || (isTweeningOut)) {
@@ -465,7 +463,7 @@ public class BlockSelectionList {
     {
         if(GetIsOpen())
         {
-            TweenOut();
+            CloseList();
             blockChain.ListClosed();
         }
     }
@@ -566,5 +564,27 @@ public class BlockSelectionList {
         }
         return largestWidth;
     }
+
+    public void SetPosition(float xPos, float yPos)
+    {
+        position.x = xPos;
+        position.y = yPos;
+
+        AssertPositions();
+    }
+
+    public void Move(float xMov, float yMov)
+    {
+        position.x += xMov;
+        position.y += yMov;
+
+        for(LogicBlock block : selectionBlocks)
+        {
+            block.Move(xMov, yMov);
+        }
+
+        cancelButton.translate(xMov, yMov);
+    }
+
 
 }

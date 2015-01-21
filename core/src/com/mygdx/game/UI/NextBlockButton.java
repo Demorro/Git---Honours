@@ -25,9 +25,8 @@ public class NextBlockButton extends Button{
     @Override
     protected void Trigger()
     {
-        if(enabled) {
-            blockChain.NextButtonPushed();
-        }
+        System.out.println("NextBlockTriggered");
+        blockChain.NextButtonPushed();
     }
 
 
