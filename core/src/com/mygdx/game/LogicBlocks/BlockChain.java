@@ -27,6 +27,8 @@ public class BlockChain {
     private CancelBlockButton cancelButton; //The button that cancels a block, not the button that cancels a list, THEYRE DIFFERENT THINGS DAMMIT
     private NextBlockButton nextButton; //The button that either summons a new list or alternatively lets you select the block in the list
 
+    private boolean enabled = true; //Simply disables update logic.
+
     //References to the above and below blockchain. Only accessed by the fullBlockScript.
     private BlockChain aboveBlockChain = null;
     private BlockChain belowBlockChain = null;
@@ -49,8 +51,10 @@ public class BlockChain {
     TweenManager chainTweenManager = new TweenManager(); //Tween manager
     private static float timeToTweenFromListToChain = 0.2f; //Time that the selected block takes to tween from the selection list into the main chain, also used for most other tweens (I know its bad shut up)
 
-
     private boolean isOnEndOfChain = false; //True if the chain is finished, with no other blocks to be placed.
+
+    //Used for opacity tweening
+    private float currentOpacity = 1.0f;
 
     public BlockChain(float xPos, float yPos, Texture blockSpriteSheet, FullBlockScript fullScript)
     {
@@ -140,17 +144,18 @@ public class BlockChain {
         //If there is no logic group to go too, the chain is ended
         if(nextBlock.GetNextLogicGroup(previousBlock) == null)
         {
-            //position.x += nextBlock.GetFullBlockWidth();
             FadeInCancelButtonAtLastBlock();
             nextButton.SetEnabled(false);
             nextButton.SetVisible(false);
             isOnEndOfChain = true;
+            fullScript.AnyListClosed(this);
         }
         previousBlock = nextBlock;
     }
 
     public void ListClosed()
     {
+        fullScript.AnyListClosed(this);
         if(blocks.size() > 0) {
             FadeInCancelButtonAtLastBlock();
         }
@@ -237,7 +242,7 @@ public class BlockChain {
     {
         if(selectionList == null)
         {
-            fullScript.AnyListOpened(); //This needs to happen before you open the list, trust me my son, (For reals, its because Anylistopens closes all the list, and we want to open dis one)
+            fullScript.AnyListOpened(this); //This needs to happen before you open the list, trust me my son, (For reals, its because Anylistopens closes all the list, and we want to open dis one)
             selectionList = new BlockSelectionList(startingGroups, blockTextureSheet, new Vector2(blockChainBounds.getX() + blockChainBounds.getWidth() + nextButton.getWidth() + spacingBetweenNextButton , position.y), false, this);
             selectionList.OpenList();
         }
@@ -251,7 +256,7 @@ public class BlockChain {
                 selectionList.SelectBlock();
             }
             else {
-                fullScript.AnyListOpened();  //This needs to happen before you open the list, trust me my son, (For reals, its because Anylistopens closes all the list, and we want to open dis one)
+                fullScript.AnyListOpened(this);  //This needs to happen before you open the list, trust me my son, (For reals, its because Anylistopens closes all the list, and we want to open dis one)
                 selectionList.SetPosition(blockChainBounds.getX() + blockChainBounds.getWidth() + nextButton.getWidth() + spacingBetweenNextButton, position.y);
                 selectionList.OpenList();
             }
@@ -267,19 +272,20 @@ public class BlockChain {
 
     public void Update()
     {
-        if(nextButton.GetEnabled()) {
-            nextButton.Update();
-        }
-        if(blocks.size() > 0) {
-            cancelButton.Update();
-        }
+        if(enabled) {
+            if (nextButton.GetEnabled()) {
+                nextButton.Update();
+            }
+            if (blocks.size() > 0) {
+                cancelButton.Update();
+            }
 
-        if(selectionList != null)
-        {
-            selectionList.Update();
-        }
+            if (selectionList != null) {
+                selectionList.Update();
+            }
 
-        chainTweenManager.update(Gdx.graphics.getDeltaTime());
+            chainTweenManager.update(Gdx.graphics.getDeltaTime());
+        }
     }
 
     public void Render(SpriteBatch batch)
@@ -396,6 +402,8 @@ public class BlockChain {
         }
     }
 
+    public boolean GetEnabled(){return enabled;}
+    public void SetEnabled(boolean enabled){this.enabled = enabled;}
     public void SetAboveBlockChain(BlockChain chain)
     {
         aboveBlockChain = chain;
@@ -424,8 +432,7 @@ public class BlockChain {
     {
         return position.y;
     }
-    public void SetPosition(float x, float y)
-    {
+    public void SetPosition(float x, float y) {
         position.x = x;
         position.y = y;
 
@@ -446,5 +453,15 @@ public class BlockChain {
             selectionList.SetPosition(x, y);
         }
     }
-
+    public float GetOpacity(){
+        return currentOpacity;
+    }
+    public void SetOpacity(float opacity) {
+        currentOpacity = opacity;
+        for(LogicBlock block : blocks){
+            block.SetOpacity(opacity);
+        }
+        nextButton.setAlpha(opacity);
+        cancelButton.setAlpha(opacity);
+    }
 }

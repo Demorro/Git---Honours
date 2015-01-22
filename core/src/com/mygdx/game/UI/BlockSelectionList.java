@@ -29,7 +29,7 @@ public class BlockSelectionList {
     private Vector2 position; //List position. Changing this won't actually do anything, only used as a aid for placing the LogicBlocks
 
     private final static float YSeperationDistance = 68; //Distance of seperation between each logic block in the list
-    private final static float adjacentListBlockOpacity = 0.65f; //Opacity of the blocks above/below the main central one
+    private final static float adjacentListBlockOpacity = 1.0f; //Opacity of the blocks above/below the main central one
     private final static float adjacentListBlockScale = 0.85f; //Scale of the blocks above/below the main central one
     private float listScrollTime = 0.18f; //Time it takes to do one scroll
     public final static float tweenInOutTime = 0.2f; //Time the tweens in the list take
@@ -433,24 +433,24 @@ public class BlockSelectionList {
 
         float blockCenterY = position.y - (LogicBlock.GetBlockHeight() - blockChain.GetNextBlockButton().getHeight())/2;
 
-        if(selectionBlocks.size() > 0) {
+        if((selectionBlocks.size() > 0) && (currentSelectionIndex < selectionBlocks.size())) {
             selectionBlocks.get(currentSelectionIndex).SetPosition(position.x, blockCenterY);
             selectionBlocks.get(currentSelectionIndex).SetOpacity(1.0f);
             selectionBlocks.get(currentSelectionIndex).SetScaleXY(1.0f);
             cancelButton.setPosition(selectionBlocks.get(currentSelectionIndex).GetX() + selectionBlocks.get(currentSelectionIndex).GetFullBlockWidth() - cancelButton.getWidth()/2, selectionBlocks.get(currentSelectionIndex).GetY() + LogicBlock.GetBlockHeight() - cancelButton.getHeight()/2);
 
         }
-        if(selectionBlocks.size() > 1) {
-            int upperIndex = GetUpperIndex();
+        int upperIndex = GetUpperIndex();
+        if((selectionBlocks.size() > 1) && (upperIndex < selectionBlocks.size()) && (currentSelectionIndex < selectionBlocks.size())) {
             //The big complicated Xvalue is just to center the block on the center of the central selection block
             selectionBlocks.get(upperIndex).SetPosition(selectionBlocks.get(currentSelectionIndex).GetX() + (selectionBlocks.get(currentSelectionIndex).GetFullBlockWidth()/2) - selectionBlocks.get(upperIndex).GetFullBlockWidth()/2, blockCenterY + YSeperationDistance);
             selectionBlocks.get(upperIndex).SetOpacityWithoutChangingText(adjacentListBlockOpacity);
             selectionBlocks.get(upperIndex).SetTextOpacity(1.0f);
             selectionBlocks.get(upperIndex).SetScaleXY(adjacentListBlockScale);
         }
-        if(selectionBlocks.size() > 2)
+        int lowerIndex = GetLowerIndex();
+        if((selectionBlocks.size() > 2) && (lowerIndex < selectionBlocks.size()) && (currentSelectionIndex < selectionBlocks.size()))
         {
-            int lowerIndex = GetLowerIndex();
             //The big complicated Xvalue is just to center the block on the center of the central selection block
             selectionBlocks.get(lowerIndex).SetPosition(selectionBlocks.get(currentSelectionIndex).GetX() + (selectionBlocks.get(currentSelectionIndex).GetFullBlockWidth()/2) - selectionBlocks.get(lowerIndex).GetFullBlockWidth()/2, blockCenterY - YSeperationDistance);
             selectionBlocks.get(lowerIndex).SetOpacityWithoutChangingText(adjacentListBlockOpacity);
