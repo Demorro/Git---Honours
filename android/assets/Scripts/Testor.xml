@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<PlayerLogicScript>
+  <Line>
+    <Block>SEARCHFOR</Block>
+    <Block>FUEl</Block>
+  </Line>
+  <Line>
+    <Block>ATTACK</Block>
+    <Block>CAPITALSHIP</Block>
+    <Block>AUTOCANNON</Block>
+  </Line>
+  <Line>
+    <Block>ATTACK</Block>
+    <Block>CAPITALSHIP</Block>
+    <Block>AUTOCANNON</Block>
+    <Block>SLOWLY</Block>
+  </Line>
+  <Line></Line>
+  <Line>
+    <Block>WANDER</Block>
+    <Block>SLOWLY</Block>
+  </Line>
+  <Line>
+    <Block>PURSUE</Block>
+    <Block>ASTEROIDS</Block>
+    <Block>SLOWLY</Block>
+  </Line>
+  <Line></Line>
+</PlayerLogicScript>

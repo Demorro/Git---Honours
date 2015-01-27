@@ -7,10 +7,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.Utility.ScriptSaver;
 import com.mygdx.game.Utility.SpriteAccessor;
 import jdk.nashorn.internal.ir.Block;
 
+import javax.swing.*;
 import javax.xml.soap.Text;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -33,6 +36,8 @@ public class FullBlockScript
 
     private TweenManager fullScriptTweenManager = new TweenManager();
 
+    private boolean isSaving = false;
+
     public FullBlockScript(Texture blockSheet)
     {
         blockTextureSheet = blockSheet;
@@ -54,6 +59,13 @@ public class FullBlockScript
         CheckForWhetherWeNeedNewChain();
 
         fullScriptTweenManager.update(Gdx.graphics.getDeltaTime());
+
+        if(Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.S))
+        {
+            if(isSaving == false) {
+                SaveScript();
+            }
+        }
     }
     public void Render(SpriteBatch batch)
     {
@@ -186,6 +198,31 @@ public class FullBlockScript
             lowerChain.Move(0, -chainYSeperation);
             lowerChain = lowerChain.GetBelowBlockChain();
         }
+    }
+
+    public ArrayList<BlockChain> GetBlockChains()
+    {
+        return blockChains;
+    }
+
+    public void SaveScript()
+    {
+        //Create a file chooser
+        final JFileChooser fc = new JFileChooser();
+        //In response to a button click:
+        int returnVal = fc.showSaveDialog(null);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            ScriptSaver.SaveScript(this, file.getAbsolutePath());
+            isSaving = true;
+        }
+        if((returnVal == JFileChooser.CANCEL_OPTION) || (returnVal == JFileChooser.ERROR_OPTION))
+        {
+            isSaving = true;
+        }
+
+
     }
 
 

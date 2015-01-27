@@ -9,18 +9,17 @@ import java.util.ArrayList;
 /**
  * Created by Elliot Morris on 15/01/2015.
  */
-public class AttackBlock extends LogicBlock
+public class SearchForBlock extends LogicBlock
 {
-    public AttackBlock(Texture blockSheet) {
-        super(blockSheet, "  Attack  ", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.ATTACK);
+    public SearchForBlock(Texture blockSheet) {
+        super(blockSheet, "Search For", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.SEARCHFOR);
     }
 
     @Override
     public ArrayList<LogicGroups.LogicGroup> GetNextLogicGroup(LogicBlock previousBlock)
     {
         ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
-        nextLogicGroups.add(LogicGroups.LogicGroup.ENEMIES);
-        nextLogicGroups.add(LogicGroups.LogicGroup.SCARYOBJECTS);
+        nextLogicGroups.add(LogicGroups.LogicGroup.POWERUPS);
         return nextLogicGroups;
     }
 }

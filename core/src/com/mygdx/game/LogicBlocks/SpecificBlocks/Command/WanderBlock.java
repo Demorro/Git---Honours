@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class WanderBlock extends LogicBlock
 {
     public WanderBlock(Texture blockSheet) {
-        super(blockSheet, "Wander", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.WANDER);
+        super(blockSheet, "  Wander  ", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.WANDER);
     }
 
     @Override

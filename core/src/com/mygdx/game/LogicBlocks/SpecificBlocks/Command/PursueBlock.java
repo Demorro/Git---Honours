@@ -12,7 +12,7 @@ package com.mygdx.game.LogicBlocks.SpecificBlocks.Command;
 public class PursueBlock extends LogicBlock
 {
     public PursueBlock(Texture blockSheet) {
-        super(blockSheet, "Pursue", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.PURSUE);
+        super(blockSheet, "  Pursue  ", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.PURSUE);
     }
 
     @Override
@@ -20,6 +20,7 @@ public class PursueBlock extends LogicBlock
     {
         ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
         nextLogicGroups.add(LogicGroups.LogicGroup.ENEMIES);
+        nextLogicGroups.add(LogicGroups.LogicGroup.SCARYOBJECTS);
         return nextLogicGroups;
     }
 }

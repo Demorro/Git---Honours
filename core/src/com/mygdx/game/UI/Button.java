@@ -5,6 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.Utility.Utility;
 
 /**
@@ -18,9 +20,31 @@ public abstract class Button extends Sprite {
     protected boolean enabled = true;
     protected  boolean visible = true;
 
+    protected String text = new String();
+
+    private boolean shouldScaleWhenDepressed = false;
+    private  boolean shouldChangeSpriteWhenDepressed = false;
+
+
+    private TextureRegion nonDepressedRegion;
+    private TextureRegion depressedRegion;
+
     public Button(Texture blockSpriteSheet, int buttonX, int buttonY, int buttonWidth, int buttonHeight)
     {
         super(blockSpriteSheet, buttonX, buttonY, buttonWidth, buttonHeight);
+        nonDepressedRegion = new TextureRegion(blockSpriteSheet, buttonX, - buttonY, buttonWidth, buttonHeight);
+        depressedRegion = new TextureRegion(blockSpriteSheet,buttonX, buttonY, buttonWidth, buttonHeight);
+
+        shouldScaleWhenDepressed = true;
+        shouldChangeSpriteWhenDepressed = false;
+    }
+    public Button(Texture blockSpriteSheet, int buttonX, int buttonY, int buttonWidth, int buttonHeight, int depressedButtonX, int depressedButtonY, int depressedButtonWidth, int depressedButtonHeight, boolean scaleWhenDepressed)
+    {
+        super(blockSpriteSheet, buttonX, buttonY, buttonWidth, buttonHeight);
+        nonDepressedRegion = new TextureRegion(blockSpriteSheet,buttonX, buttonY, buttonWidth, buttonHeight);
+        depressedRegion = new TextureRegion(blockSpriteSheet,depressedButtonX, depressedButtonY, depressedButtonWidth, depressedButtonHeight);
+        shouldScaleWhenDepressed = scaleWhenDepressed;
+        shouldChangeSpriteWhenDepressed = true;
 
     }
 
@@ -33,7 +57,9 @@ public abstract class Button extends Sprite {
             {
                 if(this.getBoundingRectangle().contains(Utility.GetScreenSpaceInput())) {
                     isBeingHeld = true;
-                    setScale(pressedScalar);
+                    if (shouldScaleWhenDepressed) {
+                        setScale(pressedScalar);
+                    }
                 }
             }
         }
@@ -43,7 +69,9 @@ public abstract class Button extends Sprite {
             {
                 if(this.getBoundingRectangle().contains(Gdx.input.getX(), Gdx.input.getY())) {
                     isBeingHeld = true;
-                    setScale(pressedScalar);
+                    if (shouldScaleWhenDepressed) {
+                        setScale(pressedScalar);
+                    }
                 }
             }
         }
@@ -78,7 +106,20 @@ public abstract class Button extends Sprite {
     public void Render(SpriteBatch batch)
     {
         if(visible) {
-            this.draw(batch);
+            if(shouldChangeSpriteWhenDepressed)
+            {
+               if(isBeingHeld)
+               {
+                   batch.draw(depressedRegion, getX(), getY(), depressedRegion.getRegionWidth(), depressedRegion.getRegionHeight());
+               }
+                else
+               {
+                   batch.draw(nonDepressedRegion, getX(), getY(), nonDepressedRegion.getRegionWidth(), nonDepressedRegion.getRegionHeight());
+               }
+            }
+            else {
+                this.draw(batch);
+            }
         }
     }
 
@@ -95,4 +136,11 @@ public abstract class Button extends Sprite {
 
     public void SetVisible(boolean visible){ this.visible = visible;}
     public  Boolean GetVisible() {return visible;}
+
+    public void SetText(String text) {
+
+    }
+    public String GetText() {
+        return text;
+    }
 }

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class EvadeBlock extends LogicBlock
 {
     public EvadeBlock(Texture blockSheet) {
-        super(blockSheet, "Evade", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.EVADE);
+        super(blockSheet, "   Evade   ", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.EVADE);
     }
 
     @Override
@@ -20,6 +20,7 @@ public class EvadeBlock extends LogicBlock
     {
         ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
         nextLogicGroups.add(LogicGroups.LogicGroup.ENEMIES);
+        nextLogicGroups.add(LogicGroups.LogicGroup.SCARYOBJECTS);
         return nextLogicGroups;
     }
 }

@@ -181,9 +181,18 @@ public class BlockChain {
                 .start(chainTweenManager);
 
         //Tween the next button back to the previous block
-        Tween.to((nextButton), SpriteAccessor.POSITION_X, timeToTweenFromListToChain)
-                .target(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenNextButton)
-                .start(chainTweenManager);
+        //The if/else thing is because we dont want to do the spacing seperation if we are tweening the next button back to the very start, without a block to space from
+        if(blocks.size() > 1) {
+            Tween.to((nextButton), SpriteAccessor.POSITION_X, timeToTweenFromListToChain)
+                    .target(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenNextButton)
+                    .start(chainTweenManager);
+        }
+        else{
+            //Tween to very start
+            Tween.to((nextButton), SpriteAccessor.POSITION_X, timeToTweenFromListToChain)
+                    .target(blockChainBounds.getX() + blockChainBounds.getWidth())
+                    .start(chainTweenManager);
+        }
 
         //Disable buttons, to re-enable after tween
         cancelButton.SetEnabled(false);
@@ -400,6 +409,11 @@ public class BlockChain {
             selectionList.CloseList();
             ListClosed();
         }
+    }
+
+    public ArrayList<LogicBlock> GetBlockList()
+    {
+        return blocks;
     }
 
     public boolean GetEnabled(){return enabled;}

@@ -4,16 +4,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
-import com.mygdx.game.LogicBlocks.SpecificBlocks.Command.AttackBlock;
-import com.mygdx.game.LogicBlocks.SpecificBlocks.Command.EvadeBlock;
-import com.mygdx.game.LogicBlocks.SpecificBlocks.Command.PursueBlock;
-import com.mygdx.game.LogicBlocks.SpecificBlocks.Command.WanderBlock;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.Command.*;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.CapitalShipBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.FighterShipBlock;
-import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.IncomingProjectiles;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.FrigateShipBlock;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Ammo;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Fuel;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Repairs;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.ScaryObjects.Asteroids;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.ScaryObjects.IncomingProjectiles;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Speeds.QuicklyBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Speeds.SlowlyBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Weapons.AutoCannonBlock;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.Weapons.LaserBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Weapons.MissileBlock;
 
 import java.util.ArrayList;
@@ -31,13 +34,21 @@ public class LogicGroups {
         EVADE,
         PURSUE,
         WANDER,
+        SEARCHFOR,
         CAPITALSHIP,
+        FRIGATESHIP,
         FIGHTERSHIP,
-        INCOMINGPROJECTILES,
         QUICKLY,
         SLOWLY,
         AUTOCANNON,
-        MISSILE
+        MISSILE,
+        LASER,
+        REPAIRS,
+        AMMO,
+        FUEl,
+        INCOMINGPROJECTILES,
+        ASTEROIDS
+
     };
 
     //The general block groups, used for defining flow easily.
@@ -46,7 +57,9 @@ public class LogicGroups {
         COMMAND,
         ENEMIES,
         WEAPONS,
-        SPEED
+        SPEED,
+        SCARYOBJECTS,
+        POWERUPS
     };
 
     //Depending on the group the block belongs to, returns the height of the colour row on the sprite sheet for colour coding.
@@ -56,6 +69,8 @@ public class LogicGroups {
         else if(type == LogicGroup.ENEMIES) { return 273; }
         else if(type == LogicGroup.WEAPONS) { return 206; }
         else if(type == LogicGroup.SPEED) { return 5; }
+        else if(type == LogicGroup.SCARYOBJECTS) {return 340;}
+        else if(type == LogicGroup.POWERUPS){return 139;}
         else{ return -1;} //Error code
     }
     //Depending on the length of the text, we want a longer block, which are arranged horizontally. x of vector2 is x coord, y is width
@@ -124,14 +139,23 @@ public class LogicGroups {
         else if(blockType == LogicBlockType.WANDER) {
             return new WanderBlock(blockSpriteSheet);
         }
+        else if(blockType == LogicBlockType.SEARCHFOR){
+            return new SearchForBlock(blockSpriteSheet);
+        }
         else if(blockType == LogicBlockType.CAPITALSHIP) {
             return new CapitalShipBlock(blockSpriteSheet);
+        }
+        else if(blockType == LogicBlockType.FRIGATESHIP){
+            return new FrigateShipBlock(blockSpriteSheet);
         }
         else if(blockType == LogicBlockType.FIGHTERSHIP) {
             return new FighterShipBlock(blockSpriteSheet);
         }
         else if(blockType == LogicBlockType.INCOMINGPROJECTILES) {
             return  new IncomingProjectiles(blockSpriteSheet);
+        }
+        else if(blockType == LogicBlockType.ASTEROIDS){
+            return new Asteroids(blockSpriteSheet);
         }
         else if(blockType == LogicBlockType.QUICKLY) {
             return new QuicklyBlock(blockSpriteSheet);
@@ -144,6 +168,18 @@ public class LogicGroups {
         }
         else if(blockType == LogicBlockType.MISSILE) {
             return new MissileBlock(blockSpriteSheet);
+        }
+        else if(blockType == LogicBlockType.LASER) {
+            return new LaserBlock(blockSpriteSheet);
+        }
+        else if(blockType == LogicBlockType.AMMO) {
+            return new Ammo(blockSpriteSheet);
+        }
+        else if(blockType == LogicBlockType.REPAIRS){
+            return  new Repairs(blockSpriteSheet);
+        }
+        else if(blockType == LogicBlockType.FUEl){
+            return new Fuel(blockSpriteSheet);
         }
         else {
             Gdx.app.debug("Error", "Attempting to construct a block that isn't in the ConstructSpecificBlock function, you need to update it");
@@ -161,19 +197,21 @@ public class LogicGroups {
             blocks.add(ConstructSpecificBlock(LogicBlockType.EVADE, blockSpriteSheet));
             blocks.add(ConstructSpecificBlock(LogicBlockType.WANDER, blockSpriteSheet));
             blocks.add(ConstructSpecificBlock(LogicBlockType.PURSUE, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.SEARCHFOR, blockSpriteSheet));
             return blocks;
         }
         else if(group == LogicGroup.ENEMIES)
         {
             blocks.add(ConstructSpecificBlock(LogicBlockType.CAPITALSHIP, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.FRIGATESHIP, blockSpriteSheet));
             blocks.add(ConstructSpecificBlock(LogicBlockType.FIGHTERSHIP, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.INCOMINGPROJECTILES, blockSpriteSheet));
             return blocks;
         }
         else if(group == LogicGroup.WEAPONS)
         {
             blocks.add(ConstructSpecificBlock(LogicBlockType.AUTOCANNON, blockSpriteSheet));
             blocks.add(ConstructSpecificBlock(LogicBlockType.MISSILE, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.LASER, blockSpriteSheet));
             return blocks;
         }
         else if(group == LogicGroup.SPEED)
@@ -182,10 +220,24 @@ public class LogicGroups {
             blocks.add(ConstructSpecificBlock(LogicBlockType.SLOWLY, blockSpriteSheet));
             return blocks;
         }
+        else if(group == LogicGroup.SCARYOBJECTS)
+        {
+            blocks.add(ConstructSpecificBlock(LogicBlockType.INCOMINGPROJECTILES, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.ASTEROIDS, blockSpriteSheet));
+            return blocks;
+        }
+        else if(group == LogicGroup.POWERUPS)
+        {
+            blocks.add(ConstructSpecificBlock(LogicBlockType.REPAIRS, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.AMMO, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.FUEl, blockSpriteSheet));
+            return blocks;
+        }
         else
         {
             Gdx.app.debug("Error", "Attempting to construct a group that isn't in the ConstructLogicGroup function, you need to update it");
             return null;
         }
     }
+
 }
