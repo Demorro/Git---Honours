@@ -38,7 +38,11 @@ public class EditorState extends State implements InputProcessor
 
     private BitmapFont fpsFont;
 
-    private Button testButt;
+    private Button saveButton;
+    private Button loadButton;
+    private int buttonOffsetFromRight = 120;
+
+    private boolean isSaving = false;
 
 
 
@@ -63,14 +67,36 @@ public class EditorState extends State implements InputProcessor
         greyButtonsSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         scriptContainer = new FullBlockScript(blockSpriteSheet);
 
-        testButt = new Button(greyButtonsSheet,0,0,128,46,0,49,128,44,false){
+        SetupButtons();
+
+        return true;
+    }
+    private void SetupButtons()
+    {
+        saveButton = new Button(greyButtonsSheet,0,0,98,36,0,39,98,34,false){
+            @Override
+            protected void Trigger() {
+                if(isSaving == false) {
+                    int saveResult = scriptContainer.SaveScript();
+                    if(saveResult >= -1){ isSaving = false; }
+                    else { isSaving = false; Gdx.app.log("Error","Something went wrong in the Saving, ScriptSave.java, SaveScript function. Oops ;p");}
+                }
+            }
+        };
+        loadButton = new Button(greyButtonsSheet,0,0,98,36,0,39,98,34,false){
             @Override
             protected void Trigger() {
 
             }
         };
-        testButt.setPosition(300,300);
-        return true;
+
+        saveButton.setPosition(Gdx.graphics.getWidth() - buttonOffsetFromRight, 64);
+        saveButton.SetText("Save");
+        saveButton.SetTextOffset(0,2);
+
+        loadButton.setPosition(Gdx.graphics.getWidth() - buttonOffsetFromRight,20);
+        loadButton.SetText("Load");
+        loadButton.SetTextOffset(0,2);
     }
     //Abstract method that runs on state destruction, for cleaning up memory
     public void Dispose()
@@ -81,7 +107,8 @@ public class EditorState extends State implements InputProcessor
     public void Update(HashMap<Integer,TouchInfo> touches)
     {
         scriptContainer.Update();
-        testButt.Update();
+        saveButton.Update();
+        loadButton.Update();
 
 
     }
@@ -91,7 +118,9 @@ public class EditorState extends State implements InputProcessor
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         scriptContainer.Render(spriteBatch);
-        testButt.Render(spriteBatch);
+        saveButton.Render(spriteBatch);
+        loadButton.Render(spriteBatch);
+
         fpsFont.draw(spriteBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 50, 50);
     }
 

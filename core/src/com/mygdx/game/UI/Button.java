@@ -2,7 +2,9 @@ package com.mygdx.game.UI;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -20,11 +22,12 @@ public abstract class Button extends Sprite {
     protected boolean enabled = true;
     protected  boolean visible = true;
 
-    protected String text = new String();
+    private BitmapFont buttonFont;
+    protected String buttonText = new String();
+    private Vector2 textOffset = new Vector2(0,0);
 
     private boolean shouldScaleWhenDepressed = false;
     private  boolean shouldChangeSpriteWhenDepressed = false;
-
 
     private TextureRegion nonDepressedRegion;
     private TextureRegion depressedRegion;
@@ -37,6 +40,11 @@ public abstract class Button extends Sprite {
 
         shouldScaleWhenDepressed = true;
         shouldChangeSpriteWhenDepressed = false;
+
+        buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        buttonFont.setColor(Color.BLACK);
+        buttonFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
     }
     public Button(Texture blockSpriteSheet, int buttonX, int buttonY, int buttonWidth, int buttonHeight, int depressedButtonX, int depressedButtonY, int depressedButtonWidth, int depressedButtonHeight, boolean scaleWhenDepressed)
     {
@@ -46,6 +54,9 @@ public abstract class Button extends Sprite {
         shouldScaleWhenDepressed = scaleWhenDepressed;
         shouldChangeSpriteWhenDepressed = true;
 
+        buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        buttonFont.setColor(Color.BLACK);
+        buttonFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }
 
     public void Update()
@@ -111,14 +122,17 @@ public abstract class Button extends Sprite {
                if(isBeingHeld)
                {
                    batch.draw(depressedRegion, getX(), getY(), depressedRegion.getRegionWidth(), depressedRegion.getRegionHeight());
+                   buttonFont.draw(batch, buttonText, getX() + depressedRegion.getRegionWidth()/2 - buttonFont.getBounds(buttonText).width/2 + textOffset.x, getY() + depressedRegion.getRegionHeight()/2 + buttonFont.getBounds(buttonText).height/2 + textOffset.y);
                }
                 else
                {
                    batch.draw(nonDepressedRegion, getX(), getY(), nonDepressedRegion.getRegionWidth(), nonDepressedRegion.getRegionHeight());
+                   buttonFont.draw(batch, buttonText, getX() + nonDepressedRegion.getRegionWidth()/2 - buttonFont.getBounds(buttonText).width/2 + textOffset.x, getY() + nonDepressedRegion.getRegionHeight()/2 + buttonFont.getBounds(buttonText).height/2 + textOffset.y);
                }
             }
             else {
                 this.draw(batch);
+                buttonFont.draw(batch, buttonText, getX() + getWidth()/2 - buttonFont.getBounds(buttonText).width/2 + textOffset.x, getY() + getHeight()/2 + buttonFont.getBounds(buttonText).height/2 + textOffset.y);
             }
         }
     }
@@ -138,9 +152,19 @@ public abstract class Button extends Sprite {
     public  Boolean GetVisible() {return visible;}
 
     public void SetText(String text) {
+        buttonText = text;
 
     }
     public String GetText() {
-        return text;
+        return buttonText;
+    }
+
+    public void SetFontScale(float scale){
+        buttonFont.setScale(scale);
+    }
+    public void SetTextOffset(int xOff, int yOff)
+    {
+        textOffset.x = xOff;
+        textOffset.y = yOff;
     }
 }

@@ -36,7 +36,6 @@ public class FullBlockScript
 
     private TweenManager fullScriptTweenManager = new TweenManager();
 
-    private boolean isSaving = false;
 
     public FullBlockScript(Texture blockSheet)
     {
@@ -60,12 +59,7 @@ public class FullBlockScript
 
         fullScriptTweenManager.update(Gdx.graphics.getDeltaTime());
 
-        if(Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.S))
-        {
-            if(isSaving == false) {
-                SaveScript();
-            }
-        }
+
     }
     public void Render(SpriteBatch batch)
     {
@@ -205,7 +199,8 @@ public class FullBlockScript
         return blockChains;
     }
 
-    public void SaveScript()
+    //Returns 1 is succesfully saved, 0 if cancelled out, and -1 if ERROR HAPPENED
+    public int SaveScript()
     {
         //Create a file chooser
         final JFileChooser fc = new JFileChooser();
@@ -215,14 +210,13 @@ public class FullBlockScript
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
             ScriptSaver.SaveScript(this, file.getAbsolutePath());
-            isSaving = true;
+            return 1;
         }
         if((returnVal == JFileChooser.CANCEL_OPTION) || (returnVal == JFileChooser.ERROR_OPTION))
         {
-            isSaving = true;
+            return 0;
         }
-
-
+        return -1;
     }
 
 
