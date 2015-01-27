@@ -2,13 +2,16 @@ package com.mygdx.game.Utility;
 
 import com.mygdx.game.LogicBlocks.BlockChain;
 import com.mygdx.game.LogicBlocks.FullBlockScript;
+import com.mygdx.game.LogicBlocks.LogicGroups;
+import com.mygdx.game.States.EditorState;
 import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
 
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.*;
+import javax.xml.stream.events.StartElement;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -17,7 +20,7 @@ import java.util.ArrayList;
  */
 public class ScriptSaver {
 
-    public static String scriptFolderPath = "Scripts/";
+    public static String scriptFolderPath = "/Scripts/";
 
     private static String internalXMLName = "PlayerLogicScript";
 
@@ -50,6 +53,44 @@ public class ScriptSaver {
         catch(XMLStreamException exc) {
         }
         finally {
+        }
+    }
+
+    public static void LoadScript(FullBlockScript script, String scriptXMLDocPath)
+    {
+        script.GetBlockChains().clear();
+        script.DeleteActiveChain();
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(scriptXMLDocPath);
+            XMLInputFactory xmlInFact = XMLInputFactory.newInstance();
+            XMLStreamReader reader = xmlInFact.createXMLStreamReader(fis);
+            while(reader.hasNext()) {
+                reader.next(); // do something here
+                if (reader.isStartElement()) {
+                    if (reader.getName().getLocalPart().equals("Line")) {
+                        script.AddNewChain(FullBlockScript.blockChainStartPos.x, FullBlockScript.blockChainStartPos.y - (script.GetBlockChains().size() * FullBlockScript.chainYSeperation));
+                    }
+                }
+                if(reader.isStartElement()) {
+                    if(reader.getName().getLocalPart().equals("Block")){
+                        reader.next();
+                        if(reader.isCharacters()) {
+                            script.GetBlockChains().get(script.GetBlockChains().size() - 1).DirectlyAddBlock(LogicGroups.LogicBlockType.valueOf(reader.getText()));
+                            System.out.println(reader.getText());
+                        }
+                    }
+                }
+            }
+        }
+        catch(IOException exc) {
+        }
+        catch(XMLStreamException exc) {
+        }
+
+        if(script.GetBlockChains().size() <= 0)
+        {
+            script.AddNewChain(FullBlockScript.blockChainStartPos.x, FullBlockScript.blockChainStartPos.y);
         }
     }
 }

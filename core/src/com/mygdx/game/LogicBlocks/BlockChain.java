@@ -62,6 +62,8 @@ public class BlockChain {
         blockTextureSheet = blockSpriteSheet;
 
         ResetChain(xPos, yPos);
+
+        selectionList = new BlockSelectionList(startingGroups, blockTextureSheet, new Vector2(position.x + spacingBetweenBlocks, position.y), false, this);
     }
 
     //Resets errythang
@@ -477,5 +479,27 @@ public class BlockChain {
         }
         nextButton.setAlpha(opacity);
         cancelButton.setAlpha(opacity);
+    }
+
+    //Used to directly add/remove blocks, used mainly in loading
+    public void DirectlyAddBlock(LogicGroups.LogicBlockType type)
+    {
+        LogicBlock newBlock = LogicGroups.ConstructSpecificBlock(type, blockTextureSheet);
+        newBlock.SetPosition(blockChainBounds.getX() + blockChainBounds.getWidth(), position.y - (LogicBlock.blockHeight - nextButton.getHeight()) /2 );
+        blockChainBounds.width = blockChainBounds.getWidth() + newBlock.GetFullBlockWidth();
+        blocks.add(newBlock);
+
+        if(blocks.size() > 1)
+        {
+            previousBlock = blocks.get(blocks.size() - 2);
+        }
+        else
+        {
+            previousBlock = null;
+        }
+
+        nextButton.setX(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenNextButton);
+
+        FadeInCancelButtonAtLastBlock();
     }
 }

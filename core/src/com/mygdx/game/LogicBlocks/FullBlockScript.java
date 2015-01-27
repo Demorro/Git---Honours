@@ -26,8 +26,8 @@ public class FullBlockScript
     private ArrayList<BlockChain> blockChains = new ArrayList<BlockChain>();
     private Texture blockTextureSheet = null; //Reference to the block texture sheet
 
-    private Vector2 blockChainStartPos = new Vector2(25, Gdx.graphics.getHeight() - 145);
-    private int chainYSeperation = 68; //The amount of seperation active
+    public static Vector2 blockChainStartPos = new Vector2(25, Gdx.graphics.getHeight() - 145);
+    public static int chainYSeperation = 68; //The amount of seperation active
 
     private static final float adjacentChainOpacity = 0.5f;
     private static final float adjacentChainOpacityTweenTime = 0.2f;
@@ -84,7 +84,7 @@ public class FullBlockScript
         }
     }
 
-    private void AddNewChain(float x, float y)
+    public void AddNewChain(float x, float y)
     {
         BlockChain chainToAdd = new BlockChain(x, y, blockTextureSheet, this);
         blockChains.add(chainToAdd);
@@ -194,6 +194,12 @@ public class FullBlockScript
         }
     }
 
+
+    public void DeleteActiveChain()
+    {
+        activeChain = null;
+    }
+
     public ArrayList<BlockChain> GetBlockChains()
     {
         return blockChains;
@@ -204,6 +210,8 @@ public class FullBlockScript
     {
         //Create a file chooser
         final JFileChooser fc = new JFileChooser();
+        String workingDir = System.getProperty("user.dir");
+        fc.setCurrentDirectory(new File(workingDir + ScriptSaver.scriptFolderPath));
         //In response to a button click:
         int returnVal = fc.showSaveDialog(null);
 
@@ -216,8 +224,34 @@ public class FullBlockScript
         {
             return 0;
         }
+        Gdx.app.log("Error","Error in SaveScript(), FullBlockScript.java");
         return -1;
     }
+    // //Returns 1 is succesfully saved, 0 if cancelled out, and -1 if ERROR HAPPENED
+    public int LoadScript()
+    {
+        //Create a file chooser
+        final JFileChooser fc = new JFileChooser();
+        String workingDir = System.getProperty("user.dir");
+        fc.setCurrentDirectory(new File(workingDir + ScriptSaver.scriptFolderPath));
+        //In response to a button click:
+        int returnVal = fc.showOpenDialog(null);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            ScriptSaver.LoadScript(this, file.getAbsolutePath());
+            return 1;
+        }
+        if((returnVal == JFileChooser.CANCEL_OPTION) || (returnVal == JFileChooser.ERROR_OPTION))
+        {
+            return 0;
+        }
+
+        Gdx.app.log("Error", "Script not succesfully loaded, the source .xml is likely wrong, FullBlockScript.java");
+        return -1;
+    }
+
+
 
 
 

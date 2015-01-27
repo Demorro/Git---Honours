@@ -42,7 +42,7 @@ public class EditorState extends State implements InputProcessor
     private Button loadButton;
     private int buttonOffsetFromRight = 120;
 
-    private boolean isSaving = false;
+    private boolean isSaving = false; //If the save (or load!) dialog is open
 
 
 
@@ -86,7 +86,12 @@ public class EditorState extends State implements InputProcessor
         loadButton = new Button(greyButtonsSheet,0,0,98,36,0,39,98,34,false){
             @Override
             protected void Trigger() {
-
+                if(isSaving == false) {
+                    int loadResult = scriptContainer.LoadScript();
+                    if (loadResult >= -1) {isSaving = false; }
+                    else {isSaving = false; Gdx.app.log("Error", "Something went wrong in the Loading, LoadScript.java, LoadScript function. Oops ;p");
+                    }
+                }
             }
         };
 

@@ -15,7 +15,10 @@
     <Block>AUTOCANNON</Block>
     <Block>SLOWLY</Block>
   </Line>
-  <Line></Line>
+  <Line>
+    <Block>SEARCHFOR</Block>
+    <Block>REPAIRS</Block>
+  </Line>
   <Line>
     <Block>WANDER</Block>
     <Block>SLOWLY</Block>
@@ -24,6 +27,10 @@
     <Block>PURSUE</Block>
     <Block>ASTEROIDS</Block>
     <Block>SLOWLY</Block>
+  </Line>
+  <Line>
+    <Block>SEARCHFOR</Block>
+    <Block>FUEl</Block>
   </Line>
   <Line></Line>
 </PlayerLogicScript>
