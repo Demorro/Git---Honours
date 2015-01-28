@@ -32,7 +32,7 @@ public abstract class Button extends Sprite {
     private TextureRegion nonDepressedRegion;
     private TextureRegion depressedRegion;
 
-    public Button(Texture blockSpriteSheet, int buttonX, int buttonY, int buttonWidth, int buttonHeight)
+    public Button(Texture blockSpriteSheet, int buttonX, int buttonY, int buttonWidth, int buttonHeight, boolean font2xSize)
     {
         super(blockSpriteSheet, buttonX, buttonY, buttonWidth, buttonHeight);
         nonDepressedRegion = new TextureRegion(blockSpriteSheet, buttonX, - buttonY, buttonWidth, buttonHeight);
@@ -41,12 +41,19 @@ public abstract class Button extends Sprite {
         shouldScaleWhenDepressed = true;
         shouldChangeSpriteWhenDepressed = false;
 
-        buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        if(font2xSize)
+        {
+            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont2x.fnt"));
+        }
+        else
+        {
+            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        }
         buttonFont.setColor(Color.BLACK);
         buttonFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
     }
-    public Button(Texture blockSpriteSheet, int buttonX, int buttonY, int buttonWidth, int buttonHeight, int depressedButtonX, int depressedButtonY, int depressedButtonWidth, int depressedButtonHeight, boolean scaleWhenDepressed)
+    public Button(Texture blockSpriteSheet, int buttonX, int buttonY, int buttonWidth, int buttonHeight, int depressedButtonX, int depressedButtonY, int depressedButtonWidth, int depressedButtonHeight, boolean scaleWhenDepressed,  boolean font2xSize)
     {
         super(blockSpriteSheet, buttonX, buttonY, buttonWidth, buttonHeight);
         nonDepressedRegion = new TextureRegion(blockSpriteSheet,buttonX, buttonY, buttonWidth, buttonHeight);
@@ -54,7 +61,14 @@ public abstract class Button extends Sprite {
         shouldScaleWhenDepressed = scaleWhenDepressed;
         shouldChangeSpriteWhenDepressed = true;
 
-        buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        if(font2xSize)
+        {
+            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont2x.fnt"));
+        }
+        else
+        {
+            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        }
         buttonFont.setColor(Color.BLACK);
         buttonFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }

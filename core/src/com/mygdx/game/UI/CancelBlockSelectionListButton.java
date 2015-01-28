@@ -16,7 +16,7 @@ public class CancelBlockSelectionListButton extends Button
 
     public CancelBlockSelectionListButton(Texture blockSpriteSheet, BlockSelectionList blockList)
     {
-        super(blockSpriteSheet, (int)cancelButtonSheetPos.x, (int)cancelButtonSheetPos.y, (int)cancelButtonSheetDimensions.x, (int)cancelButtonSheetDimensions.y);
+        super(blockSpriteSheet, (int)cancelButtonSheetPos.x, (int)cancelButtonSheetPos.y, (int)cancelButtonSheetDimensions.x, (int)cancelButtonSheetDimensions.y, false);
         this.blockList = blockList;
     }
 

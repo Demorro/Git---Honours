@@ -16,7 +16,7 @@ public class CancelBlockButton extends Button
 
     public CancelBlockButton(Texture blockSpriteSheet, BlockChain blockChain)
     {
-        super(blockSpriteSheet, (int)cancelButtonSheetPos.x, (int)cancelButtonSheetPos.y, (int)cancelButtonSheetDimensions.x, (int)cancelButtonSheetDimensions.y);
+        super(blockSpriteSheet, (int)cancelButtonSheetPos.x, (int)cancelButtonSheetPos.y, (int)cancelButtonSheetDimensions.x, (int)cancelButtonSheetDimensions.y, false);
         this.blockChain = blockChain;
     }
 

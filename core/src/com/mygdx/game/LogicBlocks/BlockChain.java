@@ -497,6 +497,12 @@ public class BlockChain {
         {
             previousBlock = null;
         }
+        if(newBlock.GetNextLogicGroup(previousBlock) == null)
+        {
+            isOnEndOfChain = true;
+            nextButton.SetEnabled(false);
+            nextButton.SetVisible(false);
+        }
 
         nextButton.setX(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenNextButton);
 

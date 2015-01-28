@@ -13,12 +13,9 @@
     <Block>ATTACK</Block>
     <Block>CAPITALSHIP</Block>
     <Block>AUTOCANNON</Block>
-    <Block>SLOWLY</Block>
+    <Block>QUICKLY</Block>
   </Line>
-  <Line>
-    <Block>SEARCHFOR</Block>
-    <Block>REPAIRS</Block>
-  </Line>
+  <Line></Line>
   <Line>
     <Block>WANDER</Block>
     <Block>SLOWLY</Block>
@@ -26,7 +23,6 @@
   <Line>
     <Block>PURSUE</Block>
     <Block>ASTEROIDS</Block>
-    <Block>SLOWLY</Block>
   </Line>
   <Line>
     <Block>SEARCHFOR</Block>

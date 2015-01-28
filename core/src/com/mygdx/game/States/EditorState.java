@@ -33,6 +33,7 @@ public class EditorState extends State implements InputProcessor
 
     private Texture blockSpriteSheet = new Texture(Gdx.files.internal("Images/BlockSpriteSheet.png"));
     private Texture greyButtonsSheet = new Texture(Gdx.files.internal("Images/GreyButton.png"));
+    private Texture greybuttons2xSheet = new Texture(Gdx.files.internal("Images/GreyButton2x.png"));
 
     private FullBlockScript scriptContainer;
 
@@ -40,6 +41,7 @@ public class EditorState extends State implements InputProcessor
 
     private Button saveButton;
     private Button loadButton;
+    private Button playButton;
     private int buttonOffsetFromRight = 120;
 
     private boolean isSaving = false; //If the save (or load!) dialog is open
@@ -65,6 +67,7 @@ public class EditorState extends State implements InputProcessor
 
         blockSpriteSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         greyButtonsSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        greybuttons2xSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         scriptContainer = new FullBlockScript(blockSpriteSheet);
 
         SetupButtons();
@@ -73,7 +76,7 @@ public class EditorState extends State implements InputProcessor
     }
     private void SetupButtons()
     {
-        saveButton = new Button(greyButtonsSheet,0,0,98,36,0,39,98,34,false){
+        saveButton = new Button(greyButtonsSheet,0,0,98,36,0,39,98,34,false, false){
             @Override
             protected void Trigger() {
                 if(isSaving == false) {
@@ -83,7 +86,7 @@ public class EditorState extends State implements InputProcessor
                 }
             }
         };
-        loadButton = new Button(greyButtonsSheet,0,0,98,36,0,39,98,34,false){
+        loadButton = new Button(greyButtonsSheet,0,0,98,36,0,39,98,34,false, false){
             @Override
             protected void Trigger() {
                 if(isSaving == false) {
@@ -94,6 +97,14 @@ public class EditorState extends State implements InputProcessor
                 }
             }
         };
+        playButton = new Button(greybuttons2xSheet,0,0,196,76,0,76,196,68,false, true){
+            @Override
+            protected void Trigger() {
+                SwitchState(StateID.PLAY_STATE);
+            }
+        };
+
+
 
         saveButton.setPosition(Gdx.graphics.getWidth() - buttonOffsetFromRight, 64);
         saveButton.SetText("Save");
@@ -102,6 +113,10 @@ public class EditorState extends State implements InputProcessor
         loadButton.setPosition(Gdx.graphics.getWidth() - buttonOffsetFromRight,20);
         loadButton.SetText("Load");
         loadButton.SetTextOffset(0,2);
+
+        playButton.setPosition(Gdx.graphics.getWidth() - buttonOffsetFromRight - loadButton.getWidth() - buttonOffsetFromRight, 22);
+        playButton.SetText("Play");
+        playButton.SetTextOffset(0, 4);
     }
     //Abstract method that runs on state destruction, for cleaning up memory
     public void Dispose()
@@ -114,7 +129,7 @@ public class EditorState extends State implements InputProcessor
         scriptContainer.Update();
         saveButton.Update();
         loadButton.Update();
-
+        playButton.Update();
 
     }
     // Abstract method intended to render all objects of the state.
@@ -125,6 +140,7 @@ public class EditorState extends State implements InputProcessor
         scriptContainer.Render(spriteBatch);
         saveButton.Render(spriteBatch);
         loadButton.Render(spriteBatch);
+        playButton.Render(spriteBatch);
 
         fpsFont.draw(spriteBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 50, 50);
     }

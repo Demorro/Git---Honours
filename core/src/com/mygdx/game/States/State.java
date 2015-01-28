@@ -21,7 +21,8 @@ public abstract class State
     {
         RESTART_STATE, //Neccesary to make the state machine do restarts
         MENU_STATE,
-        EDITOR_STATE
+        EDITOR_STATE,
+        PLAY_STATE
     }
 
     // The unique ID of the state.

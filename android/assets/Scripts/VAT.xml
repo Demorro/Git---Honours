@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<PlayerLogicScript>
+  <Line>
+    <Block>SEARCHFOR</Block>
+    <Block>REPAIRS</Block>
+  </Line>
+  <Line>
+    <Block>ATTACK</Block>
+    <Block>CAPITALSHIP</Block>
+    <Block>MISSILE</Block>
+    <Block>SLOWLY</Block>
+  </Line>
+  <Line>
+    <Block>EVADE</Block>
+    <Block>INCOMINGPROJECTILES</Block>
+    <Block>SLOWLY</Block>
+  </Line>
+  <Line>
+    <Block>WANDER</Block>
+    <Block>SLOWLY</Block>
+  </Line>
+  <Line></Line>
+</PlayerLogicScript>

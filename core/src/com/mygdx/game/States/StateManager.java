@@ -67,6 +67,10 @@ public class StateManager
                 System.out.println("EDITOR");
                 curState = new EditorState();
                 break;
+            case PLAY_STATE:
+                System.out.println("PLAY");
+                curState = new PlayState();
+                break;
         }
 
         if(curState.Load() == false)

@@ -18,7 +18,7 @@ public class NextBlockButton extends Button{
 
     public NextBlockButton(Texture blockSpriteSheet, BlockChain blockChain)
     {
-        super(blockSpriteSheet, (int)nextBlockButtonSheetPos.x, (int)nextBlockButtonSheetPos.y, (int)nextBlockButtonSheetDimensions.x, (int)nextBlockButtonSheetDimensions.y);
+        super(blockSpriteSheet, (int)nextBlockButtonSheetPos.x, (int)nextBlockButtonSheetPos.y, (int)nextBlockButtonSheetDimensions.x, (int)nextBlockButtonSheetDimensions.y, false);
         this.blockChain = blockChain;
     }
 

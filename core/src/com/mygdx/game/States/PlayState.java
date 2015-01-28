@@ -29,7 +29,7 @@ public class PlayState extends State implements InputProcessor
 
     public PlayState()
     {
-        super(StateID.EDITOR_STATE);
+        super(StateID.PLAY_STATE);
     }
     //Abstract method that runs on state initialisation, for loading resources
     public boolean Load()
