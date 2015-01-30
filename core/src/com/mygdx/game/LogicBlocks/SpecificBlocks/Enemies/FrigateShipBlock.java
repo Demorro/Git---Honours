@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class FrigateShipBlock extends LogicBlock
 {
     public FrigateShipBlock(Texture blockSheet) {
-        super(blockSheet, "Frigate Ships", LogicGroups.LogicGroup.ENEMIES, LogicGroups.LogicBlockType.CAPITALSHIP);
+        super(blockSheet, "Frigate Ships", LogicGroups.LogicGroup.ENEMIES, LogicGroups.LogicBlockType.FRIGATESHIP);
     }
 
     @Override

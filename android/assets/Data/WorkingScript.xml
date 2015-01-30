@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<PlayerLogicScript>
+  <Line>
+    <Block>ATTACK</Block>
+    <Block>ASTEROIDS</Block>
+  </Line>
+</PlayerLogicScript>

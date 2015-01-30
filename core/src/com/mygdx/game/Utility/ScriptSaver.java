@@ -1,10 +1,12 @@
 package com.mygdx.game.Utility;
 
+import com.badlogic.gdx.Gdx;
 import com.mygdx.game.LogicBlocks.BlockChain;
 import com.mygdx.game.LogicBlocks.FullBlockScript;
 import com.mygdx.game.LogicBlocks.LogicGroups;
 import com.mygdx.game.States.EditorState;
 import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
+import jdk.nashorn.internal.runtime.Debug;
 
 import javax.xml.stream.*;
 import javax.xml.stream.events.StartElement;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 public class ScriptSaver {
 
     public static String scriptFolderPath = "/Scripts/";
+    public static String workingScriptPath = "Data/WorkingScript.xml"; //The path that the editor state will save to so the playstate can read from it
 
     private static String internalXMLName = "PlayerLogicScript";
 
@@ -56,6 +59,8 @@ public class ScriptSaver {
         }
     }
 
+
+
     public static void LoadScript(FullBlockScript script, String scriptXMLDocPath)
     {
         script.GetBlockChains().clear();
@@ -84,13 +89,58 @@ public class ScriptSaver {
             }
         }
         catch(IOException exc) {
+            Gdx.app.log("Error", "IOException, ScriptSaver LoadScript()");
         }
         catch(XMLStreamException exc) {
+            Gdx.app.log("Error", "XMLStreamException, ScriptSaver LoadScript()");
         }
 
         if(script.GetBlockChains().size() <= 0)
         {
             script.AddNewChain(FullBlockScript.blockChainStartPos.x, FullBlockScript.blockChainStartPos.y);
         }
+    }
+
+    public static ArrayList<ArrayList<LogicGroups.LogicBlockType>> LoadScriptIntoArray(String scriptXMLDocPath)
+    {
+
+        ArrayList<ArrayList<LogicGroups.LogicBlockType>> scriptStorage = new ArrayList<ArrayList<LogicGroups.LogicBlockType>>();
+
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(scriptXMLDocPath);
+            XMLInputFactory xmlInFact = XMLInputFactory.newInstance();
+            XMLStreamReader reader = xmlInFact.createXMLStreamReader(fis);
+            while(reader.hasNext()) {
+                reader.next(); // do something here
+                if (reader.isStartElement()) {
+                    if (reader.getName().getLocalPart().equals("Line")) {
+                        scriptStorage.add(new ArrayList<LogicGroups.LogicBlockType>());
+                    }
+                }
+                if(reader.isStartElement()) {
+                    if(reader.getName().getLocalPart().equals("Block")){
+                        reader.next();
+                        if(reader.isCharacters()) {
+                            scriptStorage.get(scriptStorage.size() - 1).add(LogicGroups.LogicBlockType.valueOf(reader.getText()));
+                            System.out.println(reader.getText());
+                        }
+                    }
+                }
+            }
+        }
+        catch(IOException exc) {
+            Gdx.app.log("Error", "IOException, ScriptSaver LoadScriptIntoArray()");
+        }
+        catch(XMLStreamException exc) {
+            Gdx.app.log("Error", "XMLStreamException, ScriptSaver LoadScriptIntoArray()");
+        }
+
+        if(scriptStorage.size() <= 0)
+        {
+            scriptStorage.add(new ArrayList<LogicGroups.LogicBlockType>());
+        }
+
+        return scriptStorage;
     }
 }

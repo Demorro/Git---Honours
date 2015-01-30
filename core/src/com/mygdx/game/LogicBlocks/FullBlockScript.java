@@ -37,6 +37,9 @@ public class FullBlockScript
     private TweenManager fullScriptTweenManager = new TweenManager();
 
 
+    public FullBlockScript(){ //Just for storage, no rendering if you use this constructor
+        ResetScript();
+    }
     public FullBlockScript(Texture blockSheet)
     {
         blockTextureSheet = blockSheet;
@@ -226,6 +229,11 @@ public class FullBlockScript
         }
         Gdx.app.log("Error","Error in SaveScript(), FullBlockScript.java");
         return -1;
+    }
+    public void SaveScriptDirectly(String path)
+    {
+        File file = new File(path);
+        ScriptSaver.SaveScript(this, file.getAbsolutePath());
     }
     // //Returns 1 is succesfully saved, 0 if cancelled out, and -1 if ERROR HAPPENED
     public int LoadScript()

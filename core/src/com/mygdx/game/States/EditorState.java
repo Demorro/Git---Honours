@@ -37,6 +37,7 @@ public class EditorState extends State implements InputProcessor
 
     private FullBlockScript scriptContainer;
 
+
     private BitmapFont fpsFont;
 
     private Button saveButton;
@@ -100,6 +101,7 @@ public class EditorState extends State implements InputProcessor
         playButton = new Button(greybuttons2xSheet,0,0,196,76,0,76,196,68,false, true){
             @Override
             protected void Trigger() {
+                scriptContainer.SaveScriptDirectly(ScriptSaver.workingScriptPath);
                 SwitchState(StateID.PLAY_STATE);
             }
         };

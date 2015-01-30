@@ -7,6 +7,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import com.mygdx.game.GameObjects.GameObject;
+import com.mygdx.game.GameObjects.Ships.Ship;
+import com.mygdx.game.Utility.Utility;
 
 import java.util.ArrayList;
 
@@ -26,12 +28,16 @@ public class Gun {
     private float accuracyConeVariance = 0; //The max no of units that bullets can stray from their target
     private Vector2 position = new Vector2(0,0);
 
+
+    private static float SLOW_FIRE_TIME_BETWEEN_SHOTS = 0.8f;
+    private static float MODERATE_FIRE_TIME_BETWEEN_SHOTS = 0.4f;
+    private static float FAST_FIRE_TIME_BETWEEN_SHOTS = 0.15f;
     private float autoFireTimeBetweenShots = 1.0f;
     private boolean isFiring = false;
     private float autoFireTimer = 0.0f;
     private GameObject target = null;
 
-    public Gun(Pool<Bullet> bulletPool, ArrayList<Bullet> activeBullets, Texture gameObjectTextureSheet, float bulletSpeed, float bulletDamage, Rectangle bulletTextureBounds, Vector2 firingPos, float accuracyConeVariance, float autoFireTimeBetweenShots)
+    public Gun(Pool<Bullet> bulletPool, ArrayList<Bullet> activeBullets, Texture gameObjectTextureSheet, float bulletSpeed, float bulletDamage, Rectangle bulletTextureBounds, Vector2 firingPos, float accuracyConeVariance)
     {
         this.bulletPool = bulletPool;
         this.activeBullets = activeBullets;
@@ -41,7 +47,7 @@ public class Gun {
         this.bulletSrcRegion = new TextureRegion(gameObjectTextureSheet, (int)bulletTextureBounds.x, (int)bulletTextureBounds.y, (int)bulletTextureBounds.width, (int)bulletTextureBounds.height);
         this.position = firingPos;
         this.accuracyConeVariance = accuracyConeVariance;
-        this.autoFireTimeBetweenShots = autoFireTimeBetweenShots;
+        this.autoFireTimeBetweenShots = MODERATE_FIRE_TIME_BETWEEN_SHOTS;
     }
 
     public void Update(float elapsed)
@@ -63,8 +69,6 @@ public class Gun {
     }
 
     public void Shoot(Vector2 targetPosition){
-        System.out.println(activeBullets.size());
-
         float accuracyVariance = MathUtils.random(-accuracyConeVariance,accuracyConeVariance);
 
         Vector2 firingVector = new Vector2(targetPosition.x - position.x, targetPosition.y - position.y);
@@ -79,9 +83,22 @@ public class Gun {
     {
         isFiring = _firing;
     }
+    public void SetIsAutoFiring(boolean _firing, Utility.Speed fireRate)
+    {
+        isFiring = _firing;
+
+        SetFireRate(fireRate);
+    }
+
     public boolean GetIsAutoFiring()
     {
         return  isFiring;
+    }
+
+    public void SetFireRate(Utility.Speed fireRate){
+        if(fireRate == Utility.Speed.QUICK){autoFireTimeBetweenShots = FAST_FIRE_TIME_BETWEEN_SHOTS;}
+        else if(fireRate == Utility.Speed.MODERATE){autoFireTimeBetweenShots = MODERATE_FIRE_TIME_BETWEEN_SHOTS;}
+        else if(fireRate == Utility.Speed.SLOW){autoFireTimeBetweenShots = SLOW_FIRE_TIME_BETWEEN_SHOTS;}
     }
 
     public void SetPosition(float x, float y)
