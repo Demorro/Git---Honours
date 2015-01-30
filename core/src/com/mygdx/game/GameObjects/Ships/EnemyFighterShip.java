@@ -8,6 +8,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
  */
 public class EnemyFighterShip extends Ship {
     public EnemyFighterShip(Texture gameObjectTexSheet) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 565, 60, 49) , 30);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 30);
     }
 }

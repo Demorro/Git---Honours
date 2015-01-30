@@ -2,6 +2,15 @@
 <PlayerLogicScript>
   <Line>
     <Block>ATTACK</Block>
-    <Block>ASTEROIDS</Block>
+    <Block>FIGHTERSHIP</Block>
+    <Block>AUTOCANNON</Block>
+    <Block>QUICKLY</Block>
   </Line>
+  <Line>
+    <Block>ATTACK</Block>
+    <Block>FIGHTERSHIP</Block>
+    <Block>LASER</Block>
+    <Block>QUICKLY</Block>
+  </Line>
+  <Line></Line>
 </PlayerLogicScript>

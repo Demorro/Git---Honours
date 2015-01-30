@@ -42,7 +42,9 @@ public class PlayerShip extends Ship{
         super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100);
         this.gameObjectTexSheet = gameObjectTexSheet;
 
-        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 1, new Rectangle(0,750,18,50), GetCenterPosition(), 12);
+        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 1, new Rectangle(0,750,18,50), GetCenterPosition(), 12, Utility.Weapon.AUTOCANNON);
+        laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 10, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
+        laser.SetFastMedSlowFireRate(0.3f, 0.6f, 1.0f);
 
         this.caps = caps;
         this.frigs = frigs;
@@ -51,16 +53,18 @@ public class PlayerShip extends Ship{
         ParseLogicScript();
 
         autoCannon.SetIsAutoFiring(true);
+        laser.SetIsAutoFiring(true);
     }
 
     public void Update(float elapsed, OrthographicCamera camera)
     {
         super.Update(elapsed);
-        ResolveAutoCannonAttackTargets(caps, frigs, fighters, camera);
+        ResolveWeaponAttackTarget(caps, frigs, fighters, autoCannon, camera);
+        ResolveWeaponAttackTarget(caps, frigs, fighters, laser, camera);
     }
 
     //Takes the list of targets that the logic script has loaded in, and resolves what should be targetted and how much
-    public void ResolveAutoCannonAttackTargets(ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, OrthographicCamera camera)
+    public void ResolveWeaponAttackTarget(ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, Gun weapon, OrthographicCamera camera)
     {
         if(attackTargets.size() > 0)
         {
@@ -68,43 +72,43 @@ public class PlayerShip extends Ship{
             GameObject closestFrig = GetClosestObject(frigs, camera);
             GameObject closestFighter = GetClosestObject(fighters, camera);
 
-            int autoCannonCapAttackChance = 0; int autoCannonFrigAttackChance = 0; int autoCannonFighterAttackChance = 0;
+            int capAttackChance = 0; int frigAttackChance = 0; int fighterAttackChance = 0;
 
             //Get chance to attack specific target
             for(Target target : attackTargets){
                 if(target.target == Utility.Target.CAPITAL){
-                    if(target.firingWeapon == Utility.Weapon.AUTOCANNON){
-                        if(target.firingSpeed == Utility.Speed.QUICK){autoCannonCapAttackChance += QuickAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.QUICK);}
-                        else if(target.firingSpeed == Utility.Speed.MODERATE){autoCannonCapAttackChance += ModerateAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.MODERATE);}
-                        else if(target.firingSpeed == Utility.Speed.SLOW){autoCannonCapAttackChance += SlowAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.SLOW);}
-                        else{ autoCannonCapAttackChance += ModerateAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.MODERATE);}
+                    if(target.firingWeapon == weapon.GetWeaponType()){
+                        if(target.firingSpeed == Utility.Speed.QUICK){capAttackChance += QuickAttackChanceWeight; weapon.SetFireRate(Utility.Speed.QUICK, true);}
+                        else if(target.firingSpeed == Utility.Speed.MODERATE){capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
+                        else if(target.firingSpeed == Utility.Speed.SLOW){capAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
+                        else{ capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
                     }
                 }
                 else if(target.target == Utility.Target.FRIGATE){
-                    if(target.firingWeapon == Utility.Weapon.AUTOCANNON){
-                        if(target.firingSpeed == Utility.Speed.QUICK){autoCannonFrigAttackChance += QuickAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.QUICK);}
-                        else if(target.firingSpeed == Utility.Speed.MODERATE){autoCannonFrigAttackChance += ModerateAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.MODERATE);}
-                        else if(target.firingSpeed == Utility.Speed.SLOW){autoCannonFrigAttackChance += SlowAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.SLOW);}
-                        else{ autoCannonCapAttackChance += ModerateAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.MODERATE);}
+                    if(target.firingWeapon == weapon.GetWeaponType()){
+                        if(target.firingSpeed == Utility.Speed.QUICK){frigAttackChance += QuickAttackChanceWeight; weapon.SetFireRate(Utility.Speed.QUICK, true);}
+                        else if(target.firingSpeed == Utility.Speed.MODERATE){frigAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
+                        else if(target.firingSpeed == Utility.Speed.SLOW){frigAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
+                        else{ capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
                     }
                 }
                 else if(target.target == Utility.Target.FIGHTER){
-                    if(target.firingWeapon == Utility.Weapon.AUTOCANNON){
-                        if(target.firingSpeed == Utility.Speed.QUICK){autoCannonFighterAttackChance += QuickAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.QUICK);}
-                        else if(target.firingSpeed == Utility.Speed.MODERATE){autoCannonFighterAttackChance += ModerateAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.MODERATE);}
-                        else if(target.firingSpeed == Utility.Speed.SLOW){autoCannonFighterAttackChance += SlowAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.SLOW);}
-                        else{ autoCannonCapAttackChance += ModerateAttackChanceWeight; autoCannon.SetFireRate(Utility.Speed.MODERATE);}
+                    if(target.firingWeapon == weapon.GetWeaponType()){
+                        if(target.firingSpeed == Utility.Speed.QUICK){fighterAttackChance += QuickAttackChanceWeight; weapon.SetFireRate(Utility.Speed.QUICK, true);}
+                        else if(target.firingSpeed == Utility.Speed.MODERATE){fighterAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
+                        else if(target.firingSpeed == Utility.Speed.SLOW){fighterAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
+                        else{ capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
                     }
                 }
             }
 
-            if(autoCannonCapAttackChance + autoCannonFrigAttackChance + autoCannonFighterAttackChance <= 0){ autoCannon.SetTarget(null); return;}
+            if(capAttackChance + frigAttackChance + fighterAttackChance <= 0){ weapon.SetTarget(null); return;}
 
-            int chooseTarget = MathUtils.random(1,autoCannonCapAttackChance + autoCannonFrigAttackChance + autoCannonFighterAttackChance);
-            if(chooseTarget <= autoCannonCapAttackChance){autoCannon.SetTarget(closestCap);}
-            else if(chooseTarget <= autoCannonCapAttackChance + autoCannonFrigAttackChance){autoCannon.SetTarget(closestFrig);}
-            else if(chooseTarget <= autoCannonCapAttackChance + autoCannonFrigAttackChance + autoCannonFighterAttackChance){autoCannon.SetTarget(closestFighter);}
-            else{autoCannon.SetTarget(null);}
+            int chooseTarget = MathUtils.random(1,capAttackChance + frigAttackChance + fighterAttackChance);
+            if(chooseTarget <= capAttackChance){weapon.SetTarget(closestCap);}
+            else if(chooseTarget <= capAttackChance + frigAttackChance){weapon.SetTarget(closestFrig);}
+            else if(chooseTarget <= capAttackChance + frigAttackChance + fighterAttackChance){weapon.SetTarget(closestFighter);}
+            else{weapon.SetTarget(null);}
         }
     }
 

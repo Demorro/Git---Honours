@@ -32,8 +32,10 @@ public class Ship extends GameObject {
         MISSILE
     };
 
-    protected Gun autoCannon;
+    protected Gun autoCannon = null;
     protected Vector2 autoCannonMuzzleOffset = new Vector2(0, -20);
+    protected Gun laser = null;
+    protected Vector2 laserMuzzleOffset = new Vector2(0,0);
 
     public Ship(Texture gameObjectTexSheet, TextureRegion shipRegion, float startHealth)
     {
@@ -49,6 +51,9 @@ public class Ship extends GameObject {
     {
         autoCannon.Update(elapsed);
         autoCannon.SetPosition(GetCenterPosition().x + autoCannonMuzzleOffset.x, GetCenterPosition().y + autoCannonMuzzleOffset.y);
+
+        laser.Update(elapsed);
+        laser.SetPosition(GetCenterPosition().x + autoCannonMuzzleOffset.x, GetCenterPosition().y + autoCannonMuzzleOffset.y);
     }
 
     public void Render(SpriteBatch batch)
