@@ -6,7 +6,7 @@ import com.mygdx.game.MyGdxGame;
 
 public class DesktopLauncher {
 
-	final static int windowWidth = 1280;
+	final static int windowWidth = 1200;
 	final static int windowHeight = 800;
 
 	public static void main (String[] arg) {

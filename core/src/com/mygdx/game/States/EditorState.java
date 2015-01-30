@@ -121,7 +121,13 @@ public class EditorState extends State implements InputProcessor
     //Abstract method that runs on state destruction, for cleaning up memory
     public void Dispose()
     {
+        blockSpriteSheet.dispose();
+        greyButtonsSheet.dispose();
+        greybuttons2xSheet.dispose();
 
+        fpsFont.dispose();
+
+        camera = null;
     }
     // Abstract method intended to act as the main loop of the state.
     public void Update(HashMap<Integer,TouchInfo> touches)
