@@ -25,6 +25,9 @@ public  class Bullet extends GameObject implements Pool.Poolable{
     private float bulletSpeed = 0;
     private float bulletDamage = 0;
 
+    private float bulletSpin = 0;
+    private boolean bulletSpins = false;
+
     private TextureRegion bulletRegion = null;
     public boolean alive = false; //Used for pooling
 
@@ -55,6 +58,10 @@ public  class Bullet extends GameObject implements Pool.Poolable{
     @Override
     public void reset(){
         setPosition(0,0);
+        bulletSpin = 0;
+        bulletSpins = false;
+        bulletDamage = 0;
+        bulletSpeed = 0;
         alive = false;
     }
 
@@ -65,7 +72,12 @@ public  class Bullet extends GameObject implements Pool.Poolable{
             Vector2 frameMovVec = movementVector.nor();
             frameMovVec.scl(bulletSpeed);
             translate(frameMovVec.x * elapsed, frameMovVec.y * elapsed);
-            setRotation(movementVector.angle() - 90);
+            if(bulletSpins){
+                rotate(bulletSpin * elapsed);
+            }
+            else {
+                setRotation(movementVector.angle() - 90);
+            }
         }
 
         DestroyIfOffScreen(camera);
@@ -87,6 +99,10 @@ public  class Bullet extends GameObject implements Pool.Poolable{
         }
     }
 
+    public void SetSpin(float spin){
+        bulletSpin = spin;
+        bulletSpins = true;
+    }
 
 
 }

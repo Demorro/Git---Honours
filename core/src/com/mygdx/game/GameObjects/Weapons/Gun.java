@@ -39,6 +39,7 @@ public class Gun {
     private float autoFireTimer = 0.0f;
     private GameObject target = null;
 
+    private float torpedoBulletSpin = 250;
     private Utility.Weapon weaponType ;
 
     public Gun(Pool<Bullet> bulletPool, ArrayList<Bullet> activeBullets, Texture gameObjectTextureSheet, float bulletSpeed, float bulletDamage, Rectangle bulletTextureBounds, Vector2 firingPos, float accuracyConeVariance, Utility.Weapon weaponType)
@@ -88,6 +89,7 @@ public class Gun {
 
         Bullet item = bulletPool.obtain();
         item.init(gameObjectTextureSheet,bulletSrcRegion,position.x,position.y,shotBulletSpeed,shotBulletDamage, firingVector);
+        if(weaponType == Utility.Weapon.MISSILE){item.SetSpin(torpedoBulletSpin);}
         activeBullets.add(item);
     }
 

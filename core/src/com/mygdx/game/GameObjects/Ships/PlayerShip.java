@@ -2,6 +2,7 @@ package com.mygdx.game.GameObjects.Ships;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -43,8 +44,11 @@ public class PlayerShip extends Ship{
         this.gameObjectTexSheet = gameObjectTexSheet;
 
         autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 1, new Rectangle(0,750,18,50), GetCenterPosition(), 12, Utility.Weapon.AUTOCANNON);
+        autoCannon.SetFastMedSlowFireRate(0.15f, 0.35f, 0.6f);
         laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 10, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
         laser.SetFastMedSlowFireRate(0.3f, 0.6f, 1.0f);
+        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 50, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE);
+        torpedo.SetFastMedSlowFireRate(4.0f, 6.5f, 10.0f);
 
         this.caps = caps;
         this.frigs = frigs;
@@ -54,6 +58,7 @@ public class PlayerShip extends Ship{
 
         autoCannon.SetIsAutoFiring(true);
         laser.SetIsAutoFiring(true);
+        torpedo.SetIsAutoFiring(true);
     }
 
     public void Update(float elapsed, OrthographicCamera camera)
@@ -61,6 +66,7 @@ public class PlayerShip extends Ship{
         super.Update(elapsed);
         ResolveWeaponAttackTarget(caps, frigs, fighters, autoCannon, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, laser, camera);
+        ResolveWeaponAttackTarget(caps, frigs, fighters, torpedo, camera);
     }
 
     //Takes the list of targets that the logic script has loaded in, and resolves what should be targetted and how much

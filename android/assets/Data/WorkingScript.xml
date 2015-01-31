@@ -2,13 +2,19 @@
 <PlayerLogicScript>
   <Line>
     <Block>ATTACK</Block>
+    <Block>CAPITALSHIP</Block>
+    <Block>MISSILE</Block>
+    <Block>QUICKLY</Block>
+  </Line>
+  <Line>
+    <Block>ATTACK</Block>
     <Block>FIGHTERSHIP</Block>
     <Block>AUTOCANNON</Block>
     <Block>QUICKLY</Block>
   </Line>
   <Line>
     <Block>ATTACK</Block>
-    <Block>FIGHTERSHIP</Block>
+    <Block>FRIGATESHIP</Block>
     <Block>LASER</Block>
     <Block>QUICKLY</Block>
   </Line>
