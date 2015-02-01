@@ -17,6 +17,7 @@ import com.mygdx.game.GameObjects.Ships.PlayerShip;
 import com.mygdx.game.GameObjects.Weapons.Bullet;
 import com.mygdx.game.GameObjects.Weapons.Gun;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.CapitalShipBlock;
+import com.mygdx.game.UI.Button;
 import com.mygdx.game.Utility.TouchInfo;
 
 import java.util.ArrayList;
@@ -29,6 +30,9 @@ public class PlayState extends State implements InputProcessor
 {
     private OrthographicCamera camera;
     private BitmapFont fpsFont;
+
+    private Button returnToEditorButton = null;
+    private Texture greyButtonsSheet = new Texture(Gdx.files.internal("Images/GreyButton.png"));
 
     private Texture gameObjectTextureSheet = new Texture(Gdx.files.internal("Images/GameObjectSpriteSheet.png"));
     private PlayerShip player;
@@ -61,7 +65,9 @@ public class PlayState extends State implements InputProcessor
         camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 
         gameObjectTextureSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        greyButtonsSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
+        SetupButtons();
 
         EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet);
         testCap.setPosition(900,100);
@@ -83,11 +89,27 @@ public class PlayState extends State implements InputProcessor
 
         return true;
     }
+    private void SetupButtons()
+    {
+        int buttonOffsetFromRight = 120;
+
+        returnToEditorButton = new Button(greyButtonsSheet,0,0,98,36,0,39,98,34,false, false){
+            @Override
+            protected void Trigger() {
+                SwitchState(StateID.EDITOR_STATE);
+            }
+        };
+
+        returnToEditorButton.setPosition(Gdx.graphics.getWidth() - buttonOffsetFromRight, Gdx.graphics.getHeight() - returnToEditorButton.getRegionHeight());
+        returnToEditorButton.SetText("Editor");
+        returnToEditorButton.SetTextOffset(0,2);
+    }
     //Abstract method that runs on state destruction, for cleaning up memory
     public void Dispose()
     {
         gameObjectTextureSheet.dispose();
         fpsFont.dispose();
+        greyButtonsSheet.dispose();
 
         camera = null;
     }
@@ -105,6 +127,7 @@ public class PlayState extends State implements InputProcessor
         testCap2.translateY(-75 * elapsed);
         player.Update(elapsed,camera);
 
+        returnToEditorButton.Update();
 
     }
     // Abstract method intended to render all objects of the state.
@@ -129,6 +152,8 @@ public class PlayState extends State implements InputProcessor
             bullet.Render(spriteBatch);
         }
         player.Render(spriteBatch);
+
+        returnToEditorButton.Render(spriteBatch);
     }
 
     private void KillOffscreenBullets()

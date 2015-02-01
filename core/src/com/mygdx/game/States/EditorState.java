@@ -37,13 +37,11 @@ public class EditorState extends State implements InputProcessor
 
     private FullBlockScript scriptContainer;
 
-
     private BitmapFont fpsFont;
 
     private Button saveButton;
     private Button loadButton;
     private Button playButton;
-    private int buttonOffsetFromRight = 120;
 
     private boolean isSaving = false; //If the save (or load!) dialog is open
 
@@ -77,6 +75,8 @@ public class EditorState extends State implements InputProcessor
     }
     private void SetupButtons()
     {
+        int buttonOffsetFromRight = 120;
+
         saveButton = new Button(greyButtonsSheet,0,0,98,36,0,39,98,34,false, false){
             @Override
             protected void Trigger() {

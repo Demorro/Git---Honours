@@ -20,6 +20,11 @@ public abstract class GameObject extends Sprite {
 
     private boolean isActive = true; //Whether on not this bullet is active, also means that is wont render
 
+    protected Vector2 linearVelocity = new Vector2(); //Updated each update loop, used for steering behaviors
+    private Vector2 lastFramePosition = new Vector2(0,0);
+    protected float angularVelocity = 0; //As above, used for steering behaviors, updated each update loop
+    private float lastFrameAngle = 0;
+
     public GameObject() //No arguments for poolable
     {
         super();
@@ -30,6 +35,8 @@ public abstract class GameObject extends Sprite {
     {
         super(gameObjectTexSheet);
         id = UUID.randomUUID();
+        lastFramePosition = GetCenterPosition();
+        lastFrameAngle = getRotation();
     }
 
     public UUID GetID()
@@ -46,6 +53,10 @@ public abstract class GameObject extends Sprite {
         return isActive;
     }
 
+    protected void Update(float elapsed)
+    {
+
+    }
     //Needs to be called from the derived class
     protected void Render(TextureRegion region, SpriteBatch batch)
     {
@@ -55,6 +66,14 @@ public abstract class GameObject extends Sprite {
     public Vector2 GetCenterPosition()
     {
         return new Vector2(getX() + getRegionWidth()/2, getY() + getRegionHeight()/2);
+    }
 
+    private void CalculateFrameBasedVelocities()
+    {
+        linearVelocity = lastFramePosition.sub(GetCenterPosition());
+        lastFramePosition = GetCenterPosition();
+
+        angularVelocity = lastFrameAngle - getRotation();
+        lastFrameAngle = getRotation();
     }
 }

@@ -1,5 +1,9 @@
 package com.mygdx.game.GameObjects.Ships;
 
+import com.badlogic.gdx.ai.steer.SteeringAcceleration;
+import com.badlogic.gdx.ai.steer.behaviors.CollisionAvoidance;
+import com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance;
+import com.badlogic.gdx.ai.steer.behaviors.Seek;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -38,17 +42,28 @@ public class PlayerShip extends Ship{
     private int ModerateAttackChanceWeight = 2;
     private int SlowAttackChanceWeight = 1;
 
+    private static float shipRadius = 10;
+    private static float maxLinearVelocity = 500;
+    private static float maxLinearVelocityAccel = 500;
+    private static float maxAngularVelocity = 300;
+    private static float maxAngularVelocityAccel = 100;
+
+    private static final SteeringAcceleration<Vector2> steeringOutput =
+            new SteeringAcceleration<Vector2>(new Vector2());
+    private Seek<Vector2> seek;
+    private CollisionAvoidance<Vector2> avoid;
+
     public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters)
     {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel);
         this.gameObjectTexSheet = gameObjectTexSheet;
 
         autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 1, new Rectangle(0,750,18,50), GetCenterPosition(), 12, Utility.Weapon.AUTOCANNON);
         autoCannon.SetFastMedSlowFireRate(0.15f, 0.35f, 0.6f);
         laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 10, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
-        laser.SetFastMedSlowFireRate(0.3f, 0.6f, 1.0f);
+        laser.SetFastMedSlowFireRate(0.4f, 1.0f, 1.8f);
         torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 50, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE);
-        torpedo.SetFastMedSlowFireRate(4.0f, 6.5f, 10.0f);
+        torpedo.SetFastMedSlowFireRate(3.0f, 5.0f, 7.0f);
 
         this.caps = caps;
         this.frigs = frigs;
@@ -59,6 +74,9 @@ public class PlayerShip extends Ship{
         autoCannon.SetIsAutoFiring(true);
         laser.SetIsAutoFiring(true);
         torpedo.SetIsAutoFiring(true);
+
+        seek = new Seek<Vector2>(this, caps.get(0));
+
     }
 
     public void Update(float elapsed, OrthographicCamera camera)
@@ -67,6 +85,10 @@ public class PlayerShip extends Ship{
         ResolveWeaponAttackTarget(caps, frigs, fighters, autoCannon, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, laser, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, torpedo, camera);
+
+        seek.calculateSteering(steeringOutput);
+        this.translate(linearVelocity.x * elapsed, linearVelocity.y * elapsed);
+        linearVelocity.mulAdd(steeringOutput.linear, elapsed);
     }
 
     //Takes the list of targets that the logic script has loaded in, and resolves what should be targetted and how much
@@ -89,6 +111,10 @@ public class PlayerShip extends Ship{
                         else if(target.firingSpeed == Utility.Speed.SLOW){capAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
                         else{ capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
                     }
+                    else if(target.firingWeapon == Utility.Weapon.ALL){
+                        capAttackChance += ModerateAttackChanceWeight;
+                        weapon.SetFireRate(Utility.Speed.MODERATE, true);
+                    }
                 }
                 else if(target.target == Utility.Target.FRIGATE){
                     if(target.firingWeapon == weapon.GetWeaponType()){
@@ -96,6 +122,10 @@ public class PlayerShip extends Ship{
                         else if(target.firingSpeed == Utility.Speed.MODERATE){frigAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
                         else if(target.firingSpeed == Utility.Speed.SLOW){frigAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
                         else{ capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
+                    }
+                    else if(target.firingWeapon == Utility.Weapon.ALL){
+                        frigAttackChance += ModerateAttackChanceWeight;
+                        weapon.SetFireRate(Utility.Speed.MODERATE, true);
                     }
                 }
                 else if(target.target == Utility.Target.FIGHTER){
@@ -105,6 +135,16 @@ public class PlayerShip extends Ship{
                         else if(target.firingSpeed == Utility.Speed.SLOW){fighterAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
                         else{ capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
                     }
+                    else if(target.firingWeapon == Utility.Weapon.ALL){
+                        fighterAttackChance += ModerateAttackChanceWeight;
+                        weapon.SetFireRate(Utility.Speed.MODERATE, true);
+                    }
+                }
+                else if(target.target == Utility.Target.ALL){
+                    fighterAttackChance += ModerateAttackChanceWeight;
+                    frigAttackChance += ModerateAttackChanceWeight;
+                    capAttackChance += ModerateAttackChanceWeight;
+                    weapon.SetFireRate(Utility.Speed.MODERATE, true);
                 }
             }
 
@@ -138,9 +178,9 @@ public class PlayerShip extends Ship{
         ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
         workingLine.remove(0); //Remove the first element of the line, since we know it's attack
 
-        LogicGroups.LogicBlockType target = LogicGroups.LogicBlockType.NULL;
-        LogicGroups.LogicBlockType weapon = LogicGroups.LogicBlockType.NULL;
-        LogicGroups.LogicBlockType speed = LogicGroups.LogicBlockType.NULL;
+        LogicGroups.LogicBlockType target = null;
+        LogicGroups.LogicBlockType weapon = null;
+        LogicGroups.LogicBlockType speed = null;
         //The correct order for an attackline should be Attack -> Object -> Weapon -> Speed
         if(workingLine.size() > 0){
             target = workingLine.get(0);

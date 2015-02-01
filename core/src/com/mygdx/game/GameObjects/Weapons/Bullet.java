@@ -13,8 +13,6 @@ import com.badlogic.gdx.utils.Pool;
 import com.mygdx.game.GameObjects.GameObject;
 import javafx.scene.Camera;
 
-import javax.xml.soap.Text;
-
 /**
  * Created by Elliot Morris on 29/01/2015.
  * Used in gun, defines the projectile that is shot

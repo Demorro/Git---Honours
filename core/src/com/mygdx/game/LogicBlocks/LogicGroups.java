@@ -30,7 +30,6 @@ public class LogicGroups {
     //The individual blocks, one for each specific control block
     public static enum LogicBlockType
     {
-        NULL,
         ATTACK,
         EVADE,
         PURSUE,
