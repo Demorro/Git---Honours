@@ -69,6 +69,9 @@ public class EditorState extends State implements InputProcessor
         greybuttons2xSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         scriptContainer = new FullBlockScript(blockSpriteSheet);
 
+        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+        camera.update();
+
         SetupButtons();
 
         return true;
@@ -143,6 +146,8 @@ public class EditorState extends State implements InputProcessor
     // Abstract method intended to render all objects of the state.
     public void Draw(SpriteBatch spriteBatch)
     {
+        spriteBatch.setProjectionMatrix(camera.combined);
+
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         scriptContainer.Render(spriteBatch);

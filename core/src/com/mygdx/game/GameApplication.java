@@ -6,6 +6,7 @@ import java.util.HashMap;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.States.StateManager;
 import com.mygdx.game.Utility.TouchInfo;
@@ -54,7 +55,9 @@ public class GameApplication implements ApplicationListener  {
         spriteBatch.begin();
         //Render current state
         stateManager.Draw(spriteBatch);
-        spriteBatch.end();
+        if(spriteBatch.isDrawing()){
+            spriteBatch.end();
+        }
 	}
 
 

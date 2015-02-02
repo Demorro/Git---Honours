@@ -138,7 +138,7 @@ public class Ship extends SteerableObject{
         GameObject closestObj = null;
 
         for(GameObject obj : objects){
-            Vector3 screenPos = camera.unproject(new Vector3(obj.getX(), obj.getY(), 0));
+            Vector3 screenPos = new Vector3(obj.getX(), obj.getY(), 0);
             if(camera.frustum.boundsInFrustum(screenPos.x,screenPos.y,screenPos.z,obj.getWidth()/2, obj.getHeight()/2,1)) {
                 if (obj.GetCenterPosition().dst(this.GetCenterPosition()) < closestDistance) {
                     closestDistance = obj.GetCenterPosition().dst(this.GetCenterPosition());

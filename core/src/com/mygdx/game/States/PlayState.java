@@ -6,7 +6,9 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
@@ -19,6 +21,7 @@ import com.mygdx.game.GameObjects.Weapons.Bullet;
 import com.mygdx.game.GameObjects.Weapons.Gun;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.CapitalShipBlock;
 import com.mygdx.game.UI.Button;
+import com.mygdx.game.Utility.ParralaxBackground;
 import com.mygdx.game.Utility.TouchInfo;
 
 import java.util.ArrayList;
@@ -29,8 +32,15 @@ import java.util.HashMap;
  */
 public class PlayState extends State implements InputProcessor
 {
+    private SpriteBatch backgroundBatch = new SpriteBatch();
+    private SpriteBatch hudBatch = new SpriteBatch();
     private OrthographicCamera camera;
+    private Vector2 cameraVelocity = new Vector2(0,0);
+    private Vector2 lastFrameCamPos = new Vector2(0,0);
+
     private BitmapFont fpsFont;
+
+    private ParralaxBackground backGround = new ParralaxBackground(1.0f);
 
     private Button returnToEditorButton = null;
     private Texture greyButtonsSheet = new Texture(Gdx.files.internal("Images/GreyButton.png"));
@@ -70,9 +80,9 @@ public class PlayState extends State implements InputProcessor
 
         SetupButtons();
 
-        EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet);
+        EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet,player);
         testCap.setPosition(900,100);
-        testCap2 = new EnemyCapitalShip(gameObjectTextureSheet);
+        testCap2 = new EnemyCapitalShip(gameObjectTextureSheet,player);
         testCap2.setPosition(800,1300);
         caps.add(testCap);
         caps.add(testCap2);
@@ -87,6 +97,11 @@ public class PlayState extends State implements InputProcessor
 
         player = new PlayerShip(gameObjectTextureSheet, bulletPool, activeBullets, caps, frigs, fighters);
         player.setPosition(500,100);
+
+        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+        camera.update();
+
+
 
 
         SetupSteerables();
@@ -133,15 +148,16 @@ public class PlayState extends State implements InputProcessor
     public void Update(HashMap<Integer,TouchInfo> touches)
     {
         float elapsed = Gdx.graphics.getDeltaTime();
-        camera.update();
+
 
         for(Bullet bullet : activeBullets)
         {
             bullet.Update(elapsed, camera);
         }
         KillOffscreenBullets();
-        testCap2.translateY(-75 * elapsed);
+
         player.Update(elapsed,camera);
+
 
         for(EnemyCapitalShip ship : caps)
         {
@@ -153,15 +169,37 @@ public class PlayState extends State implements InputProcessor
             ship.Update(elapsed);
         }
 
+        for(EnemyFighterShip ship : fighters)
+        {
+            ship.Update(elapsed);
+        }
+
         returnToEditorButton.Update();
 
     }
     // Abstract method intended to render all objects of the state.
     public void Draw(SpriteBatch spriteBatch)
     {
-        //Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1);
-        //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        fpsFont.draw(spriteBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 50, 50);
+        spriteBatch.end();
+
+        camera.position.x = player.GetCenterPosition().x;
+        camera.position.y = player.GetCenterPosition().y;
+        camera.update();
+
+        cameraVelocity.x = camera.position.x - lastFrameCamPos.x;
+        cameraVelocity.y = camera.position.y - lastFrameCamPos.y;
+
+        backgroundBatch.begin();
+        backGround.Render(backgroundBatch, cameraVelocity);
+        backgroundBatch.end();
+
+        lastFrameCamPos.x = camera.position.x;
+        lastFrameCamPos.y = camera.position.y;
+
+        spriteBatch.begin();
+
+
+        spriteBatch.setProjectionMatrix(camera.combined);
 
         for(EnemyCapitalShip ship : caps){
             ship.Render(spriteBatch);
@@ -179,7 +217,11 @@ public class PlayState extends State implements InputProcessor
         }
         player.Render(spriteBatch);
 
-        returnToEditorButton.Render(spriteBatch);
+        spriteBatch.end();
+        hudBatch.begin();
+        fpsFont.draw(hudBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 50, 50);
+        returnToEditorButton.Render(hudBatch);
+        hudBatch.end();
     }
 
     private void KillOffscreenBullets()

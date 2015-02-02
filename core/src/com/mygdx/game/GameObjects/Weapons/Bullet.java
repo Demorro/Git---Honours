@@ -82,7 +82,7 @@ public  class Bullet extends GameObject implements Pool.Poolable{
     }
     private void DestroyIfOffScreen(OrthographicCamera camera)
     {
-        Vector3 screenPos = camera.unproject(new Vector3(getX(), getY(), 0));
+        Vector3 screenPos = new Vector3(getX(), getY(), 0);
         if(!camera.frustum.boundsInFrustum(screenPos.x,screenPos.y,screenPos.z,getWidth()/2, getHeight()/2,1))
         {
 

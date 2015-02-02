@@ -12,8 +12,8 @@ import java.util.ArrayList;
 public class EnemyFighterShip extends Ship {
 
     private static float shipRadius = 60;
-    private static float maxLinearVelocity = 50;
-    private static float maxLinearVelocityAccel = 20;
+    private static float maxLinearVelocity = 550;
+    private static float maxLinearVelocityAccel = 550;
     private static float maxAngularVelocity = 30;
     private static float maxAngularVelocityAccel = 10;
 

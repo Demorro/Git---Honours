@@ -12,7 +12,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
-import com.mygdx.game.CustomSteering.CustomWander;
 import com.mygdx.game.GameObjects.GameObject;
 import com.mygdx.game.GameObjects.SteerableObject;
 import com.mygdx.game.GameObjects.Weapons.Bullet;
@@ -45,22 +44,21 @@ public class PlayerShip extends Ship{
     private int SlowAttackChanceWeight = 1;
 
     private static float shipRadius = 200;
-    private static float maxLinearVelocity = 400;
-    private static float maxLinearVelocityAccel = 400;
+    private static float maxLinearVelocity = 300;
+    private static float maxLinearVelocityAccel = 300;
     private static float maxAngularVelocity = 5;
     private static float maxAngularVelocityAccel = 2;
 
 
     private Pursue<Vector2> seek;
-    private MatchVelocity<Vector2> vel;
 
     public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters)
     {
         super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel);
         this.gameObjectTexSheet = gameObjectTexSheet;
 
-        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 1, new Rectangle(0,750,18,50), GetCenterPosition(), 12, Utility.Weapon.AUTOCANNON);
-        autoCannon.SetFastMedSlowFireRate(0.15f, 0.35f, 0.6f);
+        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 1, new Rectangle(0,750,18,50), GetCenterPosition(), 25, Utility.Weapon.AUTOCANNON);
+        autoCannon.SetFastMedSlowFireRate(0.1f, 0.35f, 0.6f);
         laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 10, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
         laser.SetFastMedSlowFireRate(0.4f, 1.0f, 1.8f);
         torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 50, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE);
@@ -76,8 +74,7 @@ public class PlayerShip extends Ship{
         laser.SetIsAutoFiring(true);
         torpedo.SetIsAutoFiring(true);
 
-        seek = new Pursue<Vector2>(this, caps.get(1));
-        vel = new MatchVelocity<Vector2>(this,caps.get(1));
+        seek = new Pursue<Vector2>(this, fighters.get(0));
 
 
         blendedSteering.add(seek, 0.5f);

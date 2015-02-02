@@ -242,6 +242,7 @@ public class FullBlockScript
         final JFileChooser fc = new JFileChooser();
         String workingDir = System.getProperty("user.dir");
         fc.setCurrentDirectory(new File(workingDir + ScriptSaver.scriptFolderPath));
+
         //In response to a button click:
         int returnVal = fc.showOpenDialog(null);
 
