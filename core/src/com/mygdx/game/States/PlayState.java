@@ -14,6 +14,7 @@ import com.mygdx.game.GameObjects.Ships.EnemyCapitalShip;
 import com.mygdx.game.GameObjects.Ships.EnemyFighterShip;
 import com.mygdx.game.GameObjects.Ships.EnemyFrigateShip;
 import com.mygdx.game.GameObjects.Ships.PlayerShip;
+import com.mygdx.game.GameObjects.SteerableObject;
 import com.mygdx.game.GameObjects.Weapons.Bullet;
 import com.mygdx.game.GameObjects.Weapons.Gun;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.CapitalShipBlock;
@@ -72,7 +73,7 @@ public class PlayState extends State implements InputProcessor
         EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet);
         testCap.setPosition(900,100);
         testCap2 = new EnemyCapitalShip(gameObjectTextureSheet);
-        testCap2.setPosition(200,1300);
+        testCap2.setPosition(800,1300);
         caps.add(testCap);
         caps.add(testCap2);
 
@@ -87,7 +88,22 @@ public class PlayState extends State implements InputProcessor
         player = new PlayerShip(gameObjectTextureSheet, bulletPool, activeBullets, caps, frigs, fighters);
         player.setPosition(500,100);
 
+
+        SetupSteerables();
+
         return true;
+    }
+    private void SetupSteerables()
+    {
+        ArrayList<SteerableObject> allObjects = new ArrayList<SteerableObject>();
+        allObjects.addAll(caps);
+        allObjects.addAll(frigs);
+        allObjects.addAll(fighters);
+        allObjects.add(player);
+        player.SetAllSteerables(allObjects);
+        for(SteerableObject obj : caps){ obj.SetAllSteerables(allObjects);}
+        for(SteerableObject obj : frigs){ obj.SetAllSteerables(allObjects);}
+        for(SteerableObject obj : fighters){ obj.SetAllSteerables(allObjects);}
     }
     private void SetupButtons()
     {
@@ -126,6 +142,16 @@ public class PlayState extends State implements InputProcessor
         KillOffscreenBullets();
         testCap2.translateY(-75 * elapsed);
         player.Update(elapsed,camera);
+
+        for(EnemyCapitalShip ship : caps)
+        {
+            ship.Update(elapsed);
+        }
+
+        for(EnemyFrigateShip ship : frigs)
+        {
+            ship.Update(elapsed);
+        }
 
         returnToEditorButton.Update();
 

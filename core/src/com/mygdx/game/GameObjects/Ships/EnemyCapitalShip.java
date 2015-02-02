@@ -2,6 +2,9 @@ package com.mygdx.game.GameObjects.Ships;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mygdx.game.GameObjects.SteerableObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by Elliot Morris on 29/01/2015.

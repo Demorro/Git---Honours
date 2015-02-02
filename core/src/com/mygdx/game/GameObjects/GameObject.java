@@ -1,6 +1,8 @@
 package com.mygdx.game.GameObjects;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.ai.steer.Proximity;
+import com.badlogic.gdx.ai.steer.Steerable;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,29 +16,25 @@ import java.util.UUID;
  * Created by Elliot Morris on 27/01/2015.
  * Base gameobject for the gamestate
  */
-public abstract class GameObject extends Sprite {
+public abstract class GameObject extends Sprite{
 
     private UUID id;
 
     private boolean isActive = true; //Whether on not this bullet is active, also means that is wont render
 
-    protected Vector2 linearVelocity = new Vector2(); //Updated each update loop, used for steering behaviors
-    private Vector2 lastFramePosition = new Vector2(0,0);
-    protected float angularVelocity = 0; //As above, used for steering behaviors, updated each update loop
-    private float lastFrameAngle = 0;
 
     public GameObject() //No arguments for poolable
     {
         super();
         id = UUID.randomUUID();
+
     }
 
     public GameObject(Texture gameObjectTexSheet)
     {
         super(gameObjectTexSheet);
         id = UUID.randomUUID();
-        lastFramePosition = GetCenterPosition();
-        lastFrameAngle = getRotation();
+
     }
 
     public UUID GetID()
@@ -53,10 +51,6 @@ public abstract class GameObject extends Sprite {
         return isActive;
     }
 
-    protected void Update(float elapsed)
-    {
-
-    }
     //Needs to be called from the derived class
     protected void Render(TextureRegion region, SpriteBatch batch)
     {
@@ -68,12 +62,5 @@ public abstract class GameObject extends Sprite {
         return new Vector2(getX() + getRegionWidth()/2, getY() + getRegionHeight()/2);
     }
 
-    private void CalculateFrameBasedVelocities()
-    {
-        linearVelocity = lastFramePosition.sub(GetCenterPosition());
-        lastFramePosition = GetCenterPosition();
 
-        angularVelocity = lastFrameAngle - getRotation();
-        lastFrameAngle = getRotation();
-    }
 }

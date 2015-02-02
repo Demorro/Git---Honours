@@ -2,15 +2,18 @@ package com.mygdx.game.GameObjects.Ships;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.mygdx.game.GameObjects.SteerableObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by Elliot Morris on 29/01/2015.
  */
 public class EnemyFrigateShip extends Ship {
 
-    private static float shipRadius = 120;
-    private static float maxLinearVelocity = 50;
-    private static float maxLinearVelocityAccel = 20;
+    private static float shipRadius = 160;
+    private static float maxLinearVelocity = 250;
+    private static float maxLinearVelocityAccel = 250;
     private static float maxAngularVelocity = 30;
     private static float maxAngularVelocityAccel = 10;
 

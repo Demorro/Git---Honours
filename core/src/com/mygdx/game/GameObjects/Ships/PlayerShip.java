@@ -1,9 +1,9 @@
 package com.mygdx.game.GameObjects.Ships;
 
 import com.badlogic.gdx.ai.steer.SteeringAcceleration;
-import com.badlogic.gdx.ai.steer.behaviors.CollisionAvoidance;
-import com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance;
-import com.badlogic.gdx.ai.steer.behaviors.Seek;
+import com.badlogic.gdx.ai.steer.behaviors.*;
+import com.badlogic.gdx.ai.steer.behaviors.Pursue;
+import com.badlogic.gdx.ai.steer.utils.Collision;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -12,7 +12,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
+import com.mygdx.game.CustomSteering.CustomWander;
 import com.mygdx.game.GameObjects.GameObject;
+import com.mygdx.game.GameObjects.SteerableObject;
 import com.mygdx.game.GameObjects.Weapons.Bullet;
 import com.mygdx.game.GameObjects.Weapons.Gun;
 import com.mygdx.game.GameObjects.Weapons.Target;
@@ -42,16 +44,15 @@ public class PlayerShip extends Ship{
     private int ModerateAttackChanceWeight = 2;
     private int SlowAttackChanceWeight = 1;
 
-    private static float shipRadius = 10;
-    private static float maxLinearVelocity = 500;
-    private static float maxLinearVelocityAccel = 500;
-    private static float maxAngularVelocity = 300;
-    private static float maxAngularVelocityAccel = 100;
+    private static float shipRadius = 200;
+    private static float maxLinearVelocity = 400;
+    private static float maxLinearVelocityAccel = 400;
+    private static float maxAngularVelocity = 5;
+    private static float maxAngularVelocityAccel = 2;
 
-    private static final SteeringAcceleration<Vector2> steeringOutput =
-            new SteeringAcceleration<Vector2>(new Vector2());
-    private Seek<Vector2> seek;
-    private CollisionAvoidance<Vector2> avoid;
+
+    private Pursue<Vector2> seek;
+    private MatchVelocity<Vector2> vel;
 
     public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters)
     {
@@ -75,7 +76,13 @@ public class PlayerShip extends Ship{
         laser.SetIsAutoFiring(true);
         torpedo.SetIsAutoFiring(true);
 
-        seek = new Seek<Vector2>(this, caps.get(0));
+        seek = new Pursue<Vector2>(this, caps.get(1));
+        vel = new MatchVelocity<Vector2>(this,caps.get(1));
+
+
+        blendedSteering.add(seek, 0.5f);
+        SetIndependatFacing(false);
+
 
     }
 
@@ -86,9 +93,6 @@ public class PlayerShip extends Ship{
         ResolveWeaponAttackTarget(caps, frigs, fighters, laser, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, torpedo, camera);
 
-        seek.calculateSteering(steeringOutput);
-        this.translate(linearVelocity.x * elapsed, linearVelocity.y * elapsed);
-        linearVelocity.mulAdd(steeringOutput.linear, elapsed);
     }
 
     //Takes the list of targets that the logic script has loaded in, and resolves what should be targetted and how much
