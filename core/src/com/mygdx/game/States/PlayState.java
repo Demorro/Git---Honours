@@ -33,6 +33,7 @@ import java.util.HashMap;
 public class PlayState extends State implements InputProcessor
 {
     private SpriteBatch backgroundBatch = new SpriteBatch();
+    private SpriteBatch foreGroundBatch = new SpriteBatch();
     private SpriteBatch hudBatch = new SpriteBatch();
     private OrthographicCamera camera;
     private Vector2 cameraVelocity = new Vector2(0,0);
@@ -141,6 +142,7 @@ public class PlayState extends State implements InputProcessor
         gameObjectTextureSheet.dispose();
         fpsFont.dispose();
         greyButtonsSheet.dispose();
+        backGround.Dispose();
 
         camera = null;
     }
@@ -193,8 +195,7 @@ public class PlayState extends State implements InputProcessor
         backGround.Render(backgroundBatch, cameraVelocity);
         backgroundBatch.end();
 
-        lastFrameCamPos.x = camera.position.x;
-        lastFrameCamPos.y = camera.position.y;
+
 
         spriteBatch.begin();
 
@@ -216,12 +217,19 @@ public class PlayState extends State implements InputProcessor
             bullet.Render(spriteBatch);
         }
         player.Render(spriteBatch);
-
         spriteBatch.end();
+
+        foreGroundBatch.begin();
+        backGround.RenderForeground(foreGroundBatch, cameraVelocity);
+        foreGroundBatch.end();
+
         hudBatch.begin();
         fpsFont.draw(hudBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 50, 50);
         returnToEditorButton.Render(hudBatch);
         hudBatch.end();
+
+        lastFrameCamPos.x = camera.position.x;
+        lastFrameCamPos.y = camera.position.y;
     }
 
     private void KillOffscreenBullets()

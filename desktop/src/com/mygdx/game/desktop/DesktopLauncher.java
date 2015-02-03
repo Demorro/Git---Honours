@@ -6,15 +6,15 @@ import com.mygdx.game.MyGdxGame;
 
 public class DesktopLauncher {
 
-	final static int windowWidth = 1920;
-	final static int windowHeight = 1080;
+	final static int windowWidth = 1200;
+	final static int windowHeight = 800;
 
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = windowWidth;
 		config.height = windowHeight;
 		config.vSyncEnabled = false;
-		config.fullscreen = true;
+		config.fullscreen = false;
 		config.backgroundFPS = 0;
 		config.foregroundFPS = 0;
 		new LwjglApplication(new MyGdxGame(), config);

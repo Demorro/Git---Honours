@@ -36,6 +36,7 @@ public class Utility {
         CAPITAL,
         FRIGATE,
         FIGHTER,
+        ASTEROID,
         ALL
     };
 

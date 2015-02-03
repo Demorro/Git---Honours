@@ -9,6 +9,7 @@ import java.util.ArrayList;
 /**
  * Created by Elliot Morris on 15/01/2015.
  */
+/*
 public class IncomingProjectiles extends LogicBlock
 {
     public IncomingProjectiles(Texture blockSheet) {
@@ -32,3 +33,4 @@ public class IncomingProjectiles extends LogicBlock
         return nextLogicGroups;
     }
 }
+*/

@@ -6,9 +6,7 @@ import com.badlogic.gdx.ai.steer.Proximity;
 import com.badlogic.gdx.ai.steer.Steerable;
 import com.badlogic.gdx.ai.steer.SteeringAcceleration;
 import com.badlogic.gdx.ai.steer.SteeringBehavior;
-import com.badlogic.gdx.ai.steer.behaviors.BlendedSteering;
-import com.badlogic.gdx.ai.steer.behaviors.CollisionAvoidance;
-import com.badlogic.gdx.ai.steer.behaviors.Seek;
+import com.badlogic.gdx.ai.steer.behaviors.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,6 +19,7 @@ import com.mygdx.game.GameObjects.Weapons.Gun;
 import com.mygdx.game.GameObjects.Weapons.Target;
 import com.mygdx.game.Utility.Utility;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -31,6 +30,9 @@ public class Ship extends SteerableObject{
     private TextureRegion shipRegion;
 
     protected ArrayList<Target> attackTargets = new ArrayList<Target>();
+    protected ArrayList<Target> pursueTargets = new ArrayList<Target>();
+    protected ArrayList<Target> evadeTargets = new ArrayList<Target>();
+
 
     private float hp = 100;
 
@@ -51,10 +53,16 @@ public class Ship extends SteerableObject{
 
     //Steering
     protected BlendedSteering<Vector2> blendedSteering;
-    protected CollisionAvoidance<Vector2> avoid;
-    private static final SteeringAcceleration<Vector2> steeringOutput =
-            new SteeringAcceleration<Vector2>(new Vector2());
+    private static final SteeringAcceleration<Vector2> steeringOutput = new SteeringAcceleration<Vector2>(new Vector2());
+    protected Pursue<Vector2> pursueBehavior;
+    private BlendedSteering.BehaviorAndWeight<Vector2> pursueBlend;
+    protected Evade<Vector2> evadeBehavior;
+    private BlendedSteering.BehaviorAndWeight<Vector2> evadeBlend;
+    protected CollisionAvoidance<Vector2> avoidObjectBehavior;
 
+    private static float fastWeighting = 0.6f;
+    private static float moderateWeighting = 0.4f;
+    private static float slowWeighting = 0.2f;
 
     public Ship(Texture gameObjectTexSheet, TextureRegion shipRegion, float startHealth, float boundingRadius, float maxLinearSpeed, float maxLinearAcceleration, float maxAngularSpeed, float maxAngularAcceleration)
     {
@@ -72,8 +80,22 @@ public class Ship extends SteerableObject{
 
         blendedSteering = new BlendedSteering<Vector2>(this);
 
-        avoid = new CollisionAvoidance<Vector2>(this,this);
-        blendedSteering.add(avoid, 0.5f);
+
+        avoidObjectBehavior = new CollisionAvoidance<Vector2>(this,this);
+        blendedSteering.add(avoidObjectBehavior, 0.6f);
+
+        pursueBehavior = new Pursue<Vector2>(this, null);
+        evadeBehavior = new Evade<Vector2>(this, null);
+        pursueBehavior.setEnabled(false);
+        evadeBehavior.setEnabled(false);
+        pursueBehavior.setMaxPredictionTime(100);
+        evadeBehavior.setMaxPredictionTime(100);
+
+        pursueBlend = new BlendedSteering.BehaviorAndWeight<Vector2>(pursueBehavior, 0.0f);
+        evadeBlend = new BlendedSteering.BehaviorAndWeight<Vector2>(evadeBehavior, 0.0f);
+
+        blendedSteering.add(pursueBlend);
+        blendedSteering.add(evadeBlend);
 
     }
 
@@ -111,33 +133,18 @@ public class Ship extends SteerableObject{
     {
         return hp;
     }
-    public void SetTargetAndFire(ShipGuns gun, GameObject target)
-    {
-        if(gun == ShipGuns.AUTOCANNON) {
-            if(autoCannon != null) {
-                autoCannon.SetTarget(target);
-                autoCannon.SetIsAutoFiring(true);
-            }
-        }
-        else if(gun == ShipGuns.LASER){
-
-        }
-        else if(gun == ShipGuns.MISSILE){
-
-        }
-    }
 
 
-    protected GameObject GetClosestObject(ArrayList<? extends GameObject> objects, OrthographicCamera camera){
+    protected SteerableObject GetClosestObject(ArrayList<? extends SteerableObject> objects, OrthographicCamera camera){
 
         if(objects.size() <= 0) {
             Gdx.app.log("Error", "Ship.GetClosestObject(), object list must be > 0");
         }
 
         float closestDistance = 999999;
-        GameObject closestObj = null;
+        SteerableObject closestObj = null;
 
-        for(GameObject obj : objects){
+        for(SteerableObject obj : objects){
             Vector3 screenPos = new Vector3(obj.getX(), obj.getY(), 0);
             if(camera.frustum.boundsInFrustum(screenPos.x,screenPos.y,screenPos.z,obj.getWidth()/2, obj.getHeight()/2,1)) {
                 if (obj.GetCenterPosition().dst(this.GetCenterPosition()) < closestDistance) {
@@ -150,8 +157,26 @@ public class Ship extends SteerableObject{
         return closestObj;
     }
 
+    protected void SetPursueTarget(SteerableObject target, Utility.Speed pursueSpeed){
+        pursueBehavior.setTarget(target);
+        pursueBlend.setWeight(GetWeightFromSpeed(pursueSpeed));
+        pursueBehavior.setEnabled(true);
 
+    }
+    protected void SetEvadeTarget(SteerableObject target, Utility.Speed pursueSpeed){
+        evadeBehavior.setTarget(target);
+        evadeBlend.setWeight(GetWeightFromSpeed(pursueSpeed));
+        evadeBehavior.setEnabled(true);
 
+    }
+    protected void SetBehaviorActive(SteeringBehavior behavior, Boolean active){
+        behavior.setEnabled(active);
+    }
 
-
+    private float GetWeightFromSpeed(Utility.Speed pursueSpeed){
+        if(pursueSpeed == Utility.Speed.QUICK){return fastWeighting;}
+        else if(pursueSpeed == Utility.Speed.MODERATE){return moderateWeighting;}
+        else if(pursueSpeed == Utility.Speed.SLOW) {return slowWeighting;}
+        return moderateWeighting;
+    }
 }

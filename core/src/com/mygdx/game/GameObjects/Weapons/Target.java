@@ -10,7 +10,7 @@ import com.mygdx.game.Utility.Utility;
  * Stores details about a target
  */
 public class Target {
-    public Utility.Speed firingSpeed;
+    public Utility.Speed speed;
     public Utility.Weapon firingWeapon;
     public Utility.Target target;
 
@@ -22,6 +22,8 @@ public class Target {
             this.target = Utility.Target.FRIGATE;
         } else if (target == LogicGroups.LogicBlockType.FIGHTERSHIP) {
             this.target = Utility.Target.FIGHTER;
+        } else if (target == LogicGroups.LogicBlockType.ASTEROIDS) {
+            this.target = Utility.Target.ASTEROID;
         } else {
             this.target = Utility.Target.ALL;
         }
@@ -37,11 +39,11 @@ public class Target {
         }
 
         if (firingSpeed == LogicGroups.LogicBlockType.QUICKLY) {
-            this.firingSpeed = Utility.Speed.QUICK;
+            this.speed = Utility.Speed.QUICK;
         } else if (firingSpeed == LogicGroups.LogicBlockType.SLOWLY) {
-            this.firingSpeed = Utility.Speed.SLOW;
+            this.speed = Utility.Speed.SLOW;
         } else {
-            this.firingSpeed = Utility.Speed.MODERATE;
+            this.speed = Utility.Speed.MODERATE;
         }
 
     }

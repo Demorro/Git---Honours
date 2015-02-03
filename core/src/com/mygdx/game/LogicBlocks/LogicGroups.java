@@ -12,7 +12,6 @@ import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Ammo;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Fuel;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Repairs;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.ScaryObjects.Asteroids;
-import com.mygdx.game.LogicBlocks.SpecificBlocks.ScaryObjects.IncomingProjectiles;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Speeds.QuicklyBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Speeds.SlowlyBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Weapons.AutoCannonBlock;
@@ -46,7 +45,7 @@ public class LogicGroups {
         REPAIRS,
         AMMO,
         FUEl,
-        INCOMINGPROJECTILES,
+        //INCOMINGPROJECTILES,
         ASTEROIDS
     };
 
@@ -150,9 +149,9 @@ public class LogicGroups {
         else if(blockType == LogicBlockType.FIGHTERSHIP) {
             return new FighterShipBlock(blockSpriteSheet);
         }
-        else if(blockType == LogicBlockType.INCOMINGPROJECTILES) {
-            return  new IncomingProjectiles(blockSpriteSheet);
-        }
+        //else if(blockType == LogicBlockType.INCOMINGPROJECTILES) {
+       //    return  new IncomingProjectiles(blockSpriteSheet);
+       // }
         else if(blockType == LogicBlockType.ASTEROIDS){
             return new Asteroids(blockSpriteSheet);
         }
@@ -221,7 +220,7 @@ public class LogicGroups {
         }
         else if(group == LogicGroup.SCARYOBJECTS)
         {
-            blocks.add(ConstructSpecificBlock(LogicBlockType.INCOMINGPROJECTILES, blockSpriteSheet));
+            //blocks.add(ConstructSpecificBlock(LogicBlockType.INCOMINGPROJECTILES, blockSpriteSheet));
             blocks.add(ConstructSpecificBlock(LogicBlockType.ASTEROIDS, blockSpriteSheet));
             return blocks;
         }

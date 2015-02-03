@@ -1,5 +1,7 @@
 package com.mygdx.game.GameObjects.Ships;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ai.steer.SteeringAcceleration;
 import com.badlogic.gdx.ai.steer.behaviors.*;
 import com.badlogic.gdx.ai.steer.behaviors.Pursue;
@@ -11,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool;
 import com.mygdx.game.GameObjects.GameObject;
 import com.mygdx.game.GameObjects.SteerableObject;
@@ -22,6 +25,7 @@ import com.mygdx.game.LogicBlocks.LogicGroups;
 import com.mygdx.game.Utility.ScriptSaver;
 import com.mygdx.game.Utility.Utility;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -50,15 +54,13 @@ public class PlayerShip extends Ship{
     private static float maxAngularVelocityAccel = 2;
 
 
-    private Pursue<Vector2> seek;
-
     public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters)
     {
         super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel);
         this.gameObjectTexSheet = gameObjectTexSheet;
 
         autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 1, new Rectangle(0,750,18,50), GetCenterPosition(), 25, Utility.Weapon.AUTOCANNON);
-        autoCannon.SetFastMedSlowFireRate(0.1f, 0.35f, 0.6f);
+        autoCannon.SetFastMedSlowFireRate(0.15f, 0.35f, 0.6f);
         laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 10, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
         laser.SetFastMedSlowFireRate(0.4f, 1.0f, 1.8f);
         torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 50, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE);
@@ -74,12 +76,6 @@ public class PlayerShip extends Ship{
         laser.SetIsAutoFiring(true);
         torpedo.SetIsAutoFiring(true);
 
-        seek = new Pursue<Vector2>(this, fighters.get(0));
-
-
-        blendedSteering.add(seek, 0.5f);
-        SetIndependatFacing(false);
-
 
     }
 
@@ -89,17 +85,28 @@ public class PlayerShip extends Ship{
         ResolveWeaponAttackTarget(caps, frigs, fighters, autoCannon, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, laser, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, torpedo, camera);
+        ResolvePersueTargets(caps, frigs, fighters, camera);
+        ResolveEvadeTargets(caps, frigs, fighters, camera);
+
+        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+        {
+            translate(2000 * elapsed, 0);
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
+        {
+            translate(-2000 * elapsed, 0);
+        }
 
     }
 
     //Takes the list of targets that the logic script has loaded in, and resolves what should be targetted and how much
-    public void ResolveWeaponAttackTarget(ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, Gun weapon, OrthographicCamera camera)
+    private void ResolveWeaponAttackTarget(ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, Gun weapon, OrthographicCamera camera)
     {
         if(attackTargets.size() > 0)
         {
-            GameObject closestCap = GetClosestObject(caps, camera);
-            GameObject closestFrig = GetClosestObject(frigs, camera);
-            GameObject closestFighter = GetClosestObject(fighters, camera);
+            SteerableObject closestCap = GetClosestObject(caps, camera);
+            SteerableObject closestFrig = GetClosestObject(frigs, camera);
+            SteerableObject closestFighter = GetClosestObject(fighters, camera);
 
             int capAttackChance = 0; int frigAttackChance = 0; int fighterAttackChance = 0;
 
@@ -107,9 +114,9 @@ public class PlayerShip extends Ship{
             for(Target target : attackTargets){
                 if(target.target == Utility.Target.CAPITAL){
                     if(target.firingWeapon == weapon.GetWeaponType()){
-                        if(target.firingSpeed == Utility.Speed.QUICK){capAttackChance += QuickAttackChanceWeight; weapon.SetFireRate(Utility.Speed.QUICK, true);}
-                        else if(target.firingSpeed == Utility.Speed.MODERATE){capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
-                        else if(target.firingSpeed == Utility.Speed.SLOW){capAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
+                        if(target.speed == Utility.Speed.QUICK){capAttackChance += QuickAttackChanceWeight; weapon.SetFireRate(Utility.Speed.QUICK, true);}
+                        else if(target.speed == Utility.Speed.MODERATE){capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
+                        else if(target.speed == Utility.Speed.SLOW){capAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
                         else{ capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
                     }
                     else if(target.firingWeapon == Utility.Weapon.ALL){
@@ -119,9 +126,9 @@ public class PlayerShip extends Ship{
                 }
                 else if(target.target == Utility.Target.FRIGATE){
                     if(target.firingWeapon == weapon.GetWeaponType()){
-                        if(target.firingSpeed == Utility.Speed.QUICK){frigAttackChance += QuickAttackChanceWeight; weapon.SetFireRate(Utility.Speed.QUICK, true);}
-                        else if(target.firingSpeed == Utility.Speed.MODERATE){frigAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
-                        else if(target.firingSpeed == Utility.Speed.SLOW){frigAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
+                        if(target.speed == Utility.Speed.QUICK){frigAttackChance += QuickAttackChanceWeight; weapon.SetFireRate(Utility.Speed.QUICK, true);}
+                        else if(target.speed == Utility.Speed.MODERATE){frigAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
+                        else if(target.speed == Utility.Speed.SLOW){frigAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
                         else{ capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
                     }
                     else if(target.firingWeapon == Utility.Weapon.ALL){
@@ -131,15 +138,18 @@ public class PlayerShip extends Ship{
                 }
                 else if(target.target == Utility.Target.FIGHTER){
                     if(target.firingWeapon == weapon.GetWeaponType()){
-                        if(target.firingSpeed == Utility.Speed.QUICK){fighterAttackChance += QuickAttackChanceWeight; weapon.SetFireRate(Utility.Speed.QUICK, true);}
-                        else if(target.firingSpeed == Utility.Speed.MODERATE){fighterAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
-                        else if(target.firingSpeed == Utility.Speed.SLOW){fighterAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
+                        if(target.speed == Utility.Speed.QUICK){fighterAttackChance += QuickAttackChanceWeight; weapon.SetFireRate(Utility.Speed.QUICK, true);}
+                        else if(target.speed == Utility.Speed.MODERATE){fighterAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
+                        else if(target.speed == Utility.Speed.SLOW){fighterAttackChance += SlowAttackChanceWeight; weapon.SetFireRate(Utility.Speed.SLOW, true);}
                         else{ capAttackChance += ModerateAttackChanceWeight; weapon.SetFireRate(Utility.Speed.MODERATE, true);}
                     }
                     else if(target.firingWeapon == Utility.Weapon.ALL){
                         fighterAttackChance += ModerateAttackChanceWeight;
                         weapon.SetFireRate(Utility.Speed.MODERATE, true);
                     }
+                }
+                else if(target.target == Utility.Target.ASTEROID){
+                    //Dont do anything yet, asteroids arnt in
                 }
                 else if(target.target == Utility.Target.ALL){
                     fighterAttackChance += ModerateAttackChanceWeight;
@@ -159,6 +169,142 @@ public class PlayerShip extends Ship{
         }
     }
 
+    private void ResolvePersueTargets(ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, OrthographicCamera camera)
+    {
+        if(pursueTargets.size() > 0) {
+            SteerableObject closestCap = GetClosestObject(caps, camera);
+            SteerableObject closestFrig = GetClosestObject(frigs, camera);
+            SteerableObject closestFighter = GetClosestObject(fighters, camera);
+
+            SteerableObject closestCandidateObj = null;
+            Utility.Speed closestCandidateObjPursueSpeed = null;
+
+            for(Target target : pursueTargets){
+                if(target.target == Utility.Target.CAPITAL){
+                    if(closestCap != null) {
+                        if (closestCandidateObj == null) {
+                            closestCandidateObj = closestCap;
+                            closestCandidateObjPursueSpeed = target.speed;
+                        } else {
+                            if ((closestCap.GetCenterPosition().dst(this.GetCenterPosition())) < (closestCandidateObj.GetCenterPosition().dst(this.GetCenterPosition()))) {
+                                closestCandidateObj = closestCap;
+                                closestCandidateObjPursueSpeed = target.speed;
+                            }
+                        }
+                    }
+                }
+                if(target.target == Utility.Target.FRIGATE){
+                    if(closestFrig != null) {
+                        if (closestCandidateObj == null) {
+                            closestCandidateObj = closestFrig;
+                            closestCandidateObjPursueSpeed = target.speed;
+                        } else {
+                            if ((closestFrig.GetCenterPosition().dst(this.GetCenterPosition())) < (closestCandidateObj.GetCenterPosition().dst(this.GetCenterPosition()))) {
+                                closestCandidateObj = closestFrig;
+                                closestCandidateObjPursueSpeed = target.speed;
+                            }
+                        }
+                    }
+                }
+                if(target.target == Utility.Target.FIGHTER){
+                    if(closestFighter != null) {
+                        if (closestCandidateObj == null) {
+                            closestCandidateObj = closestFighter;
+                            closestCandidateObjPursueSpeed = target.speed;
+                        } else {
+                            if ((closestFighter.GetCenterPosition().dst(this.GetCenterPosition())) < (closestCandidateObj.GetCenterPosition().dst(this.GetCenterPosition()))) {
+                                closestCandidateObj = closestFighter;
+                                closestCandidateObjPursueSpeed = target.speed;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(closestCandidateObj != null){
+                Vector3 screenPos = new Vector3(closestCandidateObj.getX(), closestCandidateObj.getY(), 0);
+                if(camera.frustum.boundsInFrustum(screenPos.x,screenPos.y,screenPos.z,getWidth()/2, getHeight()/2,1))
+                {
+                    SetPursueTarget(closestCandidateObj, closestCandidateObjPursueSpeed);
+                }
+            }
+            else
+            {
+                SetBehaviorActive(pursueBehavior, false);
+            }
+
+        }
+
+    }
+
+    private void ResolveEvadeTargets(ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, OrthographicCamera camera)
+    {
+        if(evadeTargets.size() > 0) {
+            SteerableObject closestCap = GetClosestObject(caps, camera);
+            SteerableObject closestFrig = GetClosestObject(frigs, camera);
+            SteerableObject closestFighter = GetClosestObject(fighters, camera);
+
+            SteerableObject closestCandidateObj = null;
+            Utility.Speed closestCandidateObjPursueSpeed = null;
+
+            for(Target target : evadeTargets){
+                if(target.target == Utility.Target.CAPITAL){
+                    if(closestCap != null) {
+                        if (closestCandidateObj == null) {
+                            closestCandidateObj = closestCap;
+                            closestCandidateObjPursueSpeed = target.speed;
+                        } else {
+                            if ((closestCap.GetCenterPosition().dst(this.GetCenterPosition())) < (closestCandidateObj.GetCenterPosition().dst(this.GetCenterPosition()))) {
+                                closestCandidateObj = closestCap;
+                                closestCandidateObjPursueSpeed = target.speed;
+                            }
+                        }
+                    }
+                }
+                if(target.target == Utility.Target.FRIGATE){
+                    if(closestFrig != null) {
+                        if (closestCandidateObj == null) {
+                            closestCandidateObj = closestFrig;
+                            closestCandidateObjPursueSpeed = target.speed;
+                        } else {
+                            if ((closestFrig.GetCenterPosition().dst(this.GetCenterPosition())) < (closestCandidateObj.GetCenterPosition().dst(this.GetCenterPosition()))) {
+                                closestCandidateObj = closestFrig;
+                                closestCandidateObjPursueSpeed = target.speed;
+                            }
+                        }
+                    }
+                }
+                if(target.target == Utility.Target.FIGHTER){
+                    if(closestFighter != null) {
+                        if (closestCandidateObj == null) {
+                            closestCandidateObj = closestFighter;
+                            closestCandidateObjPursueSpeed = target.speed;
+                        } else {
+                            if ((closestFighter.GetCenterPosition().dst(this.GetCenterPosition())) < (closestCandidateObj.GetCenterPosition().dst(this.GetCenterPosition()))) {
+                                closestCandidateObj = closestFighter;
+                                closestCandidateObjPursueSpeed = target.speed;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(closestCandidateObj != null){
+                Vector3 screenPos = new Vector3(closestCandidateObj.getX(), closestCandidateObj.getY(), 0);
+                if(camera.frustum.boundsInFrustum(screenPos.x,screenPos.y,screenPos.z,getWidth()/2, getHeight()/2,1))
+                {
+                    SetEvadeTarget(closestCandidateObj, closestCandidateObjPursueSpeed);
+                }
+            }
+            else
+            {
+                SetBehaviorActive(evadeBehavior, false);
+            }
+
+        }
+
+    }
+
     private void ParseLogicScript()
     {
         playerAI = ScriptSaver.LoadScriptIntoArray(ScriptSaver.workingScriptPath);
@@ -169,13 +315,14 @@ public class PlayerShip extends Ship{
             if(blockChain.size() > 0){
                 //Get the first block, and then go to the relevent function to parse the line.
                 if(blockChain.get(0) == LogicGroups.LogicBlockType.ATTACK){ ParseAttackLine(blockChain);}
+                else if(blockChain.get(0) == LogicGroups.LogicBlockType.PURSUE){ ParsePersueLine(blockChain);}
+                else if(blockChain.get(0) == LogicGroups.LogicBlockType.EVADE){ ParseEvadeLine(blockChain);}
             }
         }
     }
 
     private void ParseAttackLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
     {
-
         ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
         workingLine.remove(0); //Remove the first element of the line, since we know it's attack
 
@@ -196,7 +343,49 @@ public class PlayerShip extends Ship{
             workingLine.remove(0);
         }
 
-        attackTargets.add(new Target(target,weapon,speed));
+        attackTargets.add(new Target(target, weapon, speed));
+    }
+
+    private void ParsePersueLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
+    {
+        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
+        workingLine.remove(0); //Remove the first element of the line, since we know it's persue
+
+        LogicGroups.LogicBlockType target = null;
+        LogicGroups.LogicBlockType weapon = null;
+        LogicGroups.LogicBlockType speed = null;
+        //The correct order for a persueLine should be Speed -> Object -> Speed
+        if(workingLine.size() > 0){
+            target = workingLine.get(0);
+            workingLine.remove(0);
+        }
+        if(workingLine.size() > 0){
+            speed = workingLine.get(0);
+            workingLine.remove(0);
+        }
+
+        pursueTargets.add(new Target(target, weapon, speed));
+    }
+
+    private void ParseEvadeLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
+    {
+        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
+        workingLine.remove(0); //Remove the first element of the line, since we know it's evade
+
+        LogicGroups.LogicBlockType target = null;
+        LogicGroups.LogicBlockType weapon = null;
+        LogicGroups.LogicBlockType speed = null;
+        //The correct order for a evadeLine should be Speed -> Object -> Speed
+        if(workingLine.size() > 0){
+            target = workingLine.get(0);
+            workingLine.remove(0);
+        }
+        if(workingLine.size() > 0){
+            speed = workingLine.get(0);
+            workingLine.remove(0);
+        }
+
+        evadeTargets.add(new Target(target, weapon, speed));
     }
 
 
