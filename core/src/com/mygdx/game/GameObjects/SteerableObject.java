@@ -4,21 +4,25 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.steer.Proximity;
 import com.badlogic.gdx.ai.steer.Steerable;
+import com.badlogic.gdx.ai.steer.SteerableAdapter;
 import com.badlogic.gdx.ai.steer.SteeringAcceleration;
+import com.badlogic.gdx.ai.steer.proximities.InfiniteProximity;
+import com.badlogic.gdx.ai.steer.proximities.RadiusProximity;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
  * Created by Elliot Morris on 01/02/2015.
  */
-public class SteerableObject extends GameObject implements Steerable<Vector2>, Proximity<Vector2> {
+public class SteerableObject extends GameObject implements Steerable<Vector2>, Proximity<Vector2>{
 
 
     //STEERING BEHAVIOR STUFF//
     private ArrayList<SteerableObject> worldObjects = null;
-    private float proximity = 200; //How close an object has to be to be considered in proximity
+    private float proximityRadius = 300; //How close an object has to be to be considered in proximity
     protected Vector2 linearVelocity = new Vector2(); //Updated each update loop, used for steering behaviors
     private Vector2 lastFramePosition = new Vector2(0,0);
     protected float angularVelocity = 0; //As above, used for steering behaviors, updated each update loop
@@ -34,6 +38,7 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
     private boolean independentFacing = false;
     private float orientationOffset = 90; //Sprites arnt neccesarily drawn in the corrent orientation (in fact they're normally 90 deg off) so this fixes it
     private static float dstToUpdateRot = 5.0f; //Distance the movement vector has to be to rotate the ship to it.
+    private long frameId = 0;
 
     public SteerableObject(Texture gameObjectTexSheet)
     {
@@ -41,6 +46,7 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
         lastFramePosition = GetCenterPosition();
         lastFrameAngle = getRotation();
         proxOwner = this;
+
     }
 
     protected void Update(float elapsed)
@@ -54,7 +60,14 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
     }
 
     protected void applySteering (SteeringAcceleration<Vector2> steering, float time) {
+
         // Update position and linear velocity. Velocity is trimmed to maximum speed
+        if(linearVelocity.len() > getMaxLinearSpeed())
+        {
+            linearVelocity = linearVelocity.nor();
+            linearVelocity.scl(getMaxLinearSpeed());
+        }
+
         this.translate(linearVelocity.x * time, linearVelocity.y * time);
 
         // Update orientation and angular velocity
@@ -62,7 +75,7 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
             rotate(angularVelocity * time);
             this.angularVelocity += steering.angular * time;
         } else {
-            if(linearVelocity.len() > dstToUpdateRot) {
+            if (linearVelocity.len() > dstToUpdateRot) {
                 // For non-independent facing we have to align orientation to linear velocity
                 float newOrientation = vectorToAngle(linearVelocity);
                 if (newOrientation != getRotation()) {
@@ -73,44 +86,8 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
         }
 
         this.linearVelocity.mulAdd(steering.linear, time).limit(this.getMaxLinearSpeed());
-
-
     }
 
-
-    @Override
-    public Steerable<Vector2> getOwner() {
-        return proxOwner;
-    }
-
-    @Override
-    public void setOwner(Steerable<Vector2> owner) {
-        proxOwner = owner;
-    }
-
-    @Override
-    public int findNeighbors(Proximity.ProximityCallback<Vector2> callback) {
-
-        int neighborCount = 0;
-
-        if(worldObjects == null){
-            Gdx.app.log("Error", "WorldObject Array is null in SteerableObject. Fix yo bloody program m8 plz ta thx. You need to call SetAllSteerables()");
-        }
-        else
-        {
-            for(SteerableObject obj : worldObjects)
-            {
-                if(obj.GetID() != this.GetID()) { //Dont want to run behavior on yoself, so compare ids
-                    if (obj.GetCenterPosition().dst(this.GetCenterPosition()) <= (obj.getBoundingRadius()/2 + this.getBoundingRadius()/2)) {
-                        neighborCount++;
-                        callback.reportNeighbor(obj);
-                    }
-                }
-            }
-        }
-
-        return neighborCount;
-    }
     @Override
     public Vector2 getPosition() {
         return GetCenterPosition();
@@ -205,5 +182,72 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
     public void SetIndependatFacing(boolean _independant)
     {
         independentFacing = _independant;
+    }
+
+    @Override
+    public Steerable<Vector2> getOwner() {
+        return this.proxOwner;
+    }
+
+    @Override
+    public void setOwner(Steerable<Vector2> owner) {
+        this.proxOwner = owner;
+    }
+
+    @Override
+    public int findNeighbors(ProximityCallback<Vector2> callback) {
+        int agentCount = worldObjects.size();
+        int neighborCount = 0;
+
+        // Check current frame id to avoid repeating calculations
+        // when this proximity is used by multiple group behaviors.
+        if (this.frameId != Gdx.graphics.getFrameId()) {
+            // Save the frame id
+            this.frameId = Gdx.graphics.getFrameId();
+
+            Vector2 ownerPosition = proxOwner.getPosition();
+
+            // Scan the agents searching for neighbors
+            for (int i = 0; i < agentCount; i++) {
+                Steerable<Vector2> currentAgent = worldObjects.get(i);
+
+                // Make sure the agent being examined isn't the owner
+                if (currentAgent != proxOwner) {
+                    float squareDistance = ownerPosition.dst2(currentAgent.getPosition());
+
+                    // The bounding radius of the current agent is taken into account
+                    // by adding it to the range
+                    float range = proximityRadius + currentAgent.getBoundingRadius();
+
+                    // If the current agent is within the range, report it to the callback
+                    // and tag it for further consideration.
+                    if (squareDistance < range * range) {
+                        if (callback.reportNeighbor(currentAgent)) {
+                            currentAgent.setTagged(true);
+                            neighborCount++;
+                            continue;
+                        }
+                    }
+                }
+
+                // Clear the tag
+                currentAgent.setTagged(false);
+            }
+        } else {
+            // Scan the agents searching for tagged neighbors
+            for (int i = 0; i < agentCount; i++) {
+                Steerable<Vector2> currentAgent = worldObjects.get(i);
+
+                // Make sure the agent being examined isn't the owner and that
+                // it's tagged.
+                if (currentAgent != proxOwner && currentAgent.isTagged()) {
+
+                    if (callback.reportNeighbor(currentAgent)) {
+                        neighborCount++;
+                    }
+                }
+            }
+        }
+        return neighborCount;
     }
 }

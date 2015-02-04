@@ -81,6 +81,9 @@ public class PlayState extends State implements InputProcessor
 
         SetupButtons();
 
+        player = new PlayerShip(gameObjectTextureSheet, bulletPool, activeBullets, caps, frigs, fighters);
+        player.setPosition(500,100);
+
         EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet,player);
         testCap.setPosition(900,100);
         testCap2 = new EnemyCapitalShip(gameObjectTextureSheet,player);
@@ -88,21 +91,18 @@ public class PlayState extends State implements InputProcessor
         caps.add(testCap);
         caps.add(testCap2);
 
-        EnemyFrigateShip testFrig = new EnemyFrigateShip(gameObjectTextureSheet);
+        EnemyFrigateShip testFrig = new EnemyFrigateShip(gameObjectTextureSheet, player);
         testFrig.setPosition(600,300);
         frigs.add(testFrig);
 
-        EnemyFighterShip testFighter = new EnemyFighterShip(gameObjectTextureSheet);
+        EnemyFighterShip testFighter = new EnemyFighterShip(gameObjectTextureSheet, player);
         testFighter.setPosition(950,700);
         fighters.add(testFighter);
 
-        player = new PlayerShip(gameObjectTextureSheet, bulletPool, activeBullets, caps, frigs, fighters);
-        player.setPosition(500,100);
+
 
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
         camera.update();
-
-
 
 
         SetupSteerables();
@@ -150,6 +150,7 @@ public class PlayState extends State implements InputProcessor
     public void Update(HashMap<Integer,TouchInfo> touches)
     {
         float elapsed = Gdx.graphics.getDeltaTime();
+
 
 
         for(Bullet bullet : activeBullets)

@@ -13,6 +13,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.mygdx.game.CustomCollisionAvoidance;
+import com.mygdx.game.CustomSeperation;
 import com.mygdx.game.GameObjects.GameObject;
 import com.mygdx.game.GameObjects.SteerableObject;
 import com.mygdx.game.GameObjects.Weapons.Gun;
@@ -58,11 +60,14 @@ public class Ship extends SteerableObject{
     private BlendedSteering.BehaviorAndWeight<Vector2> pursueBlend;
     protected Evade<Vector2> evadeBehavior;
     private BlendedSteering.BehaviorAndWeight<Vector2> evadeBlend;
-    protected CollisionAvoidance<Vector2> avoidObjectBehavior;
+    protected CustomCollisionAvoidance<Vector2> avoidObjectBehavior;
+    protected CustomSeperation<Vector2> sepationBehavior;
 
     private static float fastWeighting = 0.6f;
     private static float moderateWeighting = 0.4f;
     private static float slowWeighting = 0.2f;
+
+    protected float steeringFriction = 0.1f;
 
     public Ship(Texture gameObjectTexSheet, TextureRegion shipRegion, float startHealth, float boundingRadius, float maxLinearSpeed, float maxLinearAcceleration, float maxAngularSpeed, float maxAngularAcceleration)
     {
@@ -81,21 +86,26 @@ public class Ship extends SteerableObject{
         blendedSteering = new BlendedSteering<Vector2>(this);
 
 
-        avoidObjectBehavior = new CollisionAvoidance<Vector2>(this,this);
-        blendedSteering.add(avoidObjectBehavior, 0.6f);
+        avoidObjectBehavior = new CustomCollisionAvoidance<Vector2>(this,this);
 
         pursueBehavior = new Pursue<Vector2>(this, null);
         evadeBehavior = new Evade<Vector2>(this, null);
+        sepationBehavior = new CustomSeperation<Vector2>(this,this);
         pursueBehavior.setEnabled(false);
         evadeBehavior.setEnabled(false);
-        pursueBehavior.setMaxPredictionTime(100);
-        evadeBehavior.setMaxPredictionTime(100);
+        pursueBehavior.setMaxPredictionTime(0.5f);
+        evadeBehavior.setMaxPredictionTime(0.5f);
+        sepationBehavior.setDecayCoefficient(3);
 
+        
         pursueBlend = new BlendedSteering.BehaviorAndWeight<Vector2>(pursueBehavior, 0.0f);
         evadeBlend = new BlendedSteering.BehaviorAndWeight<Vector2>(evadeBehavior, 0.0f);
 
+
         blendedSteering.add(pursueBlend);
         blendedSteering.add(evadeBlend);
+        blendedSteering.add(avoidObjectBehavior, 1.0f);
+        blendedSteering.add(sepationBehavior, 20.0f);
 
     }
 
@@ -116,6 +126,9 @@ public class Ship extends SteerableObject{
             torpedo.Update(elapsed);
             torpedo.SetPosition(GetCenterPosition().x + torpedoMuzzleOffset.x, GetCenterPosition().y + torpedoMuzzleOffset.y);
         }
+
+
+        this.linearVelocity.scl(1.0f - (steeringFriction * elapsed));
 
         blendedSteering.calculateSteering(steeringOutput);
         applySteering(steeringOutput, elapsed);

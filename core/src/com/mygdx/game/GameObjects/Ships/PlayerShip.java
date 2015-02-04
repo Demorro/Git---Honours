@@ -47,11 +47,13 @@ public class PlayerShip extends Ship{
     private int ModerateAttackChanceWeight = 2;
     private int SlowAttackChanceWeight = 1;
 
-    private static float shipRadius = 200;
-    private static float maxLinearVelocity = 300;
-    private static float maxLinearVelocityAccel = 300;
+    private static float shipRadius = 15;
+    private static float maxLinearVelocity = 200;
+    private static float maxLinearVelocityAccel = 500;
     private static float maxAngularVelocity = 5;
     private static float maxAngularVelocityAccel = 2;
+
+    private boolean hasSetupLogic = false; //Cause we cant setup everything in constructor cause things havnt been initialised.
 
 
     public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters)
@@ -70,8 +72,6 @@ public class PlayerShip extends Ship{
         this.frigs = frigs;
         this.fighters = fighters;
 
-        ParseLogicScript();
-
         autoCannon.SetIsAutoFiring(true);
         laser.SetIsAutoFiring(true);
         torpedo.SetIsAutoFiring(true);
@@ -81,6 +81,11 @@ public class PlayerShip extends Ship{
 
     public void Update(float elapsed, OrthographicCamera camera)
     {
+        if(hasSetupLogic == false){
+            ParseLogicScript();
+            hasSetupLogic = true;
+        }
+
         super.Update(elapsed);
         ResolveWeaponAttackTarget(caps, frigs, fighters, autoCannon, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, laser, camera);
@@ -104,9 +109,18 @@ public class PlayerShip extends Ship{
     {
         if(attackTargets.size() > 0)
         {
-            SteerableObject closestCap = GetClosestObject(caps, camera);
-            SteerableObject closestFrig = GetClosestObject(frigs, camera);
-            SteerableObject closestFighter = GetClosestObject(fighters, camera);
+            SteerableObject closestCap = null;
+            SteerableObject closestFrig = null;
+            SteerableObject closestFighter = null;
+            if(caps.size() > 0){
+                closestCap = GetClosestObject(caps, camera);
+            }
+            if(frigs.size() > 0) {
+                closestFrig = GetClosestObject(frigs, camera);
+            }
+            if(fighters.size() > 0) {
+                closestFighter = GetClosestObject(fighters, camera);
+            }
 
             int capAttackChance = 0; int frigAttackChance = 0; int fighterAttackChance = 0;
 
@@ -172,9 +186,18 @@ public class PlayerShip extends Ship{
     private void ResolvePersueTargets(ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, OrthographicCamera camera)
     {
         if(pursueTargets.size() > 0) {
-            SteerableObject closestCap = GetClosestObject(caps, camera);
-            SteerableObject closestFrig = GetClosestObject(frigs, camera);
-            SteerableObject closestFighter = GetClosestObject(fighters, camera);
+            SteerableObject closestCap = null;
+            SteerableObject closestFrig = null;
+            SteerableObject closestFighter = null;
+            if(caps.size() > 0){
+                closestCap = GetClosestObject(caps, camera);
+            }
+            if(frigs.size() > 0) {
+                closestFrig = GetClosestObject(frigs, camera);
+            }
+            if(fighters.size() > 0) {
+                closestFighter = GetClosestObject(fighters, camera);
+            }
 
             SteerableObject closestCandidateObj = null;
             Utility.Speed closestCandidateObjPursueSpeed = null;
@@ -240,9 +263,18 @@ public class PlayerShip extends Ship{
     private void ResolveEvadeTargets(ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, OrthographicCamera camera)
     {
         if(evadeTargets.size() > 0) {
-            SteerableObject closestCap = GetClosestObject(caps, camera);
-            SteerableObject closestFrig = GetClosestObject(frigs, camera);
-            SteerableObject closestFighter = GetClosestObject(fighters, camera);
+            SteerableObject closestCap = null;
+            SteerableObject closestFrig = null;
+            SteerableObject closestFighter = null;
+            if(caps.size() > 0){
+                closestCap = GetClosestObject(caps, camera);
+            }
+            if(frigs.size() > 0) {
+                closestFrig = GetClosestObject(frigs, camera);
+            }
+            if(fighters.size() > 0) {
+                closestFighter = GetClosestObject(fighters, camera);
+            }
 
             SteerableObject closestCandidateObj = null;
             Utility.Speed closestCandidateObjPursueSpeed = null;
