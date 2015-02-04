@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.CustomCollisionAvoidance;
 import com.mygdx.game.CustomSeperation;
+import com.mygdx.game.CustomWander;
 import com.mygdx.game.GameObjects.GameObject;
 import com.mygdx.game.GameObjects.SteerableObject;
 import com.mygdx.game.GameObjects.Weapons.Gun;
@@ -62,6 +63,7 @@ public class Ship extends SteerableObject{
     private BlendedSteering.BehaviorAndWeight<Vector2> evadeBlend;
     protected CustomCollisionAvoidance<Vector2> avoidObjectBehavior;
     protected CustomSeperation<Vector2> sepationBehavior;
+    protected CustomWander<Vector2> wanderBehavior;
 
     private static float fastWeighting = 0.6f;
     private static float moderateWeighting = 0.4f;
@@ -91,13 +93,16 @@ public class Ship extends SteerableObject{
         pursueBehavior = new Pursue<Vector2>(this, null);
         evadeBehavior = new Evade<Vector2>(this, null);
         sepationBehavior = new CustomSeperation<Vector2>(this,this);
+        wanderBehavior = new CustomWander<Vector2>(this);
         pursueBehavior.setEnabled(false);
         evadeBehavior.setEnabled(false);
         pursueBehavior.setMaxPredictionTime(0.5f);
         evadeBehavior.setMaxPredictionTime(0.5f);
         sepationBehavior.setDecayCoefficient(3);
+        wanderBehavior.setOwner(this);
+        wanderBehavior.setFaceEnabled(false);
 
-        
+
         pursueBlend = new BlendedSteering.BehaviorAndWeight<Vector2>(pursueBehavior, 0.0f);
         evadeBlend = new BlendedSteering.BehaviorAndWeight<Vector2>(evadeBehavior, 0.0f);
 
@@ -105,8 +110,8 @@ public class Ship extends SteerableObject{
         blendedSteering.add(pursueBlend);
         blendedSteering.add(evadeBlend);
         blendedSteering.add(avoidObjectBehavior, 1.0f);
-        blendedSteering.add(sepationBehavior, 20.0f);
-
+        blendedSteering.add(sepationBehavior, 10.0f);
+        blendedSteering.add(wanderBehavior, 0.05f);
     }
 
     public void Update(float elapsed)

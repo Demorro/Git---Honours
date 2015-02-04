@@ -90,7 +90,7 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
 
     @Override
     public Vector2 getPosition() {
-        return GetCenterPosition();
+        return new Vector2(GetCenterPosition().x, GetCenterPosition().y);
     }
 
     @Override
@@ -135,8 +135,9 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
 
     @Override
     public Vector2 angleToVector(Vector2 outVector, float angle) {
-        outVector.setAngle(angle);
-        return outVector;
+        Vector2 outVec = new Vector2(outVector.x, outVector.y);
+        outVec.setAngle(angle);
+        return outVec;
     }
 
     @Override

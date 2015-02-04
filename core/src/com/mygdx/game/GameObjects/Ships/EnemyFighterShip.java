@@ -18,9 +18,18 @@ public class EnemyFighterShip extends Ship {
     private static float maxAngularVelocity = 30;
     private static float maxAngularVelocityAccel = 10;
 
+
+
     public EnemyFighterShip(Texture gameObjectTexSheet, PlayerShip player) {
         super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 30, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel);
 
-        SetPursueTarget(player, Utility.Speed.MODERATE);
+
+    }
+
+    public void Update(float elapsed)
+    {
+        super.Update(elapsed);
+
+
     }
 }
