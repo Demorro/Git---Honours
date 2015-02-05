@@ -82,23 +82,29 @@ public class PlayState extends State implements InputProcessor
         SetupButtons();
 
         player = new PlayerShip(gameObjectTextureSheet, bulletPool, activeBullets, caps, frigs, fighters);
-        player.setPosition(500,100);
+        player.setPosition(0,0);
 
         EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet,player);
-        testCap.setPosition(900,100);
-        testCap2 = new EnemyCapitalShip(gameObjectTextureSheet,player);
-        testCap2.setPosition(800,1300);
+        testCap.setPosition(-500,300);
         caps.add(testCap);
-        caps.add(testCap2);
 
         EnemyFrigateShip testFrig = new EnemyFrigateShip(gameObjectTextureSheet, player);
-        testFrig.setPosition(600,300);
+        testFrig.setPosition(400,100);
+        EnemyFrigateShip testFrig2 = new EnemyFrigateShip(gameObjectTextureSheet, player);
+        testFrig.setPosition(400,100);
+        testFrig2.setPosition(-350, -200);
         frigs.add(testFrig);
+       // frigs.add(testFrig2);
 
         EnemyFighterShip testFighter = new EnemyFighterShip(gameObjectTextureSheet, player);
-        testFighter.setPosition(950,700);
+        testFighter.setPosition(700,200);
+        EnemyFighterShip testFighter1 = new EnemyFighterShip(gameObjectTextureSheet, player);
+        testFighter1.setPosition(800,200);
+        EnemyFighterShip testFighter2 = new EnemyFighterShip(gameObjectTextureSheet, player);
+        testFighter2.setPosition(600,200);
         fighters.add(testFighter);
-
+        fighters.add(testFighter1);
+        fighters.add(testFighter2);
 
 
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
@@ -164,17 +170,17 @@ public class PlayState extends State implements InputProcessor
 
         for(EnemyCapitalShip ship : caps)
         {
-            ship.Update(elapsed);
+            ship.Update(elapsed,camera);
         }
 
         for(EnemyFrigateShip ship : frigs)
         {
-            ship.Update(elapsed);
+            ship.Update(elapsed,camera);
         }
 
         for(EnemyFighterShip ship : fighters)
         {
-            ship.Update(elapsed);
+            ship.Update(elapsed,camera);
         }
 
         returnToEditorButton.Update();

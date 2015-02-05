@@ -6,8 +6,8 @@ import com.mygdx.game.MyGdxGame;
 
 public class DesktopLauncher {
 
-	final static int windowWidth = 1200;
-	final static int windowHeight = 800;
+	final static int windowWidth = 1366;
+	final static int windowHeight = 768;
 
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();

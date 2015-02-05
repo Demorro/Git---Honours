@@ -71,7 +71,6 @@ public class CustomCollisionAvoidance<T extends Vector<T>> extends GroupBehavior
         firstDistance = 0;
         relativePosition = steering.linear;
 
-        System.out.println(relativePosition);
 
         // Take into consideration each neighbor to find the most imminent collision.
         int neighborCount = proximity.findNeighbors(this);

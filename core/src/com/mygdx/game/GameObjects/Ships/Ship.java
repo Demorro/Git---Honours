@@ -36,7 +36,6 @@ public class Ship extends SteerableObject{
     protected ArrayList<Target> pursueTargets = new ArrayList<Target>();
     protected ArrayList<Target> evadeTargets = new ArrayList<Target>();
 
-
     private float hp = 100;
 
 
@@ -63,13 +62,15 @@ public class Ship extends SteerableObject{
     private BlendedSteering.BehaviorAndWeight<Vector2> evadeBlend;
     protected CustomCollisionAvoidance<Vector2> avoidObjectBehavior;
     protected CustomSeperation<Vector2> sepationBehavior;
-    protected CustomWander<Vector2> wanderBehavior;
+    protected CustomWander<Vector2> noiseAddWanderBehavior; //Used for adding some noise to pursue/evade/others
+    protected Cohesion<Vector2> cohesionBehavior;
+    protected Alignment<Vector2> alignmentBehavior;
 
-    private static float fastWeighting = 0.6f;
-    private static float moderateWeighting = 0.4f;
-    private static float slowWeighting = 0.2f;
+    private static float fastWeighting = 0.8f;
+    private static float moderateWeighting = 0.6f;
+    private static float slowWeighting = 0.4f;
 
-    protected float steeringFriction = 0.1f;
+    protected float steeringFriction = 0.5f;
 
     public Ship(Texture gameObjectTexSheet, TextureRegion shipRegion, float startHealth, float boundingRadius, float maxLinearSpeed, float maxLinearAcceleration, float maxAngularSpeed, float maxAngularAcceleration)
     {
@@ -89,18 +90,23 @@ public class Ship extends SteerableObject{
 
 
         avoidObjectBehavior = new CustomCollisionAvoidance<Vector2>(this,this);
-
         pursueBehavior = new Pursue<Vector2>(this, null);
         evadeBehavior = new Evade<Vector2>(this, null);
         sepationBehavior = new CustomSeperation<Vector2>(this,this);
-        wanderBehavior = new CustomWander<Vector2>(this);
+        noiseAddWanderBehavior = new CustomWander<Vector2>(this);
+        cohesionBehavior = new Cohesion<Vector2>(this, this);
+        alignmentBehavior = new Alignment<Vector2>(this,this);
         pursueBehavior.setEnabled(false);
         evadeBehavior.setEnabled(false);
         pursueBehavior.setMaxPredictionTime(0.5f);
         evadeBehavior.setMaxPredictionTime(0.5f);
-        sepationBehavior.setDecayCoefficient(3);
-        wanderBehavior.setOwner(this);
-        wanderBehavior.setFaceEnabled(false);
+        sepationBehavior.setDecayCoefficient(1);
+        noiseAddWanderBehavior.setOwner(this);
+        noiseAddWanderBehavior.setFaceEnabled(false);
+        noiseAddWanderBehavior.setEnabled(false);
+        noiseAddWanderBehavior.setWanderRate(2500);
+        cohesionBehavior.setEnabled(false);
+        alignmentBehavior.setEnabled(false);
 
 
         pursueBlend = new BlendedSteering.BehaviorAndWeight<Vector2>(pursueBehavior, 0.0f);
@@ -109,12 +115,14 @@ public class Ship extends SteerableObject{
 
         blendedSteering.add(pursueBlend);
         blendedSteering.add(evadeBlend);
-        blendedSteering.add(avoidObjectBehavior, 1.0f);
-        blendedSteering.add(sepationBehavior, 10.0f);
-        blendedSteering.add(wanderBehavior, 0.05f);
+        blendedSteering.add(avoidObjectBehavior, 0.4f);
+        //blendedSteering.add(sepationBehavior, 500.0f);
+        blendedSteering.add(noiseAddWanderBehavior, 0.1f);
+        blendedSteering.add(alignmentBehavior,0.5f);
+        blendedSteering.add(cohesionBehavior,0.5f);
     }
 
-    public void Update(float elapsed)
+    public void Update(float elapsed, OrthographicCamera camera)
     {
         super.Update(elapsed);
         if(autoCannon != null) {
@@ -136,6 +144,24 @@ public class Ship extends SteerableObject{
         this.linearVelocity.scl(1.0f - (steeringFriction * elapsed));
 
         blendedSteering.calculateSteering(steeringOutput);
+
+        if((pursueBehavior.isEnabled()) || (evadeBehavior.isEnabled())){
+            noiseAddWanderBehavior.setEnabled(true);
+        }
+        else{
+            noiseAddWanderBehavior.setEnabled(false);
+        }
+
+        /*
+        SteerableObject closestObj = GetClosestObject(worldObjects, camera);
+        if(closestObj.GetCenterPosition().dst(GetCenterPosition()) < closestObj.getBoundingRadius()/2 + getBoundingRadius()/2){
+            avoidObjectBehavior.setEnabled(true);
+            System.out.println("SOTTER");
+        }else{
+            avoidObjectBehavior.setEnabled(false);
+        }
+        */
+
         applySteering(steeringOutput, elapsed);
     }
 
@@ -163,11 +189,15 @@ public class Ship extends SteerableObject{
         SteerableObject closestObj = null;
 
         for(SteerableObject obj : objects){
-            Vector3 screenPos = new Vector3(obj.getX(), obj.getY(), 0);
-            if(camera.frustum.boundsInFrustum(screenPos.x,screenPos.y,screenPos.z,obj.getWidth()/2, obj.getHeight()/2,1)) {
-                if (obj.GetCenterPosition().dst(this.GetCenterPosition()) < closestDistance) {
-                    closestDistance = obj.GetCenterPosition().dst(this.GetCenterPosition());
-                    closestObj = obj;
+            if(obj != null) {
+                if (obj.GetID() != GetID()) {
+                    Vector3 screenPos = new Vector3(obj.getX(), obj.getY(), 0);
+                    if (camera.frustum.boundsInFrustum(screenPos.x, screenPos.y, screenPos.z, obj.getWidth() / 2, obj.getHeight() / 2, 1)) {
+                        if (obj.GetCenterPosition().dst(this.GetCenterPosition()) < closestDistance) {
+                            closestDistance = obj.GetCenterPosition().dst(this.GetCenterPosition());
+                            closestObj = obj;
+                        }
+                    }
                 }
             }
         }
@@ -189,6 +219,9 @@ public class Ship extends SteerableObject{
     }
     protected void SetBehaviorActive(SteeringBehavior behavior, Boolean active){
         behavior.setEnabled(active);
+    }
+    protected boolean GetBehaviorActive(SteeringBehavior behavior){
+        return behavior.isEnabled();
     }
 
     private float GetWeightFromSpeed(Utility.Speed pursueSpeed){

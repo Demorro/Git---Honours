@@ -101,7 +101,6 @@ public class CustomWander<T extends Vector<T>> extends Face<T> {
             owner.angleToVector(steering.linear, owner.getOrientation()).scl(maxLinearAcceleration);
         } else {
             // Seek the internal target position
-            System.out.println(internalTargetPosition);
             steering.linear.set(internalTargetPosition).sub(owner.getPosition()).nor().scl(maxLinearAcceleration);
 
             // No angular acceleration

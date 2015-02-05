@@ -21,8 +21,8 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
 
 
     //STEERING BEHAVIOR STUFF//
-    private ArrayList<SteerableObject> worldObjects = null;
-    private float proximityRadius = 300; //How close an object has to be to be considered in proximity
+    protected ArrayList<SteerableObject> worldObjects = null;
+    private float proximityRadius = 200; //How close an object has to be to be considered in proximity
     protected Vector2 linearVelocity = new Vector2(); //Updated each update loop, used for steering behaviors
     private Vector2 lastFramePosition = new Vector2(0,0);
     protected float angularVelocity = 0; //As above, used for steering behaviors, updated each update loop

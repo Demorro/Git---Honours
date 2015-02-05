@@ -1,5 +1,6 @@
 package com.mygdx.game.GameObjects.Ships;
 
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.GameObjects.SteerableObject;
@@ -12,24 +13,43 @@ import java.util.ArrayList;
  */
 public class EnemyFighterShip extends Ship {
 
-    private static float shipRadius = 5;
-    private static float maxLinearVelocity = 550;
-    private static float maxLinearVelocityAccel = 550;
+    private static float shipRadius = 10;
+    private static float maxLinearVelocity = 1100;
+    private static float maxLinearVelocityAccel = 1100;
     private static float maxAngularVelocity = 30;
     private static float maxAngularVelocityAccel = 10;
 
+    private PlayerShip player;
+    private float fleeRadius = 200; //If the ship is in this radius, it flees.
+    private float pursueRadius = 500; //if fleeing, and we get to this point, we start pursuing
 
 
     public EnemyFighterShip(Texture gameObjectTexSheet, PlayerShip player) {
         super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 30, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel);
+        SetPursueTarget(player, Utility.Speed.QUICK);
 
+        this.player = player;
+
+        SetBehaviorActive(cohesionBehavior, true);
+        SetBehaviorActive(alignmentBehavior, true);
+    }
+
+    public void Update(float elapsed, OrthographicCamera camera)
+    {
+        super.Update(elapsed,camera);
+        DoShipAI();
 
     }
 
-    public void Update(float elapsed)
+    private void DoShipAI()
     {
-        super.Update(elapsed);
-
-
+        if(player.getPosition().dst(getPosition()) < fleeRadius){
+            SetEvadeTarget(player, Utility.Speed.MODERATE);
+            SetBehaviorActive(pursueBehavior, false);
+        }
+        else if(player.getPosition().dst(getPosition()) > pursueRadius){
+            SetPursueTarget(player, Utility.Speed.QUICK);
+            SetBehaviorActive(evadeBehavior, false);
+        }
     }
 }

@@ -48,13 +48,18 @@ public class PlayerShip extends Ship{
     private int SlowAttackChanceWeight = 1;
 
     private static float shipRadius = 15;
-    private static float maxLinearVelocity = 200;
-    private static float maxLinearVelocityAccel = 500;
+    private static float maxLinearVelocity = 300;
+    private static float maxLinearVelocityAccel = 220;
     private static float maxAngularVelocity = 5;
     private static float maxAngularVelocityAccel = 2;
 
     private boolean hasSetupLogic = false; //Cause we cant setup everything in constructor cause things havnt been initialised.
 
+    private SteerableObject pursueTarget;
+    private float pursueDisableDistance = 100; //Stupid hack to stop really close collisions
+    private SteerableObject evadeTarget;
+    private float evadeDisableDistance = 450; //Stupid hack again
+    private SteerableObject attackTarget;
 
     public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters)
     {
@@ -86,22 +91,35 @@ public class PlayerShip extends Ship{
             hasSetupLogic = true;
         }
 
-        super.Update(elapsed);
+        super.Update(elapsed,camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, autoCannon, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, laser, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, torpedo, camera);
         ResolvePersueTargets(caps, frigs, fighters, camera);
         ResolveEvadeTargets(caps, frigs, fighters, camera);
 
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-        {
-            translate(2000 * elapsed, 0);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
-        {
-            translate(-2000 * elapsed, 0);
+        CustomLogic();
+
+    }
+
+    private void CustomLogic()
+    {
+        if(pursueTarget != null){
+            if(pursueTarget.getPosition().dst(getPosition()) < pursueDisableDistance){
+                SetBehaviorActive(pursueBehavior, false);
+            }else{
+                SetBehaviorActive(pursueBehavior, true);
+            }
         }
 
+        if(evadeTarget != null)
+        {
+            if(evadeTarget.getPosition().dst(getPosition()) > evadeDisableDistance){
+                SetBehaviorActive(evadeBehavior, false);
+            }else{
+                SetBehaviorActive(evadeBehavior, true);
+            }
+        }
     }
 
     //Takes the list of targets that the logic script has loaded in, and resolves what should be targetted and how much
@@ -176,10 +194,10 @@ public class PlayerShip extends Ship{
             if(capAttackChance + frigAttackChance + fighterAttackChance <= 0){ weapon.SetTarget(null); return;}
 
             int chooseTarget = MathUtils.random(1,capAttackChance + frigAttackChance + fighterAttackChance);
-            if(chooseTarget <= capAttackChance){weapon.SetTarget(closestCap);}
-            else if(chooseTarget <= capAttackChance + frigAttackChance){weapon.SetTarget(closestFrig);}
-            else if(chooseTarget <= capAttackChance + frigAttackChance + fighterAttackChance){weapon.SetTarget(closestFighter);}
-            else{weapon.SetTarget(null);}
+            if(chooseTarget <= capAttackChance){weapon.SetTarget(closestCap); attackTarget = closestCap;}
+            else if(chooseTarget <= capAttackChance + frigAttackChance){weapon.SetTarget(closestFrig); attackTarget = closestFrig;}
+            else if(chooseTarget <= capAttackChance + frigAttackChance + fighterAttackChance){weapon.SetTarget(closestFighter); attackTarget = closestFighter;}
+            else{weapon.SetTarget(null); attackTarget = null;}
         }
     }
 
@@ -199,6 +217,7 @@ public class PlayerShip extends Ship{
                 closestFighter = GetClosestObject(fighters, camera);
             }
 
+
             SteerableObject closestCandidateObj = null;
             Utility.Speed closestCandidateObjPursueSpeed = null;
 
@@ -217,6 +236,7 @@ public class PlayerShip extends Ship{
                     }
                 }
                 if(target.target == Utility.Target.FRIGATE){
+                    System.out.println("Frigs");
                     if(closestFrig != null) {
                         if (closestCandidateObj == null) {
                             closestCandidateObj = closestFrig;
@@ -242,20 +262,36 @@ public class PlayerShip extends Ship{
                         }
                     }
                 }
+                if(target.target == Utility.Target.ALL){
+                    ArrayList<SteerableObject> closestShips = new ArrayList<SteerableObject>();
+                    closestShips.add(closestCap);
+                    closestShips.add(closestFrig);
+                    closestShips.add(closestFighter);
+                    SteerableObject closestShip = GetClosestObject(closestShips, camera);
+                    if (closestCandidateObj == null) {
+                        closestCandidateObj = closestShip;
+                        closestCandidateObjPursueSpeed = target.speed;
+                    } else {
+                        if ((closestShip.GetCenterPosition().dst(this.GetCenterPosition())) < (closestCandidateObj.GetCenterPosition().dst(this.GetCenterPosition()))) {
+                            closestCandidateObj = closestShip;
+                            closestCandidateObjPursueSpeed = target.speed;
+                        }
+                    }
+                }
             }
 
             if(closestCandidateObj != null){
-                Vector3 screenPos = new Vector3(closestCandidateObj.getX(), closestCandidateObj.getY(), 0);
-                if(camera.frustum.boundsInFrustum(screenPos.x,screenPos.y,screenPos.z,getWidth()/2, getHeight()/2,1))
+                Vector3 screenPos = new Vector3(closestCandidateObj.getPosition().x, closestCandidateObj.getPosition().y, 0);
+                if(camera.frustum.pointInFrustum(screenPos.x, screenPos.y, screenPos.z))
                 {
                     SetPursueTarget(closestCandidateObj, closestCandidateObjPursueSpeed);
+                    pursueTarget = closestCandidateObj;
                 }
             }
             else
             {
                 SetBehaviorActive(pursueBehavior, false);
             }
-
         }
 
     }
@@ -319,13 +355,30 @@ public class PlayerShip extends Ship{
                         }
                     }
                 }
+                if(target.target == Utility.Target.ALL){
+                    ArrayList<SteerableObject> closestShips = new ArrayList<SteerableObject>();
+                    closestShips.add(closestCap);
+                    closestShips.add(closestFrig);
+                    closestShips.add(closestFighter);
+                    SteerableObject closestShip = GetClosestObject(closestShips, camera);
+                    if (closestCandidateObj == null) {
+                        closestCandidateObj = closestShip;
+                        closestCandidateObjPursueSpeed = target.speed;
+                    } else {
+                        if ((closestShip.GetCenterPosition().dst(this.GetCenterPosition())) < (closestCandidateObj.GetCenterPosition().dst(this.GetCenterPosition()))) {
+                            closestCandidateObj = closestShip;
+                            closestCandidateObjPursueSpeed = target.speed;
+                        }
+                    }
+                }
             }
 
             if(closestCandidateObj != null){
-                Vector3 screenPos = new Vector3(closestCandidateObj.getX(), closestCandidateObj.getY(), 0);
-                if(camera.frustum.boundsInFrustum(screenPos.x,screenPos.y,screenPos.z,getWidth()/2, getHeight()/2,1))
+                Vector3 screenPos = new Vector3(closestCandidateObj.getPosition().x, closestCandidateObj.getPosition().y, 0);
+                if(camera.frustum.pointInFrustum(screenPos.x,screenPos.y,screenPos.z))
                 {
                     SetEvadeTarget(closestCandidateObj, closestCandidateObjPursueSpeed);
+                    evadeTarget = closestCandidateObj;
                 }
             }
             else
