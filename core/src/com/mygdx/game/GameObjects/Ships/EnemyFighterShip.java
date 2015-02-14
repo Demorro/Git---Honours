@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.game.GameObjects.SteerableObject;
+import com.mygdx.game.GameObjects.Weapons.Bullet;
 import com.mygdx.game.Utility.Utility;
 
 import java.util.ArrayList;
@@ -34,9 +35,9 @@ public class EnemyFighterShip extends Ship {
         SetBehaviorActive(alignmentBehavior, true);
     }
 
-    public void Update(float elapsed, OrthographicCamera camera)
+    public void Update(float elapsed, OrthographicCamera camera, ArrayList<Bullet> bullets)
     {
-        super.Update(elapsed,camera);
+        super.Update(elapsed,camera, bullets);
         DoShipAI();
 
     }

@@ -1,6 +1,8 @@
 package com.mygdx.game.GameObjects.Weapons;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -42,6 +44,8 @@ public class Gun {
     private float torpedoBulletSpin = 250;
     private Utility.Weapon weaponType ;
 
+    private TextureAtlas bulletExplosionAtlas;
+
     public Gun(Pool<Bullet> bulletPool, ArrayList<Bullet> activeBullets, Texture gameObjectTextureSheet, float bulletSpeed, float bulletDamage, Rectangle bulletTextureBounds, Vector2 firingPos, float accuracyConeVariance, Utility.Weapon weaponType)
     {
         this.bulletPool = bulletPool;
@@ -55,6 +59,19 @@ public class Gun {
         this.autoFireTimeBetweenShots = MODERATE_FIRE_TIME_BETWEEN_SHOTS;
 
         this.weaponType = weaponType;
+
+        if(weaponType == Utility.Weapon.AUTOCANNON){
+            bulletExplosionAtlas = new TextureAtlas(Gdx.files.internal("Images/SmallExplosion/SmallExplosion.txt"));
+        }
+        else if(weaponType == Utility.Weapon.LASER){
+            bulletExplosionAtlas = new TextureAtlas(Gdx.files.internal("Images/SmallRedExplosion/SmallRedExplosion.txt"));
+        }
+        else if(weaponType == Utility.Weapon.MISSILE){
+            bulletExplosionAtlas = new TextureAtlas(Gdx.files.internal("Images/LargeExplosion/LargeExplosion.txt"));
+        }
+        else{
+            bulletExplosionAtlas = new TextureAtlas(Gdx.files.internal("Images/SmallExplosion/SmallExplosion.txt"));
+        }
     }
 
     public void SetFastMedSlowFireRate(float fastTime, float medTime, float slowTime){
@@ -88,7 +105,7 @@ public class Gun {
         firingVector.rotate(accuracyVariance);
 
         Bullet item = bulletPool.obtain();
-        item.init(gameObjectTextureSheet,bulletSrcRegion,position.x,position.y,shotBulletSpeed,shotBulletDamage, firingVector);
+        item.init(gameObjectTextureSheet,bulletSrcRegion,position.x,position.y,shotBulletSpeed,shotBulletDamage, firingVector, bulletExplosionAtlas);
         if(weaponType == Utility.Weapon.MISSILE){item.SetSpin(torpedoBulletSpin);}
         activeBullets.add(item);
     }

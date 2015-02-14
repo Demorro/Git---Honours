@@ -1,0 +1,74 @@
+LargeExplosion.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+001
+  rotate: false
+  xy: 2, 2
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1
+002
+  rotate: false
+  xy: 93, 2
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1
+003
+  rotate: false
+  xy: 184, 2
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1
+004
+  rotate: false
+  xy: 275, 2
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1
+005
+  rotate: false
+  xy: 366, 2
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1
+006
+  rotate: false
+  xy: 457, 2
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1
+007
+  rotate: false
+  xy: 548, 2
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1
+008
+  rotate: false
+  xy: 639, 2
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1
+009
+  rotate: false
+  xy: 730, 2
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1
+010
+  rotate: false
+  xy: 821, 2
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1

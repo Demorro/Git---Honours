@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -18,6 +19,7 @@ import com.mygdx.game.GameObjects.Ships.EnemyFrigateShip;
 import com.mygdx.game.GameObjects.Ships.PlayerShip;
 import com.mygdx.game.GameObjects.SteerableObject;
 import com.mygdx.game.GameObjects.Weapons.Bullet;
+import com.mygdx.game.GameObjects.Weapons.Explosion;
 import com.mygdx.game.GameObjects.Weapons.Gun;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.CapitalShipBlock;
 import com.mygdx.game.UI.Button;
@@ -49,7 +51,8 @@ public class PlayState extends State implements InputProcessor
     private Texture gameObjectTextureSheet = new Texture(Gdx.files.internal("Images/GameObjectSpriteSheet.png"));
     private PlayerShip player;
 
-    private final ArrayList<Bullet> activeBullets = new ArrayList<Bullet>();
+    private final ArrayList<Bullet> playerShotBullets = new ArrayList<Bullet>();
+    private final ArrayList<Bullet> enemyShotBullets = new ArrayList<Bullet>();
     private final Pool<Bullet> bulletPool = new Pool<Bullet>(){
 
         @Override
@@ -65,6 +68,7 @@ public class PlayState extends State implements InputProcessor
 
     private EnemyCapitalShip testCap2;
 
+
     public PlayState()
     {
         super(StateID.PLAY_STATE);
@@ -72,6 +76,7 @@ public class PlayState extends State implements InputProcessor
     //Abstract method that runs on state initialisation, for loading resources
     public boolean Load()
     {
+
         Gdx.input.setInputProcessor(this);
         fpsFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
         camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -81,7 +86,7 @@ public class PlayState extends State implements InputProcessor
 
         SetupButtons();
 
-        player = new PlayerShip(gameObjectTextureSheet, bulletPool, activeBullets, caps, frigs, fighters);
+        player = new PlayerShip(gameObjectTextureSheet, bulletPool, playerShotBullets, caps, frigs, fighters);
         player.setPosition(0,0);
 
         EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet,player);
@@ -159,28 +164,28 @@ public class PlayState extends State implements InputProcessor
 
 
 
-        for(Bullet bullet : activeBullets)
+        for(Bullet bullet : playerShotBullets)
         {
             bullet.Update(elapsed, camera);
         }
         KillOffscreenBullets();
 
-        player.Update(elapsed,camera);
+        player.Update(elapsed,camera,enemyShotBullets);
 
 
         for(EnemyCapitalShip ship : caps)
         {
-            ship.Update(elapsed,camera);
+            ship.Update(elapsed,camera,playerShotBullets);
         }
 
         for(EnemyFrigateShip ship : frigs)
         {
-            ship.Update(elapsed,camera);
+            ship.Update(elapsed,camera,playerShotBullets);
         }
 
         for(EnemyFighterShip ship : fighters)
         {
-            ship.Update(elapsed,camera);
+            ship.Update(elapsed,camera,playerShotBullets);
         }
 
         returnToEditorButton.Update();
@@ -203,10 +208,7 @@ public class PlayState extends State implements InputProcessor
         backgroundBatch.end();
 
 
-
         spriteBatch.begin();
-
-
         spriteBatch.setProjectionMatrix(camera.combined);
 
         for(EnemyCapitalShip ship : caps){
@@ -219,7 +221,7 @@ public class PlayState extends State implements InputProcessor
             ship.Render(spriteBatch);
         }
 
-        for(Bullet bullet : activeBullets)
+        for(Bullet bullet : playerShotBullets)
         {
             bullet.Render(spriteBatch);
         }
@@ -243,11 +245,11 @@ public class PlayState extends State implements InputProcessor
     {
         // if you want to free dead bullets, returning them to the pool:
         Bullet item;
-        int len = activeBullets.size();
+        int len = playerShotBullets.size();
         for (int i = len; --i >= 0;) {
-            item = activeBullets.get(i);
+            item = playerShotBullets.get(i);
             if (item.alive == false) {
-                activeBullets.remove(i);
+                playerShotBullets.remove(i);
                 bulletPool.free(item);
             }
         }

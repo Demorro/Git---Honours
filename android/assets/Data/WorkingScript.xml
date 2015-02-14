@@ -2,9 +2,5 @@
 <PlayerLogicScript>
   <Line>
     <Block>ATTACK</Block>
-    <Block>FRIGATESHIP</Block>
-    <Block>AUTOCANNON</Block>
-    <Block>QUICKLY</Block>
   </Line>
-  <Line></Line>
 </PlayerLogicScript>

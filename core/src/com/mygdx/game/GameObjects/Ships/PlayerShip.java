@@ -84,14 +84,14 @@ public class PlayerShip extends Ship{
 
     }
 
-    public void Update(float elapsed, OrthographicCamera camera)
+    public void Update(float elapsed, OrthographicCamera camera, ArrayList<Bullet> bullets)
     {
         if(hasSetupLogic == false){
             ParseLogicScript();
             hasSetupLogic = true;
         }
 
-        super.Update(elapsed,camera);
+        super.Update(elapsed,camera, bullets);
         ResolveWeaponAttackTarget(caps, frigs, fighters, autoCannon, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, laser, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, torpedo, camera);

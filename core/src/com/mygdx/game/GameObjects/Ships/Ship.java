@@ -9,18 +9,20 @@ import com.badlogic.gdx.ai.steer.SteeringBehavior;
 import com.badlogic.gdx.ai.steer.behaviors.*;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.mygdx.game.CustomCollisionAvoidance;
 import com.mygdx.game.CustomSeperation;
 import com.mygdx.game.CustomWander;
 import com.mygdx.game.GameObjects.GameObject;
 import com.mygdx.game.GameObjects.SteerableObject;
+import com.mygdx.game.GameObjects.Weapons.Bullet;
 import com.mygdx.game.GameObjects.Weapons.Gun;
 import com.mygdx.game.GameObjects.Weapons.Target;
 import com.mygdx.game.Utility.Utility;
+import jdk.nashorn.internal.runtime.Debug;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -29,6 +31,8 @@ import java.util.ArrayList;
  * Created by Elliot Morris on 29/01/2015.
  */
 public class Ship extends SteerableObject{
+
+    private boolean _DEBUGBOUNDS = false;
 
     private TextureRegion shipRegion;
 
@@ -72,6 +76,9 @@ public class Ship extends SteerableObject{
 
     protected float steeringFriction = 0.5f;
 
+    //Collision
+    ShapeRenderer shapeRenderer = new ShapeRenderer();
+
     public Ship(Texture gameObjectTexSheet, TextureRegion shipRegion, float startHealth, float boundingRadius, float maxLinearSpeed, float maxLinearAcceleration, float maxAngularSpeed, float maxAngularAcceleration)
     {
         super(gameObjectTexSheet);
@@ -87,7 +94,6 @@ public class Ship extends SteerableObject{
         this.maxAngularAcceleration = maxAngularAcceleration;
 
         blendedSteering = new BlendedSteering<Vector2>(this);
-
 
         avoidObjectBehavior = new CustomCollisionAvoidance<Vector2>(this,this);
         pursueBehavior = new Pursue<Vector2>(this, null);
@@ -120,9 +126,11 @@ public class Ship extends SteerableObject{
         blendedSteering.add(noiseAddWanderBehavior, 0.1f);
         blendedSteering.add(alignmentBehavior,0.5f);
         blendedSteering.add(cohesionBehavior,0.5f);
+
+
     }
 
-    public void Update(float elapsed, OrthographicCamera camera)
+    public void Update(float elapsed, OrthographicCamera camera, ArrayList<Bullet> bullets)
     {
         super.Update(elapsed);
         if(autoCannon != null) {
@@ -151,24 +159,39 @@ public class Ship extends SteerableObject{
         else{
             noiseAddWanderBehavior.setEnabled(false);
         }
-
-        /*
-        SteerableObject closestObj = GetClosestObject(worldObjects, camera);
-        if(closestObj.GetCenterPosition().dst(GetCenterPosition()) < closestObj.getBoundingRadius()/2 + getBoundingRadius()/2){
-            avoidObjectBehavior.setEnabled(true);
-            System.out.println("SOTTER");
-        }else{
-            avoidObjectBehavior.setEnabled(false);
-        }
-        */
-
         applySteering(steeringOutput, elapsed);
+
+        BulletCollision(bullets);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+    }
+
+    private void BulletCollision(ArrayList<Bullet> bullets)
+    {
+        Rectangle thisRect = new Rectangle(getX(), getY(), getRegionWidth(), getRegionHeight());
+        for(Bullet bullet : bullets ){
+            if(bullet.IsExploding() == false) {
+                if (thisRect.contains(bullet.GetCenterPosition())) {
+                    bullet.ExplodeAndDestroy();
+                }
+            }
+        }
     }
 
     public void Render(SpriteBatch batch)
     {
+
         Render(shipRegion, batch);
+
+        if(_DEBUGBOUNDS) {
+            batch.end();
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.rect(getX(), getY(), getRegionWidth(), getRegionHeight());
+            shapeRenderer.end();
+            batch.begin();
+        }
+
     }
+
 
     public void ChangeHealth(float healthChange){
         hp += healthChange;

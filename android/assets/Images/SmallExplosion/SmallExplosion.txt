@@ -1,0 +1,74 @@
+SmallExplosion.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+001
+  rotate: false
+  xy: 2, 2
+  size: 57, 57
+  orig: 57, 57
+  offset: 0, 0
+  index: -1
+002
+  rotate: false
+  xy: 61, 2
+  size: 57, 57
+  orig: 57, 57
+  offset: 0, 0
+  index: -1
+003
+  rotate: false
+  xy: 120, 2
+  size: 57, 57
+  orig: 57, 57
+  offset: 0, 0
+  index: -1
+004
+  rotate: false
+  xy: 179, 2
+  size: 57, 57
+  orig: 57, 57
+  offset: 0, 0
+  index: -1
+005
+  rotate: false
+  xy: 238, 2
+  size: 57, 57
+  orig: 57, 57
+  offset: 0, 0
+  index: -1
+006
+  rotate: false
+  xy: 297, 2
+  size: 57, 57
+  orig: 57, 57
+  offset: 0, 0
+  index: -1
+007
+  rotate: false
+  xy: 356, 2
+  size: 57, 57
+  orig: 57, 57
+  offset: 0, 0
+  index: -1
+008
+  rotate: false
+  xy: 415, 2
+  size: 57, 57
+  orig: 57, 57
+  offset: 0, 0
+  index: -1
+009
+  rotate: false
+  xy: 474, 2
+  size: 57, 57
+  orig: 57, 57
+  offset: 0, 0
+  index: -1
+010
+  rotate: false
+  xy: 533, 2
+  size: 57, 57
+  orig: 57, 57
+  offset: 0, 0
+  index: -1
