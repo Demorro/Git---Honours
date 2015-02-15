@@ -46,7 +46,6 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
         lastFramePosition = GetCenterPosition();
         lastFrameAngle = getRotation();
         proxOwner = this;
-
     }
 
     protected void Update(float elapsed)

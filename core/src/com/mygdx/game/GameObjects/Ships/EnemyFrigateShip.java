@@ -29,10 +29,12 @@ public class EnemyFrigateShip extends Ship {
     private static Vector2 collisionBoxNegativeOffset = new Vector2(20,20);
 
     public EnemyFrigateShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 220, 545, 110, 114) , 80, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 220, 545, 110, 114), 150, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
 
         SetPursueTarget(player, Utility.Speed.MODERATE);
         this.player = player;
+
+        noOfDeathExplosions = 15;
     }
 
     public void Update(float elapsed, OrthographicCamera camera, ArrayList<Bullet> bullets)

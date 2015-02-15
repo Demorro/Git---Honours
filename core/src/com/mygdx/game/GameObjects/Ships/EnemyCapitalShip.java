@@ -30,10 +30,13 @@ public class EnemyCapitalShip extends Ship {
     private static Vector2 collisionBoxNegativeOffset = new Vector2(46,40);
 
     public EnemyCapitalShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 0, 545, 200, 178) , 200, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel,collisionBoxNegativeOffset,destructionExplosionAtlas);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 0, 545, 200, 178) , 300, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel,collisionBoxNegativeOffset,destructionExplosionAtlas);
 
         SetPursueTarget(player, Utility.Speed.MODERATE);
         this.player = player;
+
+        noOfDeathExplosions = 40;
+        timeBetweenExplosionSpawns = 0.02f;
 
     }
 

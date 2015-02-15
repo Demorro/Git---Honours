@@ -29,13 +29,15 @@ public class EnemyFighterShip extends Ship {
     private static Vector2 collisionBoxNegativeOffset = new Vector2(20,0);
 
     public EnemyFighterShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 30, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 10, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
         SetPursueTarget(player, Utility.Speed.QUICK);
 
         this.player = player;
 
         SetBehaviorActive(cohesionBehavior, true);
         SetBehaviorActive(alignmentBehavior, true);
+
+        noOfDeathExplosions = 5;
     }
 
     public void Update(float elapsed, OrthographicCamera camera, ArrayList<Bullet> bullets)

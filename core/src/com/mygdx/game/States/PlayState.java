@@ -21,6 +21,7 @@ import com.mygdx.game.GameObjects.SteerableObject;
 import com.mygdx.game.GameObjects.Weapons.Bullet;
 import com.mygdx.game.GameObjects.Weapons.Explosion;
 import com.mygdx.game.GameObjects.Weapons.Gun;
+import com.mygdx.game.GameSystems.ShipHandler;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.CapitalShipBlock;
 import com.mygdx.game.UI.Button;
 import com.mygdx.game.Utility.ParralaxBackground;
@@ -49,7 +50,6 @@ public class PlayState extends State implements InputProcessor
     private Texture greyButtonsSheet = new Texture(Gdx.files.internal("Images/GreyButton.png"));
 
     private Texture gameObjectTextureSheet = new Texture(Gdx.files.internal("Images/GameObjectSpriteSheet.png"));
-    private PlayerShip player;
 
     private final ArrayList<Bullet> playerShotBullets = new ArrayList<Bullet>();
     private final ArrayList<Bullet> enemyShotBullets = new ArrayList<Bullet>();
@@ -61,12 +61,7 @@ public class PlayState extends State implements InputProcessor
         }
     };
 
-    //Enemy ship array
-    private ArrayList<EnemyCapitalShip> caps = new ArrayList<EnemyCapitalShip>();
-    private ArrayList<EnemyFrigateShip> frigs = new ArrayList<EnemyFrigateShip>();
-    private ArrayList<EnemyFighterShip> fighters = new ArrayList<EnemyFighterShip>();
-
-    private TextureAtlas largeExplosionAtlas = null;
+    private ShipHandler shipHandler = null;
 
     public PlayState()
     {
@@ -85,54 +80,14 @@ public class PlayState extends State implements InputProcessor
 
         SetupButtons();
 
-        largeExplosionAtlas = new TextureAtlas(Gdx.files.internal("Images/LargeExplosion/LargeExplosion.txt"));
-
-        player = new PlayerShip(gameObjectTextureSheet, bulletPool, playerShotBullets, caps, frigs, fighters, largeExplosionAtlas);
-        player.setPosition(0,0);
-
-        EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet,player, largeExplosionAtlas);
-        testCap.setPosition(-500,300);
-        caps.add(testCap);
-
-        EnemyFrigateShip testFrig = new EnemyFrigateShip(gameObjectTextureSheet, player, largeExplosionAtlas);
-        testFrig.setPosition(400,100);
-        EnemyFrigateShip testFrig2 = new EnemyFrigateShip(gameObjectTextureSheet, player, largeExplosionAtlas);
-        testFrig.setPosition(400,100);
-        testFrig2.setPosition(-350, -200);
-        frigs.add(testFrig);
-       // frigs.add(testFrig2);
-
-        EnemyFighterShip testFighter = new EnemyFighterShip(gameObjectTextureSheet, player, largeExplosionAtlas);
-        testFighter.setPosition(700,200);
-        EnemyFighterShip testFighter1 = new EnemyFighterShip(gameObjectTextureSheet, player, largeExplosionAtlas);
-        testFighter1.setPosition(800,200);
-        EnemyFighterShip testFighter2 = new EnemyFighterShip(gameObjectTextureSheet, player, largeExplosionAtlas);
-        testFighter2.setPosition(600,200);
-        fighters.add(testFighter);
-        fighters.add(testFighter1);
-        fighters.add(testFighter2);
-
-
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
         camera.update();
 
-
-        SetupSteerables();
+        shipHandler = new ShipHandler(gameObjectTextureSheet, bulletPool, playerShotBullets, enemyShotBullets);
 
         return true;
     }
-    private void SetupSteerables()
-    {
-        ArrayList<SteerableObject> allObjects = new ArrayList<SteerableObject>();
-        allObjects.addAll(caps);
-        allObjects.addAll(frigs);
-        allObjects.addAll(fighters);
-        allObjects.add(player);
-        player.SetAllSteerables(allObjects);
-        for(SteerableObject obj : caps){ obj.SetAllSteerables(allObjects);}
-        for(SteerableObject obj : frigs){ obj.SetAllSteerables(allObjects);}
-        for(SteerableObject obj : fighters){ obj.SetAllSteerables(allObjects);}
-    }
+
     private void SetupButtons()
     {
         int buttonOffsetFromRight = 120;
@@ -163,31 +118,13 @@ public class PlayState extends State implements InputProcessor
     {
         float elapsed = Gdx.graphics.getDeltaTime();
 
-
+        shipHandler.Update(elapsed, camera);
 
         for(Bullet bullet : playerShotBullets)
         {
             bullet.Update(elapsed, camera);
         }
         KillOffscreenBullets();
-
-        player.Update(elapsed,camera,enemyShotBullets);
-
-
-        for(EnemyCapitalShip ship : caps)
-        {
-            ship.Update(elapsed,camera,playerShotBullets);
-        }
-
-        for(EnemyFrigateShip ship : frigs)
-        {
-            ship.Update(elapsed,camera,playerShotBullets);
-        }
-
-        for(EnemyFighterShip ship : fighters)
-        {
-            ship.Update(elapsed,camera,playerShotBullets);
-        }
 
         returnToEditorButton.Update();
 
@@ -197,8 +134,8 @@ public class PlayState extends State implements InputProcessor
     {
         spriteBatch.end();
 
-        camera.position.x = player.GetCenterPosition().x;
-        camera.position.y = player.GetCenterPosition().y;
+        camera.position.x = shipHandler.GetPlayer().GetCenterPosition().x;
+        camera.position.y = shipHandler.GetPlayer().GetCenterPosition().y;
         camera.update();
 
         cameraVelocity.x = camera.position.x - lastFrameCamPos.x;
@@ -212,21 +149,17 @@ public class PlayState extends State implements InputProcessor
         spriteBatch.begin();
         spriteBatch.setProjectionMatrix(camera.combined);
 
-        for(EnemyCapitalShip ship : caps){
-            ship.Render(spriteBatch);
-        }
-        for(EnemyFrigateShip ship : frigs){
-            ship.Render(spriteBatch);
-        }
-        for(EnemyFighterShip ship : fighters){
-            ship.Render(spriteBatch);
-        }
+        shipHandler.RenderEnemyShips(spriteBatch);
 
         for(Bullet bullet : playerShotBullets)
         {
             bullet.Render(spriteBatch);
         }
-        player.Render(spriteBatch);
+        for(Bullet bullet : enemyShotBullets)
+        {
+            bullet.Render(spriteBatch);
+        }
+        shipHandler.RenderPlayer(spriteBatch);
         spriteBatch.end();
 
         foreGroundBatch.begin();

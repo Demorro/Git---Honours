@@ -81,6 +81,7 @@ public class Ship extends SteerableObject{
     ShapeRenderer shapeRenderer = new ShapeRenderer();
     private Vector2 collisionBoxNegativeOffset = new Vector2(0,0);
 
+    //Destruction
     private ArrayList<Explosion> destructionExplosions = new ArrayList<Explosion>();
     private TextureAtlas destructionExplosionAtlas;
     protected int noOfDeathExplosions = 25;
@@ -90,6 +91,7 @@ public class Ship extends SteerableObject{
     private boolean isExploding = false;
     private float fadeOutAlpha = 1.0f;
     private static float fadeOutSpeed = 1.5f;
+    private boolean needsToBeDestroyed = false;
 
     public Ship(Texture gameObjectTexSheet, TextureRegion shipRegion, float startHealth, float boundingRadius, float maxLinearSpeed, float maxLinearAcceleration, float maxAngularSpeed, float maxAngularAcceleration, Vector2 collisionBoxNegativeOffset, TextureAtlas destructionExplosionAtlas)
     {
@@ -195,11 +197,23 @@ public class Ship extends SteerableObject{
                     explosionSpawnPoint.set(explosionSpawnPoint.x + MathUtils.random(-getRegionWidth()/2,getRegionWidth()/2), explosionSpawnPoint.y + MathUtils.random(-getRegionHeight() /2,getRegionHeight()/2));
                     destructionExplosions.get(destructionExplosions.size() - 1).setPosition(explosionSpawnPoint.x, explosionSpawnPoint.y);
                 }
+                else
+                {
+                    if(destructionExplosions.get(destructionExplosions.size() -1).IsCurrentlyExploding() == false)
+                    {
+                        needsToBeDestroyed = true;
+                    }
+                }
             }
 
 
             fadeOutAlpha -= fadeOutSpeed * elapsed;
-            if(fadeOutAlpha <= 0.0f){ fadeOutAlpha = 0.0f; }
+            if(fadeOutAlpha <= 0.0f){ fadeOutAlpha = 0.0f;}
+
+        }
+
+        for(Explosion explosion : destructionExplosions){
+            explosion.Update(elapsed);
         }
     }
 
@@ -230,7 +244,9 @@ public class Ship extends SteerableObject{
 
         for(Explosion explosion : destructionExplosions)
         {
-            explosion.Render(batch);
+            if(explosion.IsCurrentlyExploding()) {
+                explosion.Render(batch);
+            }
         }
 
         if(_DEBUGBOUNDS) {
@@ -297,11 +313,15 @@ public class Ship extends SteerableObject{
     protected boolean GetBehaviorActive(SteeringBehavior behavior){
         return behavior.isEnabled();
     }
-
     private float GetWeightFromSpeed(Utility.Speed pursueSpeed){
         if(pursueSpeed == Utility.Speed.QUICK){return fastWeighting;}
         else if(pursueSpeed == Utility.Speed.MODERATE){return moderateWeighting;}
         else if(pursueSpeed == Utility.Speed.SLOW) {return slowWeighting;}
         return moderateWeighting;
+    }
+
+    public boolean ShouldBeDestroyed()
+    {
+        return needsToBeDestroyed;
     }
 }
