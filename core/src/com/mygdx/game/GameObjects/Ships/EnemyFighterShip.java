@@ -2,7 +2,9 @@ package com.mygdx.game.GameObjects.Ships;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.GameObjects.SteerableObject;
 import com.mygdx.game.GameObjects.Weapons.Bullet;
 import com.mygdx.game.Utility.Utility;
@@ -24,9 +26,10 @@ public class EnemyFighterShip extends Ship {
     private float fleeRadius = 200; //If the ship is in this radius, it flees.
     private float pursueRadius = 500; //if fleeing, and we get to this point, we start pursuing
 
+    private static Vector2 collisionBoxNegativeOffset = new Vector2(20,0);
 
-    public EnemyFighterShip(Texture gameObjectTexSheet, PlayerShip player) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 30, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel);
+    public EnemyFighterShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas) {
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 30, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
         SetPursueTarget(player, Utility.Speed.QUICK);
 
         this.player = player;

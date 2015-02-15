@@ -51,8 +51,8 @@ public abstract class Button extends Sprite {
         }
         buttonFont.setColor(Color.BLACK);
         buttonFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
     }
+
     public Button(Texture blockSpriteSheet, int buttonX, int buttonY, int buttonWidth, int buttonHeight, int depressedButtonX, int depressedButtonY, int depressedButtonWidth, int depressedButtonHeight, boolean scaleWhenDepressed,  boolean font2xSize)
     {
         super(blockSpriteSheet, buttonX, buttonY, buttonWidth, buttonHeight);

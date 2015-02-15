@@ -66,8 +66,7 @@ public class PlayState extends State implements InputProcessor
     private ArrayList<EnemyFrigateShip> frigs = new ArrayList<EnemyFrigateShip>();
     private ArrayList<EnemyFighterShip> fighters = new ArrayList<EnemyFighterShip>();
 
-    private EnemyCapitalShip testCap2;
-
+    private TextureAtlas largeExplosionAtlas = null;
 
     public PlayState()
     {
@@ -86,26 +85,28 @@ public class PlayState extends State implements InputProcessor
 
         SetupButtons();
 
-        player = new PlayerShip(gameObjectTextureSheet, bulletPool, playerShotBullets, caps, frigs, fighters);
+        largeExplosionAtlas = new TextureAtlas(Gdx.files.internal("Images/LargeExplosion/LargeExplosion.txt"));
+
+        player = new PlayerShip(gameObjectTextureSheet, bulletPool, playerShotBullets, caps, frigs, fighters, largeExplosionAtlas);
         player.setPosition(0,0);
 
-        EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet,player);
+        EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet,player, largeExplosionAtlas);
         testCap.setPosition(-500,300);
         caps.add(testCap);
 
-        EnemyFrigateShip testFrig = new EnemyFrigateShip(gameObjectTextureSheet, player);
+        EnemyFrigateShip testFrig = new EnemyFrigateShip(gameObjectTextureSheet, player, largeExplosionAtlas);
         testFrig.setPosition(400,100);
-        EnemyFrigateShip testFrig2 = new EnemyFrigateShip(gameObjectTextureSheet, player);
+        EnemyFrigateShip testFrig2 = new EnemyFrigateShip(gameObjectTextureSheet, player, largeExplosionAtlas);
         testFrig.setPosition(400,100);
         testFrig2.setPosition(-350, -200);
         frigs.add(testFrig);
        // frigs.add(testFrig2);
 
-        EnemyFighterShip testFighter = new EnemyFighterShip(gameObjectTextureSheet, player);
+        EnemyFighterShip testFighter = new EnemyFighterShip(gameObjectTextureSheet, player, largeExplosionAtlas);
         testFighter.setPosition(700,200);
-        EnemyFighterShip testFighter1 = new EnemyFighterShip(gameObjectTextureSheet, player);
+        EnemyFighterShip testFighter1 = new EnemyFighterShip(gameObjectTextureSheet, player, largeExplosionAtlas);
         testFighter1.setPosition(800,200);
-        EnemyFighterShip testFighter2 = new EnemyFighterShip(gameObjectTextureSheet, player);
+        EnemyFighterShip testFighter2 = new EnemyFighterShip(gameObjectTextureSheet, player, largeExplosionAtlas);
         testFighter2.setPosition(600,200);
         fighters.add(testFighter);
         fighters.add(testFighter1);

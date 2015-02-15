@@ -9,6 +9,9 @@ public class DesktopLauncher {
 	final static int windowWidth = 1366;
 	final static int windowHeight = 768;
 
+	//final static int windowWidth = 1776;
+	//final static int windowHeight = 1000;
+
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = windowWidth;

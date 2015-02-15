@@ -6,9 +6,11 @@ import com.badlogic.gdx.ai.steer.SteeringAcceleration;
 import com.badlogic.gdx.ai.steer.behaviors.*;
 import com.badlogic.gdx.ai.steer.behaviors.Pursue;
 import com.badlogic.gdx.ai.steer.utils.Collision;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -32,7 +34,6 @@ import java.util.ArrayList;
  * Created by Elliot Morris on 28/01/2015.
  */
 public class PlayerShip extends Ship{
-
 
     private Texture gameObjectTexSheet; //Reference to game object texture sheet
 
@@ -61,14 +62,16 @@ public class PlayerShip extends Ship{
     private float evadeDisableDistance = 450; //Stupid hack again
     private SteerableObject attackTarget;
 
-    public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters)
+    private static Vector2 collisionBoxNegativeOffset = new Vector2(20,0);
+
+    public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, TextureAtlas destructionExplosionAtlas)
     {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
         this.gameObjectTexSheet = gameObjectTexSheet;
 
-        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 1, new Rectangle(0,750,18,50), GetCenterPosition(), 25, Utility.Weapon.AUTOCANNON);
+        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 5, new Rectangle(0,750,18,50), GetCenterPosition(), 25, Utility.Weapon.AUTOCANNON);
         autoCannon.SetFastMedSlowFireRate(0.15f, 0.35f, 0.6f);
-        laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 10, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
+        laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 15, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
         laser.SetFastMedSlowFireRate(0.4f, 1.0f, 1.8f);
         torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 50, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE);
         torpedo.SetFastMedSlowFireRate(3.0f, 5.0f, 7.0f);

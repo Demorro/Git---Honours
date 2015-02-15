@@ -148,4 +148,9 @@ public  class Bullet extends GameObject implements Pool.Poolable{
         return isExploding;
     }
 
+    public float GetBulletDamage()
+    {
+        return bulletDamage;
+    }
+
 }

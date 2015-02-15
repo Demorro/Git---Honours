@@ -19,6 +19,7 @@ import com.mygdx.game.CustomWander;
 import com.mygdx.game.GameObjects.GameObject;
 import com.mygdx.game.GameObjects.SteerableObject;
 import com.mygdx.game.GameObjects.Weapons.Bullet;
+import com.mygdx.game.GameObjects.Weapons.Explosion;
 import com.mygdx.game.GameObjects.Weapons.Gun;
 import com.mygdx.game.GameObjects.Weapons.Target;
 import com.mygdx.game.Utility.Utility;
@@ -78,8 +79,19 @@ public class Ship extends SteerableObject{
 
     //Collision
     ShapeRenderer shapeRenderer = new ShapeRenderer();
+    private Vector2 collisionBoxNegativeOffset = new Vector2(0,0);
 
-    public Ship(Texture gameObjectTexSheet, TextureRegion shipRegion, float startHealth, float boundingRadius, float maxLinearSpeed, float maxLinearAcceleration, float maxAngularSpeed, float maxAngularAcceleration)
+    private ArrayList<Explosion> destructionExplosions = new ArrayList<Explosion>();
+    private TextureAtlas destructionExplosionAtlas;
+    protected int noOfDeathExplosions = 25;
+    protected float timeBetweenExplosionSpawns = 0.03f;
+    protected float explosionDamage = 10.0f;
+    private float deathExplosionSpawnTimer = 0.0f;
+    private boolean isExploding = false;
+    private float fadeOutAlpha = 1.0f;
+    private static float fadeOutSpeed = 1.5f;
+
+    public Ship(Texture gameObjectTexSheet, TextureRegion shipRegion, float startHealth, float boundingRadius, float maxLinearSpeed, float maxLinearAcceleration, float maxAngularSpeed, float maxAngularAcceleration, Vector2 collisionBoxNegativeOffset, TextureAtlas destructionExplosionAtlas)
     {
         super(gameObjectTexSheet);
         this.shipRegion = shipRegion;
@@ -127,65 +139,104 @@ public class Ship extends SteerableObject{
         blendedSteering.add(alignmentBehavior,0.5f);
         blendedSteering.add(cohesionBehavior,0.5f);
 
-
+        this.collisionBoxNegativeOffset = collisionBoxNegativeOffset;
+        this.destructionExplosionAtlas = destructionExplosionAtlas;
     }
 
     public void Update(float elapsed, OrthographicCamera camera, ArrayList<Bullet> bullets)
     {
         super.Update(elapsed);
-        if(autoCannon != null) {
-            autoCannon.Update(elapsed);
-            autoCannon.SetPosition(GetCenterPosition().x + autoCannonMuzzleOffset.x, GetCenterPosition().y + autoCannonMuzzleOffset.y);
+        if(isExploding == false) {
+            if (autoCannon != null) {
+                autoCannon.Update(elapsed);
+                autoCannon.SetPosition(GetCenterPosition().x + autoCannonMuzzleOffset.x, GetCenterPosition().y + autoCannonMuzzleOffset.y);
+            }
+
+            if (laser != null) {
+                laser.Update(elapsed);
+                laser.SetPosition(GetCenterPosition().x + laserMuzzleOffset.x, GetCenterPosition().y + laserMuzzleOffset.y);
+            }
+
+            if (torpedo != null) {
+                torpedo.Update(elapsed);
+                torpedo.SetPosition(GetCenterPosition().x + torpedoMuzzleOffset.x, GetCenterPosition().y + torpedoMuzzleOffset.y);
+            }
+
+
+            this.linearVelocity.scl(1.0f - (steeringFriction * elapsed));
+
+            blendedSteering.calculateSteering(steeringOutput);
+
+            if ((pursueBehavior.isEnabled()) || (evadeBehavior.isEnabled())) {
+                noiseAddWanderBehavior.setEnabled(true);
+            } else {
+                noiseAddWanderBehavior.setEnabled(false);
+            }
+            applySteering(steeringOutput, elapsed);
+
+            BulletCollision(bullets);
+            shapeRenderer.setProjectionMatrix(camera.combined);
+
+            if (hp <= 0) {
+                ExplodeAndDestroy();
+            }
         }
+        else //Explosion logic
+        {
+            deathExplosionSpawnTimer += elapsed;
 
-        if(laser != null) {
-            laser.Update(elapsed);
-            laser.SetPosition(GetCenterPosition().x + laserMuzzleOffset.x, GetCenterPosition().y + laserMuzzleOffset.y);
+            //Spawn explosions
+            if(deathExplosionSpawnTimer > timeBetweenExplosionSpawns){
+                if(destructionExplosions.size() < noOfDeathExplosions){
+                    deathExplosionSpawnTimer = 0.0f;
+                    destructionExplosions.add(new Explosion(destructionExplosionAtlas, 12.0f, true, explosionDamage));
+                    Vector2 explosionSpawnPoint = GetCenterPosition();
+                    explosionSpawnPoint.set(explosionSpawnPoint.x - destructionExplosions.get(destructionExplosions.size()-1).GetFrameWidth()/2, explosionSpawnPoint.y - destructionExplosions.get(destructionExplosions.size()-1).GetFrameHeight()/2);
+                    explosionSpawnPoint.set(explosionSpawnPoint.x + MathUtils.random(-getRegionWidth()/2,getRegionWidth()/2), explosionSpawnPoint.y + MathUtils.random(-getRegionHeight() /2,getRegionHeight()/2));
+                    destructionExplosions.get(destructionExplosions.size() - 1).setPosition(explosionSpawnPoint.x, explosionSpawnPoint.y);
+                }
+            }
+
+
+            fadeOutAlpha -= fadeOutSpeed * elapsed;
+            if(fadeOutAlpha <= 0.0f){ fadeOutAlpha = 0.0f; }
         }
-
-        if(torpedo != null) {
-            torpedo.Update(elapsed);
-            torpedo.SetPosition(GetCenterPosition().x + torpedoMuzzleOffset.x, GetCenterPosition().y + torpedoMuzzleOffset.y);
-        }
-
-
-        this.linearVelocity.scl(1.0f - (steeringFriction * elapsed));
-
-        blendedSteering.calculateSteering(steeringOutput);
-
-        if((pursueBehavior.isEnabled()) || (evadeBehavior.isEnabled())){
-            noiseAddWanderBehavior.setEnabled(true);
-        }
-        else{
-            noiseAddWanderBehavior.setEnabled(false);
-        }
-        applySteering(steeringOutput, elapsed);
-
-        BulletCollision(bullets);
-        shapeRenderer.setProjectionMatrix(camera.combined);
     }
 
     private void BulletCollision(ArrayList<Bullet> bullets)
     {
-        Rectangle thisRect = new Rectangle(getX(), getY(), getRegionWidth(), getRegionHeight());
+        Rectangle thisRect = new Rectangle(getX() + collisionBoxNegativeOffset.x/2, getY() + collisionBoxNegativeOffset.y/2, getRegionWidth() - collisionBoxNegativeOffset.x, getRegionHeight() - collisionBoxNegativeOffset.y);
         for(Bullet bullet : bullets ){
             if(bullet.IsExploding() == false) {
                 if (thisRect.contains(bullet.GetCenterPosition())) {
                     bullet.ExplodeAndDestroy();
+                    hp -= bullet.GetBulletDamage();
                 }
             }
         }
     }
 
+    private void ExplodeAndDestroy()
+    {
+        isExploding = true;
+    }
+
     public void Render(SpriteBatch batch)
     {
 
+        batch.setColor(1.0f, 1.0f, 1.0f, fadeOutAlpha);
         Render(shipRegion, batch);
+        batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        for(Explosion explosion : destructionExplosions)
+        {
+            explosion.Render(batch);
+        }
 
         if(_DEBUGBOUNDS) {
             batch.end();
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.rect(getX(), getY(), getRegionWidth(), getRegionHeight());
+            shapeRenderer.rect(getX() + collisionBoxNegativeOffset.x/2, getY() + collisionBoxNegativeOffset.y/2, getRegionWidth() - collisionBoxNegativeOffset.x, getRegionHeight() - collisionBoxNegativeOffset.y);
             shapeRenderer.end();
             batch.begin();
         }

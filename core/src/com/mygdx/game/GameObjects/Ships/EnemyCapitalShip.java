@@ -3,6 +3,7 @@ package com.mygdx.game.GameObjects.Ships;
 import com.badlogic.gdx.ai.steer.behaviors.Pursue;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.GameObjects.SteerableObject;
@@ -26,12 +27,14 @@ public class EnemyCapitalShip extends Ship {
     private float fleeRadius = 300; //If the ship is in this radius, it flees.
     private float pursueRadius = 400; //if fleeing, and we get to this point, we start pursuing
 
+    private static Vector2 collisionBoxNegativeOffset = new Vector2(46,40);
 
-    public EnemyCapitalShip(Texture gameObjectTexSheet, PlayerShip player) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 0, 545, 200, 178) , 200, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel);
+    public EnemyCapitalShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas) {
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 0, 545, 200, 178) , 200, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel,collisionBoxNegativeOffset,destructionExplosionAtlas);
 
         SetPursueTarget(player, Utility.Speed.MODERATE);
         this.player = player;
+
     }
 
     public void Update(float elapsed, OrthographicCamera camera, ArrayList<Bullet> bullets)
