@@ -52,7 +52,7 @@ public class Ship extends SteerableObject{
     };
 
     protected Gun autoCannon = null;
-    protected Vector2 autoCannonMuzzleOffset = new Vector2(0, -20);
+    protected Vector2 autoCannonMuzzleOffset = new Vector2(0, 0);
     protected Gun laser = null;
     protected Vector2 laserMuzzleOffset = new Vector2(0,0);
     protected Gun torpedo = null;

@@ -82,22 +82,20 @@ public class Gun {
 
     public void Update(float elapsed)
     {
-        if(GetIsAutoFiring())
-        {
-            autoFireTimer += elapsed;
-            if(autoFireTimer > autoFireTimeBetweenShots){
-                if(target != null){
+        autoFireTimer += elapsed;
+        if(autoFireTimer > autoFireTimeBetweenShots){
+            if(target != null){
+                if(GetIsAutoFiring()) {
                     Shoot(target.GetCenterPosition());
-                    autoFireTimer = 0.0f;
                 }
             }
         }
-        else
-        {
-            autoFireTimer = 0.0f;
-        }
     }
 
+    public void ShootAtTarget()
+    {
+        Shoot(target.GetCenterPosition());
+    }
     public void Shoot(Vector2 targetPosition){
         float accuracyVariance = MathUtils.random(-accuracyConeVariance,accuracyConeVariance);
 
@@ -108,6 +106,8 @@ public class Gun {
         item.init(gameObjectTextureSheet,bulletSrcRegion,position.x,position.y,shotBulletSpeed,shotBulletDamage, firingVector, bulletExplosionAtlas);
         if(weaponType == Utility.Weapon.MISSILE){item.SetSpin(torpedoBulletSpin);}
         activeBullets.add(item);
+
+        autoFireTimer = 0.0f;
     }
 
     public void SetIsAutoFiring(boolean _firing)
@@ -167,5 +167,11 @@ public class Gun {
     public Utility.Weapon GetWeaponType()
     {
         return weaponType;
+    }
+
+    //If the fire timer is such that we can fire.
+    public Boolean CanFireRightNow()
+    {
+        return (autoFireTimer > autoFireTimeBetweenShots);
     }
 }

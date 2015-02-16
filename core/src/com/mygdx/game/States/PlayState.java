@@ -63,6 +63,8 @@ public class PlayState extends State implements InputProcessor
 
     private ShipHandler shipHandler = null;
 
+    float gameTime = 0;
+
     public PlayState()
     {
         super(StateID.PLAY_STATE);
@@ -124,9 +126,14 @@ public class PlayState extends State implements InputProcessor
         {
             bullet.Update(elapsed, camera);
         }
+        for(Bullet bullet : enemyShotBullets)
+        {
+            bullet.Update(elapsed, camera);
+        }
         KillOffscreenBullets();
 
         returnToEditorButton.Update();
+        gameTime += elapsed;
 
     }
     // Abstract method intended to render all objects of the state.
@@ -149,16 +156,18 @@ public class PlayState extends State implements InputProcessor
         spriteBatch.begin();
         spriteBatch.setProjectionMatrix(camera.combined);
 
+        for(Bullet bullet : enemyShotBullets)
+        {
+            bullet.Render(spriteBatch);
+        }
+
         shipHandler.RenderEnemyShips(spriteBatch);
 
         for(Bullet bullet : playerShotBullets)
         {
             bullet.Render(spriteBatch);
         }
-        for(Bullet bullet : enemyShotBullets)
-        {
-            bullet.Render(spriteBatch);
-        }
+
         shipHandler.RenderPlayer(spriteBatch);
         spriteBatch.end();
 
@@ -167,7 +176,13 @@ public class PlayState extends State implements InputProcessor
         foreGroundBatch.end();
 
         hudBatch.begin();
-        fpsFont.draw(hudBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 50, 50);
+        fpsFont.draw(hudBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 30, Gdx.graphics.getHeight() - 30);
+        fpsFont.draw(hudBatch, "Score : " + shipHandler.GetScore(), 50, 50);
+
+        int minutes = ((int)gameTime) / 60;
+        int seconds = ((int)gameTime) % 60;
+
+        fpsFont.draw(hudBatch, minutes + "m  " + seconds + "s", Gdx.graphics.getWidth() - 120, 50);
         returnToEditorButton.Render(hudBatch);
         hudBatch.end();
 

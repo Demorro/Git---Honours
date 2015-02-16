@@ -66,15 +66,15 @@ public class PlayerShip extends Ship{
 
     public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, TextureAtlas destructionExplosionAtlas)
     {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 1000, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
         this.gameObjectTexSheet = gameObjectTexSheet;
 
         autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 5, new Rectangle(0,750,18,50), GetCenterPosition(),25, Utility.Weapon.AUTOCANNON);
         autoCannon.SetFastMedSlowFireRate(0.12f, 0.22f, 0.32f);
-        laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 15, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
+        laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 25, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
         laser.SetFastMedSlowFireRate(0.4f, 1.0f, 1.8f);
-        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 100, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE);
-        torpedo.SetFastMedSlowFireRate(2.0f, 4.0f, 6.0f);
+        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 200, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE);
+        torpedo.SetFastMedSlowFireRate(2.5f, 4.0f, 6.5f);
 
         this.caps = caps;
         this.frigs = frigs;
