@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class Repairs extends LogicBlock
 {
-    public Repairs(Texture blockSheet) {
+    public Repairs(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "Repairs", LogicGroups.LogicGroup.POWERUPS, LogicGroups.LogicBlockType.REPAIRS);
     }
 

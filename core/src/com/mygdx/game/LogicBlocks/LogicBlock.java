@@ -66,6 +66,16 @@ public abstract class LogicBlock
         textPosition = new Vector2(position.x + (GetFullBlockWidth() - blockFont.getBounds(blockText).width)/2 , position.y + blockHeight/2 + blockFont.getXHeight()/2);
     }
 
+    protected void ResetBlockText(String text)
+    {
+        blockFont.setColor(fontColor);
+        blockFont.setScale(fontSize);
+        blockFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear); //Set Smooth Text
+        blockText = text;
+        LoadBlockGraphics();
+        textPosition = new Vector2(position.x + (GetFullBlockWidth() - blockFont.getBounds(blockText).width)/2 , position.y + blockHeight/2 + blockFont.getXHeight()/2);
+    }
+
     public void Render(SpriteBatch batch)
     {
         blockGraphic.draw(batch);

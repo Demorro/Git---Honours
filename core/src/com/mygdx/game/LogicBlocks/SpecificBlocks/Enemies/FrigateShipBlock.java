@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class FrigateShipBlock extends LogicBlock
 {
-    public FrigateShipBlock(Texture blockSheet) {
+    public FrigateShipBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "Frigate Ships", LogicGroups.LogicGroup.ENEMIES, LogicGroups.LogicBlockType.FRIGATESHIP);
     }
 

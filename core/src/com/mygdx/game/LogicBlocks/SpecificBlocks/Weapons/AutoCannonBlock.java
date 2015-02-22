@@ -11,8 +11,13 @@ import java.util.ArrayList;
  */
 public class AutoCannonBlock extends LogicBlock
 {
-    public AutoCannonBlock(Texture blockSheet) {
+    public AutoCannonBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "With Cannons", LogicGroups.LogicGroup.WEAPONS, LogicGroups.LogicBlockType.AUTOCANNON);
+
+        if(previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN)
+        {
+            ResetBlockText("    Cannons    ");
+        }
     }
 
     @Override

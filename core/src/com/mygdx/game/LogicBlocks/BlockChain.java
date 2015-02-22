@@ -63,7 +63,7 @@ public class BlockChain {
 
         ResetChain(xPos, yPos);
 
-        selectionList = new BlockSelectionList(startingGroups, blockTextureSheet, new Vector2(position.x + spacingBetweenBlocks, position.y), false, this);
+        selectionList = new BlockSelectionList(startingGroups, blockTextureSheet, new Vector2(position.x + spacingBetweenBlocks, position.y), false, this, null);
     }
 
     //Resets errythang
@@ -89,6 +89,7 @@ public class BlockChain {
 
         startingGroups.clear();
         startingGroups.add(LogicGroups.LogicGroup.COMMAND);
+        startingGroups.add(LogicGroups.LogicGroup.IF);
         nextGroups = new ArrayList<LogicGroups.LogicGroup>(startingGroups);
 
         cancelButton.SetVisible(false);
@@ -121,7 +122,7 @@ public class BlockChain {
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
-                    selectionList.ResetList(nextGroups, new Vector2(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenBlocks, position.y), false, false);
+                    selectionList.ResetList(nextGroups, new Vector2(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenBlocks, position.y), false, false, previousBlock);
                     selectionList.OpenList();
                 }
             }, timeToWaitTillDestroy);
@@ -227,16 +228,16 @@ public class BlockChain {
                 {
                     FadeInCancelButtonAtLastBlock();
                     previousBlock = blocks.get(blocks.size() - 2);
-                    selectionList.ResetList(blocks.get(blocks.size() - 1).GetNextLogicGroup(previousBlock), new Vector2(position.x  + spacingBetweenBlocks, position.y), false, false);
+                    selectionList.ResetList(blocks.get(blocks.size() - 1).GetNextLogicGroup(previousBlock), new Vector2(position.x  + spacingBetweenBlocks, position.y), false, false, previousBlock);
                 }
                 else if(blocks.size() > 0){
                     FadeInCancelButtonAtLastBlock();
-                    selectionList.ResetList(blocks.get(blocks.size() - 1).GetNextLogicGroup(previousBlock), new Vector2(position.x  + spacingBetweenBlocks, position.y), false, false);
+                    selectionList.ResetList(blocks.get(blocks.size() - 1).GetNextLogicGroup(previousBlock), new Vector2(position.x  + spacingBetweenBlocks, position.y), false, false, previousBlock);
                 }
                 else
                 {
                     FadeOutCancelButton();
-                    selectionList.ResetList(startingGroups, new Vector2(position.x + spacingBetweenBlocks, position.y), false, false);
+                    selectionList.ResetList(startingGroups, new Vector2(position.x + spacingBetweenBlocks, position.y), false, false, previousBlock);
                 }
 
                 //Re-enable the next button after tween
@@ -254,7 +255,7 @@ public class BlockChain {
         if(selectionList == null)
         {
             fullScript.AnyListOpened(this); //This needs to happen before you open the list, trust me my son, (For reals, its because Anylistopens closes all the list, and we want to open dis one)
-            selectionList = new BlockSelectionList(startingGroups, blockTextureSheet, new Vector2(blockChainBounds.getX() + blockChainBounds.getWidth() + nextButton.getWidth() + spacingBetweenNextButton , position.y), false, this);
+            selectionList = new BlockSelectionList(startingGroups, blockTextureSheet, new Vector2(blockChainBounds.getX() + blockChainBounds.getWidth() + nextButton.getWidth() + spacingBetweenNextButton , position.y), false, this, null);
             selectionList.OpenList();
         }
         else
@@ -484,19 +485,20 @@ public class BlockChain {
     //Used to directly add/remove blocks, used mainly in loading
     public void DirectlyAddBlock(LogicGroups.LogicBlockType type)
     {
-        LogicBlock newBlock = LogicGroups.ConstructSpecificBlock(type, blockTextureSheet);
-        newBlock.SetPosition(blockChainBounds.getX() + blockChainBounds.getWidth(), position.y - (LogicBlock.blockHeight - nextButton.getHeight()) /2 );
-        blockChainBounds.width = blockChainBounds.getWidth() + newBlock.GetFullBlockWidth();
-        blocks.add(newBlock);
-
         if(blocks.size() > 1)
         {
-            previousBlock = blocks.get(blocks.size() - 2);
+            previousBlock = blocks.get(blocks.size() - 1);
         }
         else
         {
             previousBlock = null;
         }
+
+        LogicBlock newBlock = LogicGroups.ConstructSpecificBlock(type, blockTextureSheet, previousBlock);
+        newBlock.SetPosition(blockChainBounds.getX() + blockChainBounds.getWidth(), position.y - (LogicBlock.blockHeight - nextButton.getHeight()) /2 );
+        blockChainBounds.width = blockChainBounds.getWidth() + newBlock.GetFullBlockWidth();
+        blocks.add(newBlock);
+
         if(newBlock.GetNextLogicGroup(previousBlock) == null)
         {
             isOnEndOfChain = true;

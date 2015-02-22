@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class Fuel extends LogicBlock
 {
-    public Fuel(Texture blockSheet) {
+    public Fuel(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, " Fuel ", LogicGroups.LogicGroup.POWERUPS, LogicGroups.LogicBlockType.FUEl);
     }
 

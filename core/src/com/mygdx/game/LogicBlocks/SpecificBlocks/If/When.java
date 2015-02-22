@@ -1,4 +1,4 @@
-package com.mygdx.game.LogicBlocks.SpecificBlocks.Command;
+package com.mygdx.game.LogicBlocks.SpecificBlocks.If;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.mygdx.game.LogicBlocks.LogicBlock;
@@ -7,12 +7,12 @@ import com.mygdx.game.LogicBlocks.LogicGroups;
 import java.util.ArrayList;
 
 /**
- * Created by Elliot Morris on 15/01/2015.
+ * Created by Elliot Morris on 22/02/2015.
  */
-public class AttackBlock extends LogicBlock
+public class When extends LogicBlock
 {
-    public AttackBlock(Texture blockSheet, LogicBlock previousBlock) {
-        super(blockSheet, "  Attack  ", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.ATTACK);
+    public When(Texture blockSheet, LogicBlock previousBlock) {
+        super(blockSheet, "   When   ", LogicGroups.LogicGroup.IF, LogicGroups.LogicBlockType.WHEN);
     }
 
     @Override
@@ -21,6 +21,7 @@ public class AttackBlock extends LogicBlock
         ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
         nextLogicGroups.add(LogicGroups.LogicGroup.ENEMIES);
         nextLogicGroups.add(LogicGroups.LogicGroup.SCARYOBJECTS);
+        nextLogicGroups.add(LogicGroups.LogicGroup.WEAPONS);
         return nextLogicGroups;
     }
 }

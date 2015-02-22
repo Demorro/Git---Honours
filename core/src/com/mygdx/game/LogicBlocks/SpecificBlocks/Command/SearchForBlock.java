@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class SearchForBlock extends LogicBlock
 {
-    public SearchForBlock(Texture blockSheet) {
+    public SearchForBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "Search For", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.SEARCHFOR);
     }
 

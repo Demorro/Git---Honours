@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class FighterShipBlock extends LogicBlock
 {
-    public FighterShipBlock(Texture blockSheet) {
+    public FighterShipBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "Fighter Ships", LogicGroups.LogicGroup.ENEMIES, LogicGroups.LogicBlockType.FIGHTERSHIP);
     }
 

@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class EvadeBlock extends LogicBlock
 {
-    public EvadeBlock(Texture blockSheet) {
+    public EvadeBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "   Evade   ", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.EVADE);
     }
 

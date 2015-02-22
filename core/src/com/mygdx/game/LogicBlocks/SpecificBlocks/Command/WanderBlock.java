@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class WanderBlock extends LogicBlock
 {
-    public WanderBlock(Texture blockSheet) {
+    public WanderBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "  Wander  ", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.WANDER);
     }
 

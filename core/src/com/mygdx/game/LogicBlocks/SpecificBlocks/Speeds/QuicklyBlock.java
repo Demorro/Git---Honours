@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class QuicklyBlock extends LogicBlock
 {
-    public QuicklyBlock(Texture blockSheet) {
+    public QuicklyBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "Quickly", LogicGroups.LogicGroup.SPEED, LogicGroups.LogicBlockType.QUICKLY);
     }
 

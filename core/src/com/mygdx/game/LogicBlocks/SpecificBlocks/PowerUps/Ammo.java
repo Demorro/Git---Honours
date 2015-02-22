@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class Ammo extends LogicBlock
 {
-    public Ammo(Texture blockSheet) {
+    public Ammo(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "Ammo", LogicGroups.LogicGroup.POWERUPS, LogicGroups.LogicBlockType.AMMO);
     }
 

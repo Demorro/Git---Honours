@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class MissileBlock extends LogicBlock
 {
-    public MissileBlock(Texture blockSheet) {
+    public MissileBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "With Missiles", LogicGroups.LogicGroup.WEAPONS, LogicGroups.LogicBlockType.MISSILE);
     }
 

@@ -11,7 +11,7 @@ package com.mygdx.game.LogicBlocks.SpecificBlocks.Command;
  */
 public class PursueBlock extends LogicBlock
 {
-    public PursueBlock(Texture blockSheet) {
+    public PursueBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "  Pursue  ", LogicGroups.LogicGroup.COMMAND, LogicGroups.LogicBlockType.PURSUE);
     }
 

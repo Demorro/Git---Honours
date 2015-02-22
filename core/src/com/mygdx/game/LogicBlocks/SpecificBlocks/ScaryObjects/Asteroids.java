@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class Asteroids extends LogicBlock
 {
-    public Asteroids(Texture blockSheet) {
+    public Asteroids(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "  Asteroids  ", LogicGroups.LogicGroup.SCARYOBJECTS, LogicGroups.LogicBlockType.ASTEROIDS);
     }
 

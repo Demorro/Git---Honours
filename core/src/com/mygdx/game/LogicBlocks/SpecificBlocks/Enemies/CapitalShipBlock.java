@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class CapitalShipBlock extends LogicBlock
 {
-    public CapitalShipBlock(Texture blockSheet) {
+    public CapitalShipBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "Capital Ships", LogicGroups.LogicGroup.ENEMIES, LogicGroups.LogicBlockType.CAPITALSHIP);
     }
 

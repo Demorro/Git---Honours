@@ -46,12 +46,12 @@ public class BlockSelectionList {
     private BlockChain blockChain; //Reference to the blockChain, passed in so the blockchain knows when a block is selected
 
 
-    public BlockSelectionList(ArrayList<LogicGroups.LogicGroup> groupsToLoad, Texture blockSpriteSheets, Vector2 pos, boolean startOpen, BlockChain blockChain)
+    public BlockSelectionList(ArrayList<LogicGroups.LogicGroup> groupsToLoad, Texture blockSpriteSheets, Vector2 pos, boolean startOpen, BlockChain blockChain, LogicBlock previousBlock)
     {
         blockSpriteSheet = blockSpriteSheets;
         this.blockChain = blockChain;
         cancelButton = new CancelBlockSelectionListButton(blockSpriteSheets, this);
-        ResetList(groupsToLoad,pos,startOpen,false);
+        ResetList(groupsToLoad,pos,startOpen,false, previousBlock);
     }
 
     public void Update()
@@ -83,7 +83,7 @@ public class BlockSelectionList {
         }
     }
 
-    public void ResetList(ArrayList<LogicGroups.LogicGroup> groupsToLoad, Vector2 pos, boolean startOpen, boolean moveOverHalfLargestBlockWidth)
+    public void ResetList(ArrayList<LogicGroups.LogicGroup> groupsToLoad, Vector2 pos, boolean startOpen, boolean moveOverHalfLargestBlockWidth, LogicBlock previousBlock)
     {
         isOpen = false;
         isTweeningIn = false;
@@ -95,13 +95,13 @@ public class BlockSelectionList {
         //Reload the proper groups inthe list
         for(LogicGroups.LogicGroup group : groupsToLoad)
         {
-            selectionBlocks.addAll(LogicGroups.ConstructLogicGroup(group, blockSpriteSheet));
+            selectionBlocks.addAll(LogicGroups.ConstructLogicGroup(group, blockSpriteSheet, previousBlock));
         }
 
         //List needs to be at least 4 big
         while(selectionBlocks.size() < 4) {
             for (LogicGroups.LogicGroup group : groupsToLoad) {
-                selectionBlocks.addAll(LogicGroups.ConstructLogicGroup(group, blockSpriteSheet));
+                selectionBlocks.addAll(LogicGroups.ConstructLogicGroup(group, blockSpriteSheet, previousBlock));
             }
         }
         //Set the position

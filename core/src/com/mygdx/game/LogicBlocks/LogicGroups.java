@@ -8,6 +8,7 @@ import com.mygdx.game.LogicBlocks.SpecificBlocks.Command.*;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.CapitalShipBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.FighterShipBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.FrigateShipBlock;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.If.When;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Ammo;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Fuel;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Repairs;
@@ -29,6 +30,7 @@ public class LogicGroups {
     //The individual blocks, one for each specific control block
     public static enum LogicBlockType
     {
+        WHEN,
         ATTACK,
         EVADE,
         PURSUE,
@@ -45,13 +47,13 @@ public class LogicGroups {
         REPAIRS,
         AMMO,
         FUEl,
-        //INCOMINGPROJECTILES,
         ASTEROIDS
     };
 
     //The general block groups, used for defining flow easily.
     public static enum LogicGroup
     {
+        IF,
         COMMAND,
         ENEMIES,
         WEAPONS,
@@ -69,6 +71,7 @@ public class LogicGroups {
         else if(type == LogicGroup.SPEED) { return 5; }
         else if(type == LogicGroup.SCARYOBJECTS) {return 340;}
         else if(type == LogicGroup.POWERUPS){return 139;}
+        else if(type == LogicGroup.IF){return 5;}
         else{ return -1;} //Error code
     }
     //Depending on the length of the text, we want a longer block, which are arranged horizontally. x of vector2 is x coord, y is width
@@ -123,61 +126,61 @@ public class LogicGroups {
 
     }
 
-    public static LogicBlock ConstructSpecificBlock(LogicBlockType blockType, Texture blockSpriteSheet)
+    public static LogicBlock ConstructSpecificBlock(LogicBlockType blockType, Texture blockSpriteSheet, LogicBlock previousBlock)
     {
         if(blockType == LogicBlockType.ATTACK) {
-            return new AttackBlock(blockSpriteSheet);
+            return new AttackBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.EVADE) {
-            return new EvadeBlock(blockSpriteSheet);
+            return new EvadeBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.PURSUE) {
-            return new PursueBlock(blockSpriteSheet);
+            return new PursueBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.WANDER) {
-            return new WanderBlock(blockSpriteSheet);
+            return new WanderBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.SEARCHFOR){
-            return new SearchForBlock(blockSpriteSheet);
+            return new SearchForBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.CAPITALSHIP) {
-            return new CapitalShipBlock(blockSpriteSheet);
+            return new CapitalShipBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.FRIGATESHIP){
-            return new FrigateShipBlock(blockSpriteSheet);
+            return new FrigateShipBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.FIGHTERSHIP) {
-            return new FighterShipBlock(blockSpriteSheet);
+            return new FighterShipBlock(blockSpriteSheet, previousBlock);
         }
-        //else if(blockType == LogicBlockType.INCOMINGPROJECTILES) {
-       //    return  new IncomingProjectiles(blockSpriteSheet);
-       // }
         else if(blockType == LogicBlockType.ASTEROIDS){
-            return new Asteroids(blockSpriteSheet);
+            return new Asteroids(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.QUICKLY) {
-            return new QuicklyBlock(blockSpriteSheet);
+            return new QuicklyBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.SLOWLY) {
-            return new SlowlyBlock(blockSpriteSheet);
+            return new SlowlyBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.AUTOCANNON) {
-            return new AutoCannonBlock(blockSpriteSheet);
+            return new AutoCannonBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.MISSILE) {
-            return new MissileBlock(blockSpriteSheet);
+            return new MissileBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.LASER) {
-            return new LaserBlock(blockSpriteSheet);
+            return new LaserBlock(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.AMMO) {
-            return new Ammo(blockSpriteSheet);
+            return new Ammo(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.REPAIRS){
-            return  new Repairs(blockSpriteSheet);
+            return  new Repairs(blockSpriteSheet, previousBlock);
         }
         else if(blockType == LogicBlockType.FUEl){
-            return new Fuel(blockSpriteSheet);
+            return new Fuel(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.WHEN){
+            return new When(blockSpriteSheet, previousBlock);
         }
         else {
             Gdx.app.debug("Error", "Attempting to construct a block that isn't in the ConstructSpecificBlock function, you need to update it");
@@ -185,50 +188,54 @@ public class LogicGroups {
         }
     }
 
-    public static ArrayList<LogicBlock> ConstructLogicGroup(LogicGroup group,  Texture blockSpriteSheet)
+    public static ArrayList<LogicBlock> ConstructLogicGroup(LogicGroup group,  Texture blockSpriteSheet,  LogicBlock previousBlock)
     {
         ArrayList<LogicBlock> blocks = new ArrayList<LogicBlock>();
 
         if(group == LogicGroup.COMMAND)
         {
-            blocks.add(ConstructSpecificBlock(LogicBlockType.ATTACK, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.EVADE, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.WANDER, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.PURSUE, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.SEARCHFOR, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.ATTACK, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.EVADE, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.WANDER, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.PURSUE, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.SEARCHFOR, blockSpriteSheet, previousBlock));
             return blocks;
         }
         else if(group == LogicGroup.ENEMIES)
         {
-            blocks.add(ConstructSpecificBlock(LogicBlockType.CAPITALSHIP, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.FRIGATESHIP, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.FIGHTERSHIP, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.CAPITALSHIP, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.FRIGATESHIP, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.FIGHTERSHIP, blockSpriteSheet, previousBlock));
             return blocks;
         }
         else if(group == LogicGroup.WEAPONS)
         {
-            blocks.add(ConstructSpecificBlock(LogicBlockType.AUTOCANNON, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.MISSILE, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.LASER, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.AUTOCANNON, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.MISSILE, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.LASER, blockSpriteSheet, previousBlock));
             return blocks;
         }
         else if(group == LogicGroup.SPEED)
         {
-            blocks.add(ConstructSpecificBlock(LogicBlockType.QUICKLY, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.SLOWLY, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.QUICKLY, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.SLOWLY, blockSpriteSheet, previousBlock));
             return blocks;
         }
         else if(group == LogicGroup.SCARYOBJECTS)
         {
-            //blocks.add(ConstructSpecificBlock(LogicBlockType.INCOMINGPROJECTILES, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.ASTEROIDS, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.ASTEROIDS, blockSpriteSheet, previousBlock));
             return blocks;
         }
         else if(group == LogicGroup.POWERUPS)
         {
-            blocks.add(ConstructSpecificBlock(LogicBlockType.REPAIRS, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.AMMO, blockSpriteSheet));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.FUEl, blockSpriteSheet));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.REPAIRS, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.AMMO, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.FUEl, blockSpriteSheet, previousBlock));
+            return blocks;
+        }
+        else if(group == LogicGroup.IF)
+        {
+            blocks.add(ConstructSpecificBlock(LogicBlockType.WHEN, blockSpriteSheet, previousBlock));
             return blocks;
         }
         else

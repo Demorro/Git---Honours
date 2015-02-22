@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class LaserBlock extends LogicBlock
 {
-    public LaserBlock(Texture blockSheet) {
+    public LaserBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "With Lasers", LogicGroups.LogicGroup.WEAPONS, LogicGroups.LogicBlockType.LASER);
     }
 

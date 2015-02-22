@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class SlowlyBlock extends LogicBlock
 {
-    public SlowlyBlock(Texture blockSheet) {
+    public SlowlyBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "Slowly", LogicGroups.LogicGroup.SPEED, LogicGroups.LogicBlockType.SLOWLY);
     }
 
