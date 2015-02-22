@@ -28,6 +28,7 @@ public class BlockChain {
     private NextBlockButton nextButton; //The button that either summons a new list or alternatively lets you select the block in the list
 
     private boolean enabled = true; //Simply disables update logic.
+    private boolean shouldBeDeleted = false;
 
     //References to the above and below blockchain. Only accessed by the fullBlockScript.
     private BlockChain aboveBlockChain = null;
@@ -51,10 +52,13 @@ public class BlockChain {
     TweenManager chainTweenManager = new TweenManager(); //Tween manager
     private static float timeToTweenFromListToChain = 0.2f; //Time that the selected block takes to tween from the selection list into the main chain, also used for most other tweens (I know its bad shut up)
 
+    private boolean isTopChain = false;; //if this chain is the very top one
     private boolean isOnEndOfChain = false; //True if the chain is finished, with no other blocks to be placed.
 
     //Used for opacity tweening
     private float currentOpacity = 1.0f;
+
+    private BlockChain childChain = null; //If this blockchain is an if statement, it can have a child chain
 
     public BlockChain(float xPos, float yPos, Texture blockSpriteSheet, FullBlockScript fullScript)
     {
@@ -169,7 +173,6 @@ public class BlockChain {
 
     private void RemoveBlockFromEndOfChain()
     {
-
         blockChainBounds.setWidth(blockChainBounds.getWidth() - blocks.get(blocks.size() - 1).GetFullBlockWidth());
         position.x -= blocks.get(blocks.size() - 1).GetFullBlockWidth();
 
@@ -179,9 +182,7 @@ public class BlockChain {
                 .start(chainTweenManager);
 
         //Fade out cancel button
-        Tween.to((cancelButton), SpriteAccessor.OPACITY, timeToTweenFromListToChain)
-                .target(0.0f)
-                .start(chainTweenManager);
+        FadeOutCancelButton();
 
         //Tween the next button back to the previous block
         //The if/else thing is because we dont want to do the spacing seperation if we are tweening the next button back to the very start, without a block to space from
@@ -195,6 +196,11 @@ public class BlockChain {
             Tween.to((nextButton), SpriteAccessor.POSITION_X, timeToTweenFromListToChain)
                     .target(blockChainBounds.getX() + blockChainBounds.getWidth())
                     .start(chainTweenManager);
+
+            if(isTopChain == false)
+            {
+                FadeOutNextButton();
+            }
         }
 
         //Disable buttons, to re-enable after tween
@@ -223,6 +229,14 @@ public class BlockChain {
                 }
                 else{
                     previousBlock = null;
+                    if(isTopChain == false){
+                        DeleteChain();
+                        if (belowBlockChain != null) {
+                            if (aboveBlockChain != null) {
+                                belowBlockChain.MoveChainToPosition(new Vector2(blockChainBounds.getX(), belowBlockChain.blockChainBounds.getY() + LogicBlock.GetBlockHeight() + 1 + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()) * 2));
+                            }
+                        }
+                    }
                 }
                 if(blocks.size() > 1)
                 {
@@ -248,6 +262,46 @@ public class BlockChain {
         }, timeToTweenFromListToChain);
 
         isOnEndOfChain = false; //Its important that this is set at the end of this function
+    }
+    public void DeleteChain()
+    {
+        if((belowBlockChain != null) && (aboveBlockChain != null)) {
+            belowBlockChain.aboveBlockChain = aboveBlockChain; //This chain is being deleted, so set the correct up/downs
+            aboveBlockChain.belowBlockChain = belowBlockChain;
+        }
+        shouldBeDeleted = true;
+
+        if(childChain != null)
+        {
+            childChain.DeleteChain();
+            childChain = null;
+        }
+    }
+    public void MoveChainToBeBelowChain(BlockChain chain){
+        //Fade out the cancel button
+        Tween.to(this, BlockChainAccessor.POSITION_Y, timeToTweenFromListToChain)
+                .target(chain.GetY() - LogicBlock.GetBlockHeight())
+                .start(chainTweenManager);
+
+
+        if (belowBlockChain != null) {
+            belowBlockChain.MoveChainToPosition(new Vector2(aboveBlockChain.GetX(), belowBlockChain.GetY() + LogicBlock.GetBlockHeight() + 1 + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()) * 2));
+        }
+
+
+
+    }
+    public void MoveChainToPosition(Vector2 position){
+        //Fade out the cancel button
+        Tween.to(this, BlockChainAccessor.POSITION_XY, timeToTweenFromListToChain)
+                .target(position.x, position.y)
+                .start(chainTweenManager);
+
+        if (belowBlockChain != null) {
+            belowBlockChain.MoveChainToPosition(new Vector2(position.x, belowBlockChain.GetY() + LogicBlock.GetBlockHeight() + 1 + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()) * 2));
+        }
+
+
     }
     //Called by nextButton when it is triggered
     public void NextButtonPushed()
@@ -365,6 +419,16 @@ public class BlockChain {
         cancelButton.SetVisible(false);
     }
 
+    private void FadeOutNextButton()
+    {
+        //Fade out the cancel button
+        Tween.to(nextButton, SpriteAccessor.OPACITY, timeToTweenFromListToChain)
+                .target(0.0f)
+                .start(chainTweenManager);
+
+        nextButton.SetEnabled(false);
+    }
+
     public boolean GetIsOnEndOfChain()
     {
         return isOnEndOfChain;
@@ -443,15 +507,13 @@ public class BlockChain {
     }
     public float GetX()
     {
-        return position.x;
+        return blockChainBounds.getX();
     }
     public float GetY()
     {
-        return position.y;
+        return blockChainBounds.getY();
     }
     public void SetPosition(float x, float y) {
-        position.x = x;
-        position.y = y;
 
         int blockWidth = 0; //The width of the entire chain
         for(int i = 0; i < blocks.size(); i++)
@@ -462,13 +524,20 @@ public class BlockChain {
 
         blockChainBounds.setPosition(x, y - (LogicBlock.blockHeight - nextButton.getHeight())/2);
         blockChainBounds.setWidth(blockWidth);
-        nextButton.setPosition(x + blockWidth, y);
+
+        position.x = blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenNextButton;
+        position.y = y;
+
+        nextButton.setPosition(position.x, blockChainBounds.getY() + (LogicBlock.GetBlockHeight() - nextButton.getRegionHeight())/2);
         cancelButton.setPosition(x + blockWidth, y);
+
         SetCancelButtonPosToLastBlock();
 
         if(selectionList != null) {
             selectionList.SetPosition(x, y);
         }
+
+
     }
     public float GetOpacity(){
         return currentOpacity;
@@ -480,6 +549,15 @@ public class BlockChain {
         }
         nextButton.setAlpha(opacity);
         cancelButton.setAlpha(opacity);
+    }
+
+    public boolean ShouldDelete()
+    {
+        return shouldBeDeleted;
+    }
+
+    public void SetIsTopChain(){
+        isTopChain = true;
     }
 
     //Used to directly add/remove blocks, used mainly in loading

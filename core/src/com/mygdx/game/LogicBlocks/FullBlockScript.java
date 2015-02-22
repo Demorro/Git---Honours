@@ -50,6 +50,7 @@ public class FullBlockScript
     {
         blockChains.clear();
         AddNewChain(blockChainStartPos.x, blockChainStartPos.y);
+        blockChains.get(0).SetIsTopChain();
     }
 
     public void Update()
@@ -58,7 +59,9 @@ public class FullBlockScript
         {
             chain.Update();
         }
+        DestroyChains();
         CheckForWhetherWeNeedNewChain();
+
 
         fullScriptTweenManager.update(Gdx.graphics.getDeltaTime());
 
@@ -166,6 +169,18 @@ public class FullBlockScript
                 Tween.to(chain, BlockChainAccessor.OPACITY, adjacentChainOpacityTweenTime)
                         .target(opacity)
                         .start(fullScriptTweenManager);
+            }
+        }
+    }
+
+    //Destroy chains that need to be destroyed
+    private void DestroyChains()
+    {
+        for(int i = 0; i < blockChains.size(); i++)
+        {
+            if(blockChains.get(i).ShouldDelete())
+            {
+                blockChains.remove(i);
             }
         }
     }

@@ -7,9 +7,14 @@
     <Block>QUICKLY</Block>
   </Line>
   <Line>
+    <Block>EVADE</Block>
+    <Block>CAPITALSHIP</Block>
+    <Block>QUICKLY</Block>
+  </Line>
+  <Line>
     <Block>WHEN</Block>
     <Block>LASER</Block>
-    <Block>QUICKLY</Block>
+    <Block>ISFIRING</Block>
   </Line>
   <Line></Line>
 </PlayerLogicScript>

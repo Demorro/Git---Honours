@@ -13,13 +13,22 @@ public class MissileBlock extends LogicBlock
 {
     public MissileBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "With Missiles", LogicGroups.LogicGroup.WEAPONS, LogicGroups.LogicBlockType.MISSILE);
+        if(previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN)
+        {
+            ResetBlockText("    Missiles    ");
+        }
     }
 
     @Override
     public ArrayList<LogicGroups.LogicGroup> GetNextLogicGroup(LogicBlock previousBlock)
     {
         ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
-        nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
+        if(previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN) {
+            nextLogicGroups.add(LogicGroups.LogicGroup.IFWEAPON);
+        }
+        else{
+            nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
+        }
         return nextLogicGroups;
     }
 }

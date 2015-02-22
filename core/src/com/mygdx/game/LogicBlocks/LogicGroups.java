@@ -9,13 +9,12 @@ import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.CapitalShipBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.FighterShipBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.FrigateShipBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.If.When;
-import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Ammo;
-import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Fuel;
-import com.mygdx.game.LogicBlocks.SpecificBlocks.PowerUps.Repairs;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.ScaryObjects.Asteroids;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Speeds.QuicklyBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Speeds.SlowlyBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Weapons.AutoCannonBlock;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.Weapons.IfWeapon.IsFiring;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.Weapons.IfWeapon.IsntFiring;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Weapons.LaserBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Weapons.MissileBlock;
 
@@ -35,7 +34,6 @@ public class LogicGroups {
         EVADE,
         PURSUE,
         WANDER,
-        SEARCHFOR,
         CAPITALSHIP,
         FRIGATESHIP,
         FIGHTERSHIP,
@@ -44,10 +42,9 @@ public class LogicGroups {
         AUTOCANNON,
         MISSILE,
         LASER,
-        REPAIRS,
-        AMMO,
-        FUEl,
-        ASTEROIDS
+        ASTEROIDS,
+        ISFIRING,
+        ISNTFIRING
     };
 
     //The general block groups, used for defining flow easily.
@@ -59,7 +56,7 @@ public class LogicGroups {
         WEAPONS,
         SPEED,
         SCARYOBJECTS,
-        POWERUPS
+        IFWEAPON
     };
 
     //Depending on the group the block belongs to, returns the height of the colour row on the sprite sheet for colour coding.
@@ -70,8 +67,8 @@ public class LogicGroups {
         else if(type == LogicGroup.WEAPONS) { return 206; }
         else if(type == LogicGroup.SPEED) { return 5; }
         else if(type == LogicGroup.SCARYOBJECTS) {return 340;}
-        else if(type == LogicGroup.POWERUPS){return 139;}
         else if(type == LogicGroup.IF){return 5;}
+        else if(type == LogicGroup.IFWEAPON){return 139;}
         else{ return -1;} //Error code
     }
     //Depending on the length of the text, we want a longer block, which are arranged horizontally. x of vector2 is x coord, y is width
@@ -140,9 +137,6 @@ public class LogicGroups {
         else if(blockType == LogicBlockType.WANDER) {
             return new WanderBlock(blockSpriteSheet, previousBlock);
         }
-        else if(blockType == LogicBlockType.SEARCHFOR){
-            return new SearchForBlock(blockSpriteSheet, previousBlock);
-        }
         else if(blockType == LogicBlockType.CAPITALSHIP) {
             return new CapitalShipBlock(blockSpriteSheet, previousBlock);
         }
@@ -170,17 +164,14 @@ public class LogicGroups {
         else if(blockType == LogicBlockType.LASER) {
             return new LaserBlock(blockSpriteSheet, previousBlock);
         }
-        else if(blockType == LogicBlockType.AMMO) {
-            return new Ammo(blockSpriteSheet, previousBlock);
-        }
-        else if(blockType == LogicBlockType.REPAIRS){
-            return  new Repairs(blockSpriteSheet, previousBlock);
-        }
-        else if(blockType == LogicBlockType.FUEl){
-            return new Fuel(blockSpriteSheet, previousBlock);
-        }
         else if(blockType == LogicBlockType.WHEN){
             return new When(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.ISFIRING){
+            return new IsFiring(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.ISNTFIRING){
+            return new IsntFiring(blockSpriteSheet, previousBlock);
         }
         else {
             Gdx.app.debug("Error", "Attempting to construct a block that isn't in the ConstructSpecificBlock function, you need to update it");
@@ -198,7 +189,6 @@ public class LogicGroups {
             blocks.add(ConstructSpecificBlock(LogicBlockType.EVADE, blockSpriteSheet, previousBlock));
             blocks.add(ConstructSpecificBlock(LogicBlockType.WANDER, blockSpriteSheet, previousBlock));
             blocks.add(ConstructSpecificBlock(LogicBlockType.PURSUE, blockSpriteSheet, previousBlock));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.SEARCHFOR, blockSpriteSheet, previousBlock));
             return blocks;
         }
         else if(group == LogicGroup.ENEMIES)
@@ -226,16 +216,15 @@ public class LogicGroups {
             blocks.add(ConstructSpecificBlock(LogicBlockType.ASTEROIDS, blockSpriteSheet, previousBlock));
             return blocks;
         }
-        else if(group == LogicGroup.POWERUPS)
-        {
-            blocks.add(ConstructSpecificBlock(LogicBlockType.REPAIRS, blockSpriteSheet, previousBlock));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.AMMO, blockSpriteSheet, previousBlock));
-            blocks.add(ConstructSpecificBlock(LogicBlockType.FUEl, blockSpriteSheet, previousBlock));
-            return blocks;
-        }
         else if(group == LogicGroup.IF)
         {
             blocks.add(ConstructSpecificBlock(LogicBlockType.WHEN, blockSpriteSheet, previousBlock));
+            return blocks;
+        }
+        else if(group == LogicGroup.IFWEAPON)
+        {
+            blocks.add(ConstructSpecificBlock(LogicBlockType.ISFIRING, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.ISNTFIRING, blockSpriteSheet, previousBlock));
             return blocks;
         }
         else
