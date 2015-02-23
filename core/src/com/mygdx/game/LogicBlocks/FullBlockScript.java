@@ -28,6 +28,7 @@ public class FullBlockScript
 
     public static Vector2 blockChainStartPos = new Vector2(25, Gdx.graphics.getHeight() - 145);
     public static int chainYSeperation = 68; //The amount of seperation active
+    public static int IfIndentation = 60;
 
     private static final float adjacentChainOpacity = 0.5f;
     private static final float adjacentChainOpacityTweenTime = 0.2f;
@@ -62,7 +63,6 @@ public class FullBlockScript
         DestroyChains();
         CheckForWhetherWeNeedNewChain();
 
-
         fullScriptTweenManager.update(Gdx.graphics.getDeltaTime());
 
 
@@ -84,21 +84,36 @@ public class FullBlockScript
     //Checks if we need a new chain, that is if the final open chain is finished
     public void CheckForWhetherWeNeedNewChain()
     {
-        if(blockChains.get(blockChains.size() - 1).GetIsOnEndOfChain() == true)
-        {
-            AddNewChain(blockChainStartPos.x, blockChainStartPos.y - (blockChains.size() * chainYSeperation));
+        for(BlockChain chain : GetAllChainsRecursively()){
+            if((chain.GetIsOnEndOfChain() == true) && (chain.GetIsIfStatement() == false) && (chain.needsNewLine == true)){
+                AddNewChain(blockChainStartPos.x, blockChainStartPos.y - (GetAllChainsRecursively().size() * chainYSeperation));
+                chain.needsNewLine = false;
+            }
+            else if((chain.GetIsOnEndOfChain() == true) && (chain.GetIsIfStatement() == true) && (chain.needsNewLine == true)) {
+                AddNewIfBlock(chain);
+                chain.needsNewLine = false;
+            }
         }
     }
 
     public void AddNewChain(float x, float y)
     {
-        BlockChain chainToAdd = new BlockChain(x, y, blockTextureSheet, this);
+        BlockChain chainToAdd = new BlockChain(x, y, blockTextureSheet, this, blockChains);
         blockChains.add(chainToAdd);
         if(blockChains.size() >= 2){
             chainToAdd.SetAboveBlockChain(blockChains.get(blockChains.size() - 2));
             blockChains.get(blockChains.size() - 2).SetBelowBlockChain(chainToAdd);
         }
+    }
 
+    public void AddNewIfBlock(BlockChain parentIfChain)
+    {
+        BlockChain ifChildBlock = parentIfChain.AddIfChildBlock();
+        BlockChain.SetUpperLowerRelations(parentIfChain, ifChildBlock);
+        BlockChain underIfStatementBlock = new BlockChain(parentIfChain.GetX(), ifChildBlock.GetY() - chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()) , blockTextureSheet, this, parentIfChain.parentContainer);
+        parentIfChain.parentContainer.add(underIfStatementBlock);
+        BlockChain.SetUpperLowerRelations(ifChildBlock,underIfStatementBlock);
+        BlockChain.SetUpperLowerRelations(underIfStatementBlock,parentIfChain.GetBelowBlockChain());
     }
 
 
@@ -111,15 +126,17 @@ public class FullBlockScript
         //TweenAdjacentChainsOpacity(activeChain, adjacentChainOpacity);
         TweenAllOtherChainsOpacity(activeChain, adjacentChainOpacity);
 
+
         //Since this is called just before the list opens, then we can just close all the lists and the one that calls it will still open
-        for(BlockChain blockChain : blockChains)
+        for(BlockChain blockChain : GetAllChainsRecursively())
         {
-            if(blockChain.IsListOpen()) {
+            if (blockChain.IsListOpen()) {
                 blockChain.CloseList();
             }
         }
 
-        DisableAllOtheBlockChains(activeChain);
+       // DisableAllOtheBlockChains(activeChain);
+
     }
     public void AnyListClosed(BlockChain chainThatClosed)
     {
@@ -131,16 +148,15 @@ public class FullBlockScript
 
     private void DisableAllOtheBlockChains(BlockChain exclusionChain)
     {
-        for(BlockChain chain : blockChains)
+        for(BlockChain chain : GetAllChainsRecursively())
         {
-            if(chain != exclusionChain) {
-                chain.SetEnabled(false);
-            }
+            chain.SetEnabled(false);
         }
+        exclusionChain.SetEnabled(true);
     }
     private void EnableAllBlockChains()
     {
-        for(BlockChain chain : blockChains)
+        for(BlockChain chain : GetAllChainsRecursively())
         {
             chain.SetEnabled(true);
         }
@@ -186,33 +202,6 @@ public class FullBlockScript
     }
 
 
-    //Tweens the chain to the above
-    private void TweenChainToAboveChain(BlockChain chain)
-    {
-        chain.SetPosition(chain.GetX(), chain.GetAboveBlockChain().GetBlockBounds().getY() - LogicBlock.GetBlockHeight());
-    }
-
-    private void MoveChainsAwayFromActiveChain(BlockChain activeChain)
-    {
-        //Basically, this moves all of the chains above and below the active chain up/down the chainYSeperation distance so the active chain has space for its list
-        //Upper
-        BlockChain upperChain = activeChain.GetAboveBlockChain();
-        while(upperChain != null)
-        {
-            upperChain.Move(0, chainYSeperation);
-            upperChain = upperChain.GetAboveBlockChain();
-        }
-
-        //Lower
-        BlockChain lowerChain = activeChain.GetBelowBlockChain();
-        while(lowerChain != null)
-        {
-            lowerChain.Move(0, -chainYSeperation);
-            lowerChain = lowerChain.GetBelowBlockChain();
-        }
-    }
-
-
     public void DeleteActiveChain()
     {
         activeChain = null;
@@ -221,6 +210,16 @@ public class FullBlockScript
     public ArrayList<BlockChain> GetBlockChains()
     {
         return blockChains;
+    }
+    private ArrayList<BlockChain> GetAllChainsRecursively()
+    {
+        ArrayList<BlockChain> allChains = new ArrayList<BlockChain>();
+        for(BlockChain chain : blockChains)
+        {
+            allChains.add(chain);
+            allChains.addAll(chain.GetAllChildChainsRecursively());
+        }
+        return allChains;
     }
 
     //Returns 1 is succesfully saved, 0 if cancelled out, and -1 if ERROR HAPPENED
