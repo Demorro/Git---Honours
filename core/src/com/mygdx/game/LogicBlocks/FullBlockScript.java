@@ -64,6 +64,7 @@ public class FullBlockScript
         CheckForWhetherWeNeedNewChain();
 
         fullScriptTweenManager.update(Gdx.graphics.getDeltaTime());
+        AssertAllLinePositions();
 
 
     }
@@ -111,9 +112,30 @@ public class FullBlockScript
         BlockChain ifChildBlock = parentIfChain.AddIfChildBlock();
         BlockChain.SetUpperLowerRelations(parentIfChain, ifChildBlock);
         BlockChain underIfStatementBlock = new BlockChain(parentIfChain.GetX(), ifChildBlock.GetY() - chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()) , blockTextureSheet, this, parentIfChain.parentContainer);
-        parentIfChain.parentContainer.add(underIfStatementBlock);
         BlockChain.SetUpperLowerRelations(ifChildBlock,underIfStatementBlock);
-        BlockChain.SetUpperLowerRelations(underIfStatementBlock,parentIfChain.GetBelowBlockChain());
+        parentIfChain.parentContainer.add(underIfStatementBlock);
+        if(parentIfChain.GetNextBlockAfterIf() != null){
+            BlockChain.SetUpperLowerRelations(underIfStatementBlock, parentIfChain.GetNextBlockAfterIf());
+        }
+
+        ifChildBlock.SetNextBlockAfterIf(underIfStatementBlock);
+    }
+
+    public void AssertAllLinePositions()
+    {
+        //FUCKIN HANGS HERE YOU FUCKING PEICE OF GIANT WANT TITS ARE NIKNWOCKDFAS NGAGLORY
+            BlockChain nextChain = blockChains.get(0);
+            int lineNo = 0;
+            while (nextChain != null){
+                nextChain.lineNo = lineNo;
+                lineNo++;
+                if(nextChain.GetBelowBlockChain() != null) {
+                    nextChain = nextChain.GetBelowBlockChain();
+                }
+                else{
+                    nextChain = null;
+                }
+            }
     }
 
 

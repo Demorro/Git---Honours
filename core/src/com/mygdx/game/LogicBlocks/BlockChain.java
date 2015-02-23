@@ -4,6 +4,7 @@ import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -63,11 +64,19 @@ public class BlockChain {
 
     public ArrayList<BlockChain> childChains = new ArrayList<BlockChain>(); //If this blockchain is an if statement, it can have a child chain
     public ArrayList<BlockChain> parentContainer = null;
+    private BlockChain nextBlockAfterIf = null; //The next block that is in the script after if if indentation, if this block is an if block.
+
+    private BitmapFont debugFont;
+    public int lineNo = 0;
 
     public BlockChain(float xPos, float yPos, Texture blockSpriteSheet, FullBlockScript fullScript, ArrayList<BlockChain> parentContainer)
     {
         this.fullScript = fullScript;
         blockTextureSheet = blockSpriteSheet;
+
+        debugFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        debugFont.setColor(0,1,1,1);
+        debugFont.setScale(1.0f);
 
         ResetChain(xPos, yPos);
 
@@ -395,6 +404,7 @@ public class BlockChain {
                         chain.Render(batch);
                 }
             }
+            debugFont.draw(batch, Integer.toString(lineNo),  position.x, position.y);
         }
     }
 
@@ -658,5 +668,17 @@ public class BlockChain {
                 }
             }
         }
+    }
+
+    public BlockChain GetNextBlockAfterIf()
+    {
+        if(GetIsIfStatement() == false){
+            Gdx.app.log("Error", "Shouldnt be able to get next block after if if this isnt an if statement");
+        }
+        return nextBlockAfterIf;
+    }
+    public void SetNextBlockAfterIf(BlockChain nextBlock)
+    {
+        nextBlockAfterIf = nextBlock;
     }
 }

@@ -5,5 +5,10 @@
     <Block>CAPITALSHIP</Block>
     <Block>QUICKLY</Block>
   </Line>
+  <Line>
+    <Block>WHEN</Block>
+    <Block>CAPITALSHIP</Block>
+    <Block>QUICKLY</Block>
+  </Line>
   <Line></Line>
 </PlayerLogicScript>
