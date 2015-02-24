@@ -17,6 +17,7 @@ import jdk.nashorn.internal.ir.Block;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Observable;
 
 /**
@@ -68,6 +69,8 @@ public class BlockChain {
 
     private BitmapFont debugFont;
     public int lineNo = 0;
+
+    private ListIterator<BlockChain> it = null;
 
     public BlockChain(float xPos, float yPos, Texture blockSpriteSheet, FullBlockScript fullScript, ArrayList<BlockChain> parentContainer)
     {
@@ -404,7 +407,19 @@ public class BlockChain {
                         chain.Render(batch);
                 }
             }
-            debugFont.draw(batch, Integer.toString(lineNo),  position.x, position.y);
+            debugFont.draw(batch, Integer.toString(lineNo),  GetX(), position.y);
+            if(GetAboveBlockChain() != null) {
+                debugFont.draw(batch, "Above : " + Integer.toString(aboveBlockChain.lineNo), GetX() + 160, position.y);
+            }
+            if(GetBelowBlockChain() != null) {
+                debugFont.draw(batch, "Below : " + Integer.toString(belowBlockChain.lineNo), GetX() + 320, position.y);
+            }
+            if(GetNextBlockAfterIf() != null){
+                debugFont.draw(batch, "NextAfterIF : " + Integer.toString(GetNextBlockAfterIf().lineNo),  GetX() + 480, position.y);
+            }
+            if(parentContainer != null){
+                debugFont.draw(batch, "First in parent container : " + Integer.toString(parentContainer.get(0).lineNo),  GetX() + 680, position.y);
+            }
         }
     }
 
@@ -642,6 +657,7 @@ public class BlockChain {
     {
         childChains.add(new BlockChain(GetX() + FullBlockScript.IfIndentation, GetY() - FullBlockScript.chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()), blockTextureSheet, fullScript, childChains));
         childChains.get(childChains.size() - 1).SetIsTopChain();
+        childChains.get(childChains.size() - 1).LoadIterator(childChains.size() - 1);
         return childChains.get(childChains.size() - 1);
     }
 
@@ -673,12 +689,40 @@ public class BlockChain {
     public BlockChain GetNextBlockAfterIf()
     {
         if(GetIsIfStatement() == false){
-            Gdx.app.log("Error", "Shouldnt be able to get next block after if if this isnt an if statement");
+            return null;
         }
         return nextBlockAfterIf;
     }
     public void SetNextBlockAfterIf(BlockChain nextBlock)
     {
         nextBlockAfterIf = nextBlock;
+    }
+
+    public void LoadIterator(int index){
+        it = parentContainer.listIterator(index);
+    }
+    public BlockChain GetNextBlockInContainerFromIterator(){
+        if(it == null){
+            Gdx.app.log("Error", "Iterator is null, probably need to call LoadIterator");
+        }
+
+        if(it.hasNext()) {
+            return it.next();
+        }
+        else{
+            return null;
+        }
+    }
+
+
+    public BlockChain GetFirstInParentContainer()
+    {
+        if(parentContainer != null) {
+            return parentContainer.get(0);
+        }
+        else
+        {
+            return null;
+        }
     }
 }

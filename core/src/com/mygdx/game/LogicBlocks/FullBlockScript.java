@@ -87,7 +87,7 @@ public class FullBlockScript
     {
         for(BlockChain chain : GetAllChainsRecursively()){
             if((chain.GetIsOnEndOfChain() == true) && (chain.GetIsIfStatement() == false) && (chain.needsNewLine == true)){
-                AddNewChain(blockChainStartPos.x, blockChainStartPos.y - (GetAllChainsRecursively().size() * chainYSeperation));
+                AddNewChain(chain.GetX(), chain.GetY() - chainYSeperation,chain.parentContainer);
                 chain.needsNewLine = false;
             }
             else if((chain.GetIsOnEndOfChain() == true) && (chain.GetIsIfStatement() == true) && (chain.needsNewLine == true)) {
@@ -101,9 +101,30 @@ public class FullBlockScript
     {
         BlockChain chainToAdd = new BlockChain(x, y, blockTextureSheet, this, blockChains);
         blockChains.add(chainToAdd);
+        blockChains.get(blockChains.size() - 1).LoadIterator(blockChains.size() -1 );
         if(blockChains.size() >= 2){
             chainToAdd.SetAboveBlockChain(blockChains.get(blockChains.size() - 2));
             blockChains.get(blockChains.size() - 2).SetBelowBlockChain(chainToAdd);
+        }
+    }
+    public void AddNewChain(float x, float y, ArrayList<BlockChain> parentContainer){
+        BlockChain chainToAdd = new BlockChain(x, y, blockTextureSheet, this, parentContainer);
+        parentContainer.add(chainToAdd);
+        parentContainer.get(parentContainer.size() -1).LoadIterator(parentContainer.size() -1);
+        if(parentContainer.size() >= 2){
+            chainToAdd.SetAboveBlockChain(parentContainer.get(parentContainer.size() - 2));
+            parentContainer.get(parentContainer.size() - 2).SetBelowBlockChain(chainToAdd);
+        }
+
+        //Sets the line added after the if indentation to be related up/downwise the previous indentation below the if indentation
+        if(parentContainer != null) {
+            if(parentContainer.get(0) != null) {
+                if (parentContainer.get(0).GetAboveBlockChain() != null) {
+                    if (parentContainer.get(0).GetAboveBlockChain().GetNextBlockAfterIf() != null) {
+                        BlockChain.SetUpperLowerRelations(chainToAdd, parentContainer.get(0).GetAboveBlockChain().GetNextBlockAfterIf());
+                    }
+                }
+            }
         }
     }
 
@@ -114,11 +135,14 @@ public class FullBlockScript
         BlockChain underIfStatementBlock = new BlockChain(parentIfChain.GetX(), ifChildBlock.GetY() - chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()) , blockTextureSheet, this, parentIfChain.parentContainer);
         BlockChain.SetUpperLowerRelations(ifChildBlock,underIfStatementBlock);
         parentIfChain.parentContainer.add(underIfStatementBlock);
-        if(parentIfChain.GetNextBlockAfterIf() != null){
-            BlockChain.SetUpperLowerRelations(underIfStatementBlock, parentIfChain.GetNextBlockAfterIf());
+        parentIfChain.parentContainer.get(parentIfChain.parentContainer.size() -1).LoadIterator(parentIfChain.parentContainer.size() -1);
+        if(parentIfChain.GetFirstInParentContainer().GetAboveBlockChain() != null) {
+            if (parentIfChain.GetFirstInParentContainer().GetAboveBlockChain().GetNextBlockAfterIf() != null) {
+                BlockChain.SetUpperLowerRelations(underIfStatementBlock, parentIfChain.GetFirstInParentContainer().GetAboveBlockChain().GetNextBlockAfterIf());
+            }
         }
 
-        ifChildBlock.SetNextBlockAfterIf(underIfStatementBlock);
+        parentIfChain.SetNextBlockAfterIf(underIfStatementBlock);
     }
 
     public void AssertAllLinePositions()
@@ -136,6 +160,16 @@ public class FullBlockScript
                     nextChain = null;
                 }
             }
+
+        AssertAllYs(blockChainStartPos);
+    }
+
+    public void AssertAllYs(Vector2 globalRootPos)
+    {
+        for(BlockChain chain : GetAllChainsRecursively())
+        {
+            chain.SetPosition(chain.GetX(), globalRootPos.y - (chainYSeperation  * chain.lineNo));
+        }
     }
 
 
