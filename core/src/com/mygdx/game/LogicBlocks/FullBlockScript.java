@@ -153,6 +153,8 @@ public class FullBlockScript
 
     public void AddNewIfBlock(BlockChain parentIfChain)
     {
+        BlockChain chainDirectlyAfterParent = parentIfChain.GetBelowBlockChain();
+
         BlockChain ifChildBlock = parentIfChain.AddIfChildBlock();
         BlockChain.SetUpperLowerRelations(parentIfChain, ifChildBlock);
         BlockChain underIfStatementBlock = new BlockChain(parentIfChain.GetX(), ifChildBlock.GetY() - chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight())/2 , blockTextureSheet, this, parentIfChain.parentContainer);
@@ -162,6 +164,11 @@ public class FullBlockScript
         if(parentIfChain.GetFirstInParentContainer().GetAboveBlockChain() != null) {
             if (parentIfChain.GetFirstInParentContainer().GetAboveBlockChain().GetNextBlockAfterIf() != null) {
                 BlockChain.SetUpperLowerRelations(underIfStatementBlock, parentIfChain.GetFirstInParentContainer().GetAboveBlockChain().GetNextBlockAfterIf());
+            }
+        }
+        else if(parentIfChain.GetFirstInParentContainer().GetAboveBlockChain() == null){
+            if(chainDirectlyAfterParent != null){
+                BlockChain.SetUpperLowerRelations(underIfStatementBlock, chainDirectlyAfterParent);
             }
         }
 
