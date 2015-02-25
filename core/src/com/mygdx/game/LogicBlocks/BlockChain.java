@@ -5,6 +5,7 @@ import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -66,6 +67,8 @@ public class BlockChain {
     public ArrayList<BlockChain> childChains = new ArrayList<BlockChain>(); //If this blockchain is an if statement, it can have a child chain
     public ArrayList<BlockChain> parentContainer = null;
     private BlockChain nextBlockAfterIf = null; //The next block that is in the script after if if indentation, if this block is an if block.
+    private Sprite ifIndentationGraphic;
+    private Vector2 ifIndentationGraphicOffset = new Vector2();
 
     private BitmapFont debugFont;
     public int lineNo = 0;
@@ -105,6 +108,7 @@ public class BlockChain {
         selectionList = null;
         previousBlock = null;
 
+        ifIndentationGraphic = null;
 
         blockChainBounds.setPosition(position.x, position.y - (LogicBlock.blockHeight - nextButton.getHeight())/2);
         blockChainBounds.setHeight(LogicBlock.blockHeight);
@@ -218,12 +222,6 @@ public class BlockChain {
                     .target(blockChainBounds.getX() + blockChainBounds.getWidth())
                     .start(chainTweenManager);
 
-            /*
-            if(isTopChain == false)
-            {
-                FadeOutNextButton();
-            }
-            */
         }
 
         //Disable buttons, to re-enable after tween
@@ -411,6 +409,17 @@ public class BlockChain {
     public void Render(SpriteBatch batch)
     {
         if(visible) {
+
+            if(ifIndentationGraphic != null){
+                ifIndentationGraphic.draw(batch);
+            }
+
+            if (childChains != null) {
+                for (BlockChain chain : childChains) {
+                    chain.Render(batch);
+                }
+            }
+
             nextButton.Render(batch);
 
             for (LogicBlock block : blocks) {
@@ -421,13 +430,9 @@ public class BlockChain {
             }
             cancelButton.Render(batch);
 
-            if (childChains != null) {
-                for (BlockChain chain : childChains) {
-                        chain.Render(batch);
-                }
-            }
 
 
+            /*
             debugFont.draw(batch, Integer.toString(lineNo),  GetX(), position.y);
             if(GetAboveBlockChain() != null) {
                 debugFont.draw(batch, "Above : " + Integer.toString(aboveBlockChain.lineNo), GetX() + 160, position.y);
@@ -441,7 +446,7 @@ public class BlockChain {
             if(parentContainer != null){
                 debugFont.draw(batch, "First in parent container : " + Integer.toString(parentContainer.get(0).lineNo),  GetX() + 680, position.y);
             }
-
+            */
 
         }
     }
@@ -610,6 +615,10 @@ public class BlockChain {
 
         SetCancelButtonPosToLastBlock();
 
+        if(ifIndentationGraphic != null) {
+            ifIndentationGraphic.setPosition(GetX() + ifIndentationGraphicOffset.x, GetY() - ifIndentationGraphicOffset.y);
+        }
+
         /*
         if(selectionList != null) {
             selectionList.SetPosition(x, y);
@@ -680,7 +689,7 @@ public class BlockChain {
 
     public BlockChain AddIfChildBlock()
     {
-        childChains.add(new BlockChain(GetX() + FullBlockScript.IfIndentation, GetY() - FullBlockScript.chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight())/2, blockTextureSheet, fullScript, childChains));
+        childChains.add(new BlockChain(GetX() + FullBlockScript.IfIndentation, GetY() , blockTextureSheet, fullScript, childChains));
         childChains.get(childChains.size() - 1).SetIsTopChain();
         childChains.get(childChains.size() - 1).LoadIterator(childChains.size() - 1);
         return childChains.get(childChains.size() - 1);
@@ -800,6 +809,13 @@ public class BlockChain {
         else{
             return false;
         }
+    }
+
+    public void LoadIfIndentationGraphic(float graphicOffsetX, float graphicOffsetY){
+        ifIndentationGraphic = new Sprite(blockTextureSheet, 300, 495, 50, 54);
+        ifIndentationGraphic.setPosition(GetX() + graphicOffsetX , GetY() - graphicOffsetY);
+        ifIndentationGraphicOffset.x = graphicOffsetX;
+        ifIndentationGraphicOffset.y = graphicOffsetY;
     }
 
     //Checks if the chains are in the same container

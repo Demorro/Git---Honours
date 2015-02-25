@@ -170,11 +170,13 @@ public class FullBlockScript
 
     public void AddNewIfBlock(BlockChain parentIfChain)
     {
+        parentIfChain.LoadIfIndentationGraphic(FullBlockScript.IfIndentation/6, chainYSeperation - 7);
+
         BlockChain chainDirectlyAfterParent = parentIfChain.GetBelowBlockChain();
 
         BlockChain ifChildBlock = parentIfChain.AddIfChildBlock();
         BlockChain.SetUpperLowerRelations(parentIfChain, ifChildBlock);
-        BlockChain underIfStatementBlock = new BlockChain(parentIfChain.GetX(), ifChildBlock.GetY() - chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight())/2 , blockTextureSheet, this, parentIfChain.parentContainer);
+        BlockChain underIfStatementBlock = new BlockChain(parentIfChain.GetX(), ifChildBlock.GetY() , blockTextureSheet, this, parentIfChain.parentContainer);
         BlockChain.SetUpperLowerRelations(ifChildBlock,underIfStatementBlock);
         parentIfChain.parentContainer.add(underIfStatementBlock);
         parentIfChain.parentContainer.get(parentIfChain.parentContainer.size() -1).LoadIterator(parentIfChain.parentContainer.size() -1);
