@@ -218,10 +218,12 @@ public class BlockChain {
                     .target(blockChainBounds.getX() + blockChainBounds.getWidth())
                     .start(chainTweenManager);
 
+            /*
             if(isTopChain == false)
             {
                 FadeOutNextButton();
             }
+            */
         }
 
         //Disable buttons, to re-enable after tween
@@ -380,7 +382,9 @@ public class BlockChain {
 
 
         if(enabled) {
+
             if (nextButton.GetEnabled()) {
+                //nextButton.SetVisible(true);
                 nextButton.Update();
             }
             if (blocks.size() > 0) {
@@ -394,7 +398,7 @@ public class BlockChain {
             chainTweenManager.update(Gdx.graphics.getDeltaTime());
 
         }
-        
+
         DestroyChildChains();
 
         if(childChains != null) {
@@ -775,6 +779,11 @@ public class BlockChain {
             if (this.lineNo == GetFirstInParentContainer().lineNo) {
                 return false;
             } else {
+                if(GetAboveBlockChain() != null){
+                    if(CheckIfChainsAreInSameIndentationLevel(this, GetAboveBlockChain()) == false){
+                        return false;
+                    }
+                }
                 return true;
             }
         }
