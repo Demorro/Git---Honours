@@ -78,6 +78,7 @@ public class BlockChain {
         blockTextureSheet = blockSpriteSheet;
 
         debugFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        debugFont.setOwnsTexture(true);
         debugFont.setColor(0,1,1,1);
         debugFont.setScale(1.0f);
 
@@ -104,7 +105,7 @@ public class BlockChain {
         selectionList = null;
         previousBlock = null;
 
-        blockChainBounds = new Rectangle();
+
         blockChainBounds.setPosition(position.x, position.y - (LogicBlock.blockHeight - nextButton.getHeight())/2);
         blockChainBounds.setHeight(LogicBlock.blockHeight);
 
@@ -153,6 +154,7 @@ public class BlockChain {
         //Tween the selected block to its rightful place in the block chain
         blocks.add(nextBlock);
 
+
         Tween.to(nextBlock, LogicBlockAccessor.POSITION_X, timeToTweenFromListToChain)
                 .target(blockChainBounds.getX() + blockChainBounds.getWidth())
                 .start(chainTweenManager);
@@ -174,6 +176,7 @@ public class BlockChain {
             isOnEndOfChain = true;
             needsNewLine = true;
             fullScript.AnyListClosed(this);
+            fullScript.needToRunNewChainCheck = true;
         }
         previousBlock = nextBlock;
     }
@@ -246,12 +249,10 @@ public class BlockChain {
                     previousBlock = blocks.get(blocks.size() - 1);
                 }
                 else{
-                    previousBlock = null;
-                    if(isTopChain == false){
-                        DeleteChain();
-                    }
-                    else {
-                        ClearChildChains();
+                    DoChainDestruction();
+                    //Check above and below for destruction
+                    if(GetBelowBlockChain() != null){
+                        GetBelowBlockChain().DoChainDestruction();
                     }
                 }
                 if(blocks.size() > 1)
@@ -267,7 +268,9 @@ public class BlockChain {
                 else
                 {
                     FadeOutCancelButton();
-                    selectionList.ResetList(startingGroups, new Vector2(position.x + spacingBetweenBlocks, position.y), false, false, previousBlock);
+                    if(selectionList != null) {
+                        selectionList.ResetList(startingGroups, new Vector2(position.x + spacingBetweenBlocks, position.y), false, false, previousBlock);
+                    }
                 }
 
                 //Re-enable the next button after tween
@@ -279,8 +282,30 @@ public class BlockChain {
 
         isOnEndOfChain = false; //Its important that this is set at the end of this function
     }
+    private void ClearEntireChain(){
+        ResetChain(GetX(), GetY());
+        FadeOutCancelButton();
+        DoChainDestruction();
+        if(GetBelowBlockChain() != null){
+            GetBelowBlockChain().DoChainDestruction();
+        }
+    }
     public void DeleteChain()
     {
+        cancelButton.CleanUp(); //The button that cancels a block, not the button that cancels a list, THEYRE DIFFERENT THINGS DAMMIT
+        nextButton.CleanUp(); //The button that either summons a new list or alternatively lets you select the block in the list
+
+
+        if(previousBlock != null) {
+            previousBlock.CleanUp();
+            previousBlock = null;
+        }
+
+        if(debugFont != null) {
+            debugFont.dispose();
+            debugFont = null;
+        }
+
         if((belowBlockChain != null) && (aboveBlockChain != null)) {
             belowBlockChain.aboveBlockChain = aboveBlockChain; //This chain is being deleted, so set the correct up/downs
             aboveBlockChain.belowBlockChain = belowBlockChain;
@@ -291,6 +316,9 @@ public class BlockChain {
         childChains = null;
         SetVisible(false);
         DestroyChildChains();
+        if(debugFont != null) {
+            debugFont.dispose();
+        }
 
     }
     private void ClearChildChains()
@@ -304,30 +332,11 @@ public class BlockChain {
         }
     }
 
-    public void MoveChainToBeBelowChain(BlockChain chain){
-        //Fade out the cancel button
-        Tween.to(this, BlockChainAccessor.POSITION_Y, timeToTweenFromListToChain)
-                .target(chain.GetY() - LogicBlock.GetBlockHeight())
-                .start(chainTweenManager);
-
-
-        if (belowBlockChain != null) {
-            belowBlockChain.MoveChainToPosition(new Vector2(aboveBlockChain.GetX(), belowBlockChain.GetY() + LogicBlock.GetBlockHeight() + 1 + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()) * 2));
-        }
-    }
-
     public void MoveChainToPosition(Vector2 position){
         //Fade out the cancel button
         Tween.to(this, BlockChainAccessor.POSITION_XY, timeToTweenFromListToChain)
                 .target(position.x, position.y)
                 .start(chainTweenManager);
-
-        /*
-        if (belowBlockChain != null) {
-            belowBlockChain.MoveChainToPosition(new Vector2(position.x, belowBlockChain.GetY() + LogicBlock.GetBlockHeight() + 1 + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()) * 2));
-        }
-        */
-
 
     }
     //Called by nextButton when it is triggered
@@ -358,7 +367,10 @@ public class BlockChain {
     //Called by cancel button when it is triggered
     public void CancelButtonPushed()
     {
-        if(blocks.size() > 0) {
+        if(GetIsIfStatement()){
+            ClearEntireChain();
+        }
+        else if(blocks.size() > 0) {
             RemoveBlockFromEndOfChain();
         }
     }
@@ -407,6 +419,8 @@ public class BlockChain {
                         chain.Render(batch);
                 }
             }
+
+
             debugFont.draw(batch, Integer.toString(lineNo),  GetX(), position.y);
             if(GetAboveBlockChain() != null) {
                 debugFont.draw(batch, "Above : " + Integer.toString(aboveBlockChain.lineNo), GetX() + 160, position.y);
@@ -420,6 +434,8 @@ public class BlockChain {
             if(parentContainer != null){
                 debugFont.draw(batch, "First in parent container : " + Integer.toString(parentContainer.get(0).lineNo),  GetX() + 680, position.y);
             }
+
+
         }
     }
 
@@ -565,7 +581,7 @@ public class BlockChain {
     }
     public float GetY()
     {
-        return blockChainBounds.getY();
+            return blockChainBounds.getY() + (LogicBlock.blockHeight - nextButton.getHeight()) / 2;
     }
     public void SetPosition(float x, float y) {
 
@@ -587,9 +603,11 @@ public class BlockChain {
 
         SetCancelButtonPosToLastBlock();
 
+        /*
         if(selectionList != null) {
             selectionList.SetPosition(x, y);
         }
+        */
     }
     public float GetOpacity(){
         return currentOpacity;
@@ -655,7 +673,7 @@ public class BlockChain {
 
     public BlockChain AddIfChildBlock()
     {
-        childChains.add(new BlockChain(GetX() + FullBlockScript.IfIndentation, GetY() - FullBlockScript.chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()), blockTextureSheet, fullScript, childChains));
+        childChains.add(new BlockChain(GetX() + FullBlockScript.IfIndentation, GetY() - FullBlockScript.chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight())/2, blockTextureSheet, fullScript, childChains));
         childChains.get(childChains.size() - 1).SetIsTopChain();
         childChains.get(childChains.size() - 1).LoadIterator(childChains.size() - 1);
         return childChains.get(childChains.size() - 1);
@@ -666,9 +684,11 @@ public class BlockChain {
     {
         ArrayList<BlockChain> chainsToReturn = new ArrayList<BlockChain>();
 
-        for(BlockChain childChain : childChains){
-            chainsToReturn.add(childChain);
-            chainsToReturn.addAll(childChain.GetAllChildChainsRecursively());
+        if(childChains!= null) {
+            for (BlockChain childChain : childChains) {
+                chainsToReturn.add(childChain);
+                chainsToReturn.addAll(childChain.GetAllChildChainsRecursively());
+            }
         }
 
         return chainsToReturn;
@@ -718,11 +738,57 @@ public class BlockChain {
     public BlockChain GetFirstInParentContainer()
     {
         if(parentContainer != null) {
-            return parentContainer.get(0);
+            if(parentContainer.size() > 0) {
+                return parentContainer.get(0);
+            }
+            else{
+                return null;
+            }
         }
         else
         {
             return null;
         }
     }
+
+    public void DoChainDestruction(){
+        if(IsEmpty()) {
+            previousBlock = null;
+            if (ShouldBeDestroyedWhenEmpty()) {
+                DeleteChain();
+                fullScript.needToRunDestoryChainsCheck = true;
+            } else {
+                ClearChildChains();
+                DestroyChildChains();
+                fullScript.needToRunDestoryChainsCheck = true;
+            }
+        }
+    }
+
+    private boolean ShouldBeDestroyedWhenEmpty()
+    {
+        //Don't delete if this chain is the first in its indentation level
+        if(GetFirstInParentContainer() != null) {
+            if (this.lineNo == GetFirstInParentContainer().lineNo) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        else{
+            return true;
+        }
+
+    }
+    public boolean IsEmpty()
+    {
+        if(blocks.size() == 0){
+            return  true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    //public static boolean CheckIfTwoChainsAreInSameContainer
 }

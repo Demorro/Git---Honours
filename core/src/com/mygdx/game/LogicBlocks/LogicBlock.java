@@ -19,7 +19,6 @@ import java.util.ArrayList;
  */
 public abstract class LogicBlock
 {
-
     private LogicGroups.LogicGroup blockGroup;
     private LogicGroups.LogicBlockType blockType;
 
@@ -41,6 +40,7 @@ public abstract class LogicBlock
     {
         blockSpriteSheet = blockSheet;
         blockFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        blockFont.setOwnsTexture(true);
         blockFont.setColor(fontColor);
         blockFont.setScale(fontSize);
         blockFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear); //Set Smooth Text
@@ -68,7 +68,6 @@ public abstract class LogicBlock
 
     protected void ResetBlockText(String text)
     {
-        blockFont.setColor(fontColor);
         blockFont.setScale(fontSize);
         blockFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear); //Set Smooth Text
         blockText = text;
@@ -205,5 +204,10 @@ public abstract class LogicBlock
     public static int GetBlockHeight()
     {
         return blockHeight;
+    }
+
+    public void CleanUp()
+    {
+        blockFont.dispose();
     }
 }

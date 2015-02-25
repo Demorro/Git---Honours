@@ -4,6 +4,7 @@ import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Timer;
@@ -45,6 +46,7 @@ public class BlockSelectionList {
     private CancelBlockSelectionListButton cancelButton; //Button for closing the list
     private BlockChain blockChain; //Reference to the blockChain, passed in so the blockchain knows when a block is selected
 
+    private BitmapFont blockFont;
 
     public BlockSelectionList(ArrayList<LogicGroups.LogicGroup> groupsToLoad, Texture blockSpriteSheets, Vector2 pos, boolean startOpen, BlockChain blockChain, LogicBlock previousBlock)
     {
@@ -584,6 +586,20 @@ public class BlockSelectionList {
         }
 
         cancelButton.translate(xMov, yMov);
+    }
+
+    public void CleanUp(){
+        for(LogicBlock block : selectionBlocks)
+        {
+            block.CleanUp();
+        }
+        selectionBlocks.clear();
+        selectionBlocks = null;
+
+        listTweenManager = null;
+
+        cancelButton.CleanUp();
+        cancelButton = null;
     }
 
 

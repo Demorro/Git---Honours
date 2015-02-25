@@ -41,6 +41,7 @@ public class GameApplication implements ApplicationListener  {
     public void dispose()
     {
         spriteBatch.dispose();
+        touches = null;
     }
     @Override
 	public void render ()
@@ -48,9 +49,6 @@ public class GameApplication implements ApplicationListener  {
         //Run update logic
         stateManager.Update(touches);
 
-        //Clear the screen to black
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         spriteBatch.begin();
         //Render current state

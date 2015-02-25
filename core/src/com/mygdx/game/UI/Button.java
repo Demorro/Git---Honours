@@ -44,10 +44,12 @@ public abstract class Button extends Sprite {
         if(font2xSize)
         {
             buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont2x.fnt"));
+            buttonFont.setOwnsTexture(true);
         }
         else
         {
             buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+            buttonFont.setOwnsTexture(true);
         }
         buttonFont.setColor(Color.BLACK);
         buttonFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -180,5 +182,9 @@ public abstract class Button extends Sprite {
     {
         textOffset.x = xOff;
         textOffset.y = yOff;
+    }
+
+    public void CleanUp(){
+        buttonFont.dispose();
     }
 }

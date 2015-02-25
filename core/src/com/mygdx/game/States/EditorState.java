@@ -61,6 +61,7 @@ public class EditorState extends State implements InputProcessor
         Tween.registerAccessor(BlockChain.class, new BlockChainAccessor());
 
         fpsFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        fpsFont.setOwnsTexture(true);
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 
@@ -131,6 +132,8 @@ public class EditorState extends State implements InputProcessor
         greybuttons2xSheet.dispose();
 
         fpsFont.dispose();
+
+
 
         camera = null;
     }

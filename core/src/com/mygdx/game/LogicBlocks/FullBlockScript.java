@@ -37,6 +37,9 @@ public class FullBlockScript
 
     private TweenManager fullScriptTweenManager = new TweenManager();
 
+    public boolean needToRunNewChainCheck = false;
+    public boolean needToRunDestoryChainsCheck = false;
+
 
     public FullBlockScript(){ //Just for storage, no rendering if you use this constructor
         ResetScript();
@@ -60,11 +63,29 @@ public class FullBlockScript
         {
             chain.Update();
         }
-        DestroyChains();
-        CheckForWhetherWeNeedNewChain();
+
+        boolean hasAssertedPositions = false;
+
+        if(needToRunDestoryChainsCheck) {
+            DestroyChains();
+            needToRunDestoryChainsCheck = false;
+            if(hasAssertedPositions == false) {
+                AssertAllLinePositions();
+                hasAssertedPositions = true;
+            }
+        }
+        if(needToRunNewChainCheck) {
+            CheckForWhetherWeNeedNewChain();
+            needToRunNewChainCheck = false;
+            if(hasAssertedPositions == false) {
+                AssertAllLinePositions();
+                hasAssertedPositions = true;
+            }
+        }
 
         fullScriptTweenManager.update(Gdx.graphics.getDeltaTime());
-        AssertAllLinePositions();
+
+       // AssertAllLinePositions();
 
 
     }
@@ -85,7 +106,8 @@ public class FullBlockScript
     //Checks if we need a new chain, that is if the final open chain is finished
     public void CheckForWhetherWeNeedNewChain()
     {
-        for(BlockChain chain : GetAllChainsRecursively()){
+        ArrayList<BlockChain> allChains = GetAllChainsRecursively();
+        for(BlockChain chain : allChains){
             if((chain.GetIsOnEndOfChain() == true) && (chain.GetIsIfStatement() == false) && (chain.needsNewLine == true)){
                 AddNewChain(chain.GetX(), chain.GetY() - chainYSeperation,chain.parentContainer);
                 chain.needsNewLine = false;
@@ -95,6 +117,7 @@ public class FullBlockScript
                 chain.needsNewLine = false;
             }
         }
+        allChains.clear();
     }
 
     public void AddNewChain(float x, float y)
@@ -132,7 +155,7 @@ public class FullBlockScript
     {
         BlockChain ifChildBlock = parentIfChain.AddIfChildBlock();
         BlockChain.SetUpperLowerRelations(parentIfChain, ifChildBlock);
-        BlockChain underIfStatementBlock = new BlockChain(parentIfChain.GetX(), ifChildBlock.GetY() - chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight()) , blockTextureSheet, this, parentIfChain.parentContainer);
+        BlockChain underIfStatementBlock = new BlockChain(parentIfChain.GetX(), ifChildBlock.GetY() - chainYSeperation + (FullBlockScript.chainYSeperation - LogicBlock.GetBlockHeight())/2 , blockTextureSheet, this, parentIfChain.parentContainer);
         BlockChain.SetUpperLowerRelations(ifChildBlock,underIfStatementBlock);
         parentIfChain.parentContainer.add(underIfStatementBlock);
         parentIfChain.parentContainer.get(parentIfChain.parentContainer.size() -1).LoadIterator(parentIfChain.parentContainer.size() -1);
@@ -147,7 +170,6 @@ public class FullBlockScript
 
     public void AssertAllLinePositions()
     {
-        //FUCKIN HANGS HERE YOU FUCKING PEICE OF GIANT WANT TITS ARE NIKNWOCKDFAS NGAGLORY
             BlockChain nextChain = blockChains.get(0);
             int lineNo = 0;
             while (nextChain != null){
@@ -168,7 +190,9 @@ public class FullBlockScript
     {
         for(BlockChain chain : GetAllChainsRecursively())
         {
-            chain.SetPosition(chain.GetX(), globalRootPos.y - (chainYSeperation  * chain.lineNo));
+            if(chain != null) {
+                chain.MoveChainToPosition(new Vector2(chain.GetX(), globalRootPos.y - (chainYSeperation * chain.lineNo)));
+            }
         }
     }
 
