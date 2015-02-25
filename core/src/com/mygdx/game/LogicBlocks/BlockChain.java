@@ -790,5 +790,16 @@ public class BlockChain {
         }
     }
 
-    //public static boolean CheckIfTwoChainsAreInSameContainer
+    //Checks if the chains are in the same container
+    public static boolean CheckIfChainsAreInSameIndentationLevel(BlockChain chain1, BlockChain chain2){
+        ArrayList<BlockChain> parentContainer = chain1.parentContainer;
+
+        for(BlockChain chain : parentContainer){
+            if(chain.lineNo == chain2.lineNo){
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

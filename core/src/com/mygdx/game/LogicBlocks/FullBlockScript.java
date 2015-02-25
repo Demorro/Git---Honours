@@ -109,7 +109,7 @@ public class FullBlockScript
         ArrayList<BlockChain> allChains = GetAllChainsRecursively();
         for(BlockChain chain : allChains){
             if((chain.GetIsOnEndOfChain() == true) && (chain.GetIsIfStatement() == false) && (chain.needsNewLine == true)){
-                AddNewChain(chain.GetX(), chain.GetY() - chainYSeperation,chain.parentContainer);
+                AddNewChain(chain.GetX(), chain.GetY() - chainYSeperation, chain.parentContainer, chain);
                 chain.needsNewLine = false;
             }
             else if((chain.GetIsOnEndOfChain() == true) && (chain.GetIsIfStatement() == true) && (chain.needsNewLine == true)) {
@@ -119,6 +119,7 @@ public class FullBlockScript
         }
         allChains.clear();
     }
+
 
     public void AddNewChain(float x, float y)
     {
@@ -130,10 +131,27 @@ public class FullBlockScript
             blockChains.get(blockChains.size() - 2).SetBelowBlockChain(chainToAdd);
         }
     }
-    public void AddNewChain(float x, float y, ArrayList<BlockChain> parentContainer){
+
+    public void AddNewChain(float x, float y, ArrayList<BlockChain> parentContainer, BlockChain chainJustFinished){
+
+        System.out.println(parentContainer.get(parentContainer.size() - 1).IsEmpty());
+        if(parentContainer.size() > 0){
+            if(parentContainer.get(parentContainer.size() - 1).IsEmpty() == true){
+                return;
+            }
+        }
+
         BlockChain chainToAdd = new BlockChain(x, y, blockTextureSheet, this, parentContainer);
         parentContainer.add(chainToAdd);
         parentContainer.get(parentContainer.size() -1).LoadIterator(parentContainer.size() -1);
+
+        if(chainJustFinished.GetBelowBlockChain() != null){
+            if(BlockChain.CheckIfChainsAreInSameIndentationLevel(chainJustFinished, chainJustFinished.GetBelowBlockChain())){
+                 BlockChain.SetUpperLowerRelations(chainToAdd, chainJustFinished.GetBelowBlockChain());
+            }
+        }
+
+
         if(parentContainer.size() >= 2){
             chainToAdd.SetAboveBlockChain(parentContainer.get(parentContainer.size() - 2));
             parentContainer.get(parentContainer.size() - 2).SetBelowBlockChain(chainToAdd);
@@ -149,6 +167,8 @@ public class FullBlockScript
                 }
             }
         }
+
+
     }
 
     public void AddNewIfBlock(BlockChain parentIfChain)
