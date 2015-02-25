@@ -377,6 +377,8 @@ public class BlockChain {
 
     public void Update()
     {
+
+
         if(enabled) {
             if (nextButton.GetEnabled()) {
                 nextButton.Update();
@@ -389,16 +391,17 @@ public class BlockChain {
                 selectionList.Update();
             }
 
-            if(childChains != null) {
-                for (BlockChain chain : childChains) {
-                    chain.Update();
-                }
-            }
-
             chainTweenManager.update(Gdx.graphics.getDeltaTime());
 
         }
+        
         DestroyChildChains();
+
+        if(childChains != null) {
+            for (BlockChain chain : childChains) {
+                chain.Update();
+            }
+        }
     }
 
     public void Render(SpriteBatch batch)

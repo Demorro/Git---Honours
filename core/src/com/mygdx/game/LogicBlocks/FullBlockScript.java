@@ -85,9 +85,6 @@ public class FullBlockScript
 
         fullScriptTweenManager.update(Gdx.graphics.getDeltaTime());
 
-       // AssertAllLinePositions();
-
-
     }
     public void Render(SpriteBatch batch)
     {
@@ -230,19 +227,19 @@ public class FullBlockScript
         //Set the active chain to the one thats just opened
         activeChain = chainThatOpened;
         //tween the opacity of the adjacent chains down so that the list is more pronouned
-        //TweenAdjacentChainsOpacity(activeChain, adjacentChainOpacity);
         TweenAllOtherChainsOpacity(activeChain, adjacentChainOpacity);
 
 
         //Since this is called just before the list opens, then we can just close all the lists and the one that calls it will still open
-        for(BlockChain blockChain : GetAllChainsRecursively())
+        ArrayList<BlockChain> allOtherChains = GetAllBlockChainsFromOne(chainThatOpened, true);
+        for(BlockChain blockChain : allOtherChains)
         {
             if (blockChain.IsListOpen()) {
                 blockChain.CloseList();
             }
         }
 
-       // DisableAllOtheBlockChains(activeChain);
+        DisableAllOtheBlockChains(activeChain);
 
     }
     public void AnyListClosed(BlockChain chainThatClosed)
@@ -255,7 +252,8 @@ public class FullBlockScript
 
     private void DisableAllOtheBlockChains(BlockChain exclusionChain)
     {
-        for(BlockChain chain : GetAllChainsRecursively())
+        ArrayList<BlockChain> allOtherChains = GetAllBlockChainsFromOne(exclusionChain, true);
+        for(BlockChain chain : allOtherChains)
         {
             chain.SetEnabled(false);
         }
@@ -269,30 +267,15 @@ public class FullBlockScript
         }
     }
 
-    private void TweenAdjacentChainsOpacity(BlockChain centralChain, float opacity)
-    {
-        if(centralChain.GetAboveBlockChain() != null)
-        {
-            Tween.to(centralChain.GetAboveBlockChain(), BlockChainAccessor.OPACITY, adjacentChainOpacityTweenTime)
-            .target(opacity)
-            .start(fullScriptTweenManager);
-        }
-        if(centralChain.GetBelowBlockChain() != null)
-        {
-            Tween.to(centralChain.GetBelowBlockChain(), BlockChainAccessor.OPACITY, adjacentChainOpacityTweenTime)
-                    .target(opacity)
-                    .start(fullScriptTweenManager);
-        }
-    }
+
     private void TweenAllOtherChainsOpacity(BlockChain exclusionChain, float opacity)
     {
-        for(BlockChain chain : blockChains)
-        {
-            if(chain != exclusionChain) {
-                Tween.to(chain, BlockChainAccessor.OPACITY, adjacentChainOpacityTweenTime)
-                        .target(opacity)
-                        .start(fullScriptTweenManager);
-            }
+        ArrayList<BlockChain> otherChains = GetAllBlockChainsFromOne(exclusionChain, true);
+
+        for(BlockChain chain : otherChains){
+            Tween.to(chain, BlockChainAccessor.OPACITY, adjacentChainOpacityTweenTime)
+                    .target(opacity)
+                    .start(fullScriptTweenManager);
         }
     }
 
@@ -327,6 +310,48 @@ public class FullBlockScript
             allChains.addAll(chain.GetAllChildChainsRecursively());
         }
         return allChains;
+    }
+
+    private ArrayList<BlockChain> GetAllAboveChains(BlockChain activeChain){
+        ArrayList<BlockChain> aboveChains = new ArrayList<BlockChain>();
+
+        BlockChain aboveChain = null;
+        if(activeChain.GetAboveBlockChain() != null){
+            aboveChain = activeChain.GetAboveBlockChain();
+        }
+
+        while(aboveChain != null){
+            aboveChains.add(aboveChain);
+            aboveChain = aboveChain.GetAboveBlockChain();
+        }
+
+        return aboveChains;
+
+    }
+    private ArrayList<BlockChain> GetAllBelowChains(BlockChain activeChain){
+        ArrayList<BlockChain> belowChains = new ArrayList<BlockChain>();
+
+        BlockChain belowChain = null;
+        if(activeChain.GetBelowBlockChain() != null){
+            belowChain = activeChain.GetBelowBlockChain();
+        }
+
+        while(belowChain != null){
+            belowChains.add(belowChain);
+            belowChain = belowChain.GetBelowBlockChain();
+        }
+
+        return belowChains;
+    }
+    private ArrayList<BlockChain> GetAllBlockChainsFromOne(BlockChain seedChain, boolean excludeCenter){
+        ArrayList<BlockChain> chains = new ArrayList<BlockChain>();
+        if(excludeCenter == false) {
+            chains.add(seedChain);
+        }
+        chains.addAll(GetAllAboveChains(seedChain));
+        chains.addAll(GetAllBelowChains(seedChain));
+
+        return chains;
     }
 
     //Returns 1 is succesfully saved, 0 if cancelled out, and -1 if ERROR HAPPENED

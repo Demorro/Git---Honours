@@ -575,6 +575,11 @@ public class BlockSelectionList {
         AssertPositions();
     }
 
+    public Vector2 GetPosition()
+    {
+        return  position;
+    }
+
     public void Move(float xMov, float yMov)
     {
         position.x += xMov;
