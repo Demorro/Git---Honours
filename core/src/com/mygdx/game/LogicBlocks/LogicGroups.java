@@ -5,10 +5,18 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Command.*;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.Distance.CloseBlock;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.Distance.FarBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.CapitalShipBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.FighterShipBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.FrigateShipBlock;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.Numbers.OneHundredBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.If.When;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.MoreLessThan.FullBlock;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.MoreLessThan.LessThanBlock;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.MoreLessThan.MoreThanBlock;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.Numbers.*;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.PlayerShip.ShipHP;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.ScaryObjects.Asteroids;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Speeds.QuicklyBlock;
 import com.mygdx.game.LogicBlocks.SpecificBlocks.Speeds.SlowlyBlock;
@@ -44,7 +52,24 @@ public class LogicGroups {
         LASER,
         ASTEROIDS,
         ISFIRING,
-        ISNTFIRING
+        ISNTFIRING,
+        CLOSE,
+        FAR,
+        FULL,
+        MORETHAN,
+        LESSTHAN,
+        ZERO,
+        TEN,
+        TWENTY,
+        THIRTY,
+        FORTY,
+        FIFTY,
+        SIXTY,
+        SEVENTY,
+        EIGHTY,
+        NINETY,
+        ONEHUNDRED,
+        SHIPHP
     };
 
     //The general block groups, used for defining flow easily.
@@ -56,7 +81,11 @@ public class LogicGroups {
         WEAPONS,
         SPEED,
         SCARYOBJECTS,
-        IFWEAPON
+        IFWEAPON,
+        DISTANCE,
+        MORELESSTHAN,
+        NUMBERS,
+        PLAYERSHIP
     };
 
     //Depending on the group the block belongs to, returns the height of the colour row on the sprite sheet for colour coding.
@@ -69,6 +98,10 @@ public class LogicGroups {
         else if(type == LogicGroup.SCARYOBJECTS) {return 340;}
         else if(type == LogicGroup.IF){return 5;}
         else if(type == LogicGroup.IFWEAPON){return 139;}
+        else if(type == LogicGroup.DISTANCE){return  72;}
+        else if(type == LogicGroup.MORELESSTHAN){ return 273; }
+        else if(type == LogicGroup.NUMBERS) {return 206;}
+        else if(type == LogicGroup.PLAYERSHIP){ return 139;}
         else{ return -1;} //Error code
     }
     //Depending on the length of the text, we want a longer block, which are arranged horizontally. x of vector2 is x coord, y is width
@@ -173,10 +206,62 @@ public class LogicGroups {
         else if(blockType == LogicBlockType.ISNTFIRING){
             return new IsntFiring(blockSpriteSheet, previousBlock);
         }
+        else if(blockType == LogicBlockType.CLOSE){
+            return new CloseBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.FAR){
+            return new FarBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.FULL){
+            return new FullBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.MORETHAN){
+            return new MoreThanBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.LESSTHAN){
+            return new LessThanBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.ZERO){
+            return new ZeroBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.TEN){
+            return new TenBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.TWENTY){
+            return new TwentyBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.THIRTY){
+            return new ThirtyBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.FORTY){
+            return new FortyBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.FIFTY){
+            return new FiftyBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.SIXTY){
+            return new SixtyBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.SEVENTY){
+            return new SeventyBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.EIGHTY){
+            return new EightyBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.NINETY){
+            return new NinetyBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.ONEHUNDRED){
+            return new OneHundredBlock(blockSpriteSheet, previousBlock);
+        }
+        else if(blockType == LogicBlockType.SHIPHP){
+            return new ShipHP(blockSpriteSheet, previousBlock);
+        }
         else {
             Gdx.app.debug("Error", "Attempting to construct a block that isn't in the ConstructSpecificBlock function, you need to update it");
             return null;
         }
+
     }
 
     public static ArrayList<LogicBlock> ConstructLogicGroup(LogicGroup group,  Texture blockSpriteSheet,  LogicBlock previousBlock)
@@ -225,6 +310,38 @@ public class LogicGroups {
         {
             blocks.add(ConstructSpecificBlock(LogicBlockType.ISFIRING, blockSpriteSheet, previousBlock));
             blocks.add(ConstructSpecificBlock(LogicBlockType.ISNTFIRING, blockSpriteSheet, previousBlock));
+            return blocks;
+        }
+        else if(group == LogicGroup.DISTANCE)
+        {
+            blocks.add(ConstructSpecificBlock(LogicBlockType.CLOSE, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.FAR, blockSpriteSheet, previousBlock));
+            return blocks;
+        }
+        else if(group == LogicGroup.MORELESSTHAN)
+        {
+            blocks.add(ConstructSpecificBlock(LogicBlockType.FULL, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.MORETHAN, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.LESSTHAN, blockSpriteSheet, previousBlock));
+            return blocks;
+        }
+        else if(group == LogicGroup.NUMBERS)
+        {
+            blocks.add(ConstructSpecificBlock(LogicBlockType.ZERO, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.TEN, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.TWENTY, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.THIRTY, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.FORTY, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.FIFTY, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.SIXTY, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.SEVENTY, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.EIGHTY, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.NINETY, blockSpriteSheet, previousBlock));
+            blocks.add(ConstructSpecificBlock(LogicBlockType.ONEHUNDRED, blockSpriteSheet, previousBlock));
+            return blocks;
+        }
+        else if(group == LogicGroup.PLAYERSHIP){
+            blocks.add(ConstructSpecificBlock(LogicBlockType.SHIPHP, blockSpriteSheet, previousBlock));
             return blocks;
         }
         else

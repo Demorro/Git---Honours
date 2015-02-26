@@ -34,6 +34,6 @@ public class LaserBlock extends LogicBlock
 
     @Override
     public String GetBlockDescription(){
-        return "Quick moving, moderate damage laser beam with high accuracy.";
+        return "Your quick moving, moderate damage laser beams with high accuracy.";
     }
 }

@@ -34,6 +34,6 @@ public class AutoCannonBlock extends LogicBlock
 
     @Override
     public String GetBlockDescription(){
-        return "Quick firing, low damage cannon.";
+        return "Your quick firing, low damage cannon.";
     }
 }

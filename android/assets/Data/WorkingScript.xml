@@ -2,8 +2,9 @@
 <PlayerLogicScript>
   <Line>
     <Block>WHEN</Block>
-    <Block>CAPITALSHIP</Block>
-    <Block>QUICKLY</Block>
+    <Block>SHIPHP</Block>
+    <Block>LESSTHAN</Block>
+    <Block>ZERO</Block>
   </Line>
   <Line></Line>
 </PlayerLogicScript>

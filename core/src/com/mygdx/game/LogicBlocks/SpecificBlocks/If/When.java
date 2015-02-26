@@ -20,7 +20,7 @@ public class When extends LogicBlock
     {
         ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
         nextLogicGroups.add(LogicGroups.LogicGroup.ENEMIES);
-        nextLogicGroups.add(LogicGroups.LogicGroup.SCARYOBJECTS);
+        nextLogicGroups.add(LogicGroups.LogicGroup.PLAYERSHIP);
         nextLogicGroups.add(LogicGroups.LogicGroup.WEAPONS);
         return nextLogicGroups;
     }

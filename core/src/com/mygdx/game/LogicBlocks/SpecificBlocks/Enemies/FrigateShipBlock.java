@@ -24,6 +24,9 @@ public class FrigateShipBlock extends LogicBlock
         {
             nextLogicGroups.add(LogicGroups.LogicGroup.WEAPONS);
         }
+        else if(previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN){
+            nextLogicGroups.add(LogicGroups.LogicGroup.DISTANCE);
+        }
         else
         {
             nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);

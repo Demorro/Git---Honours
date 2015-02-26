@@ -34,6 +34,6 @@ public class MissileBlock extends LogicBlock
 
     @Override
     public String GetBlockDescription(){
-        return "Slow moving torpedo that does incredible damage.";
+        return "Your slow moving torpedos that do incredible damage.";
     }
 }
