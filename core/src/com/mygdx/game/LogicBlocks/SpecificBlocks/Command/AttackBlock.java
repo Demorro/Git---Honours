@@ -23,4 +23,9 @@ public class AttackBlock extends LogicBlock
         nextLogicGroups.add(LogicGroups.LogicGroup.SCARYOBJECTS);
         return nextLogicGroups;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Fire at a target.";
+    }
 }

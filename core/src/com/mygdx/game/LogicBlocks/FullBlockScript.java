@@ -7,6 +7,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.UI.BlockDescriptionPanel;
 import com.mygdx.game.Utility.ScriptSaver;
 import com.mygdx.game.Utility.SpriteAccessor;
 import jdk.nashorn.internal.ir.Block;
@@ -40,12 +41,15 @@ public class FullBlockScript
     public boolean needToRunNewChainCheck = false;
     public boolean needToRunDestoryChainsCheck = false;
 
+    private BlockDescriptionPanel descriptionPanel;
+
 
     public FullBlockScript(){ //Just for storage, no rendering if you use this constructor
         ResetScript();
     }
-    public FullBlockScript(Texture blockSheet)
+    public FullBlockScript(Texture blockSheet, BlockDescriptionPanel descriptionPanel)
     {
+        this.descriptionPanel = descriptionPanel;
         blockTextureSheet = blockSheet;
         ResetScript();
     }
@@ -59,9 +63,10 @@ public class FullBlockScript
 
     public void Update()
     {
+
         for(BlockChain chain : blockChains)
         {
-            chain.Update();
+            chain.Update(descriptionPanel);
         }
 
         boolean hasAssertedPositions = false;
@@ -248,6 +253,7 @@ public class FullBlockScript
     {
         //tween the opacity of the adjacent chains down so that the list is more pronouned
         //TweenAdjacentChainsOpacity(activeChain, 1.0f);
+        descriptionPanel.ResetDescriptionText();
         TweenAllOtherChainsOpacity(chainThatClosed, 1.0f);
         EnableAllBlockChains();
     }

@@ -22,4 +22,9 @@ public class WanderBlock extends LogicBlock
         nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
         return nextLogicGroups;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Wander around space aimlessly.";
+    }
 }

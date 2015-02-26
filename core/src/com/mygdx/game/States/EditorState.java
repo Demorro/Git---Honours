@@ -12,11 +12,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.LogicBlocks.*;
 
+
 import com.mygdx.game.UI.BlockSelectionList;
 import com.mygdx.game.UI.Button;
 import com.mygdx.game.Utility.ScriptSaver;
 import com.mygdx.game.Utility.SpriteAccessor;
 import com.mygdx.game.Utility.TouchInfo;
+import com.mygdx.game.UI.BlockDescriptionPanel;
 import jdk.internal.util.xml.impl.Input;
 
 import javax.swing.*;
@@ -45,7 +47,8 @@ public class EditorState extends State implements InputProcessor
 
     private boolean isSaving = false; //If the save (or load!) dialog is open
 
-
+    private Texture panelTex;
+    private BlockDescriptionPanel descriptionPanel;
 
     public EditorState()
     {
@@ -61,14 +64,19 @@ public class EditorState extends State implements InputProcessor
         Tween.registerAccessor(BlockChain.class, new BlockChainAccessor());
 
         fpsFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+
+
         fpsFont.setOwnsTexture(true);
+
+        panelTex = new Texture(Gdx.files.internal("Images/DescriptionPanel.png"));
+        descriptionPanel = new BlockDescriptionPanel(300,300,fpsFont, panelTex, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 
         blockSpriteSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         greyButtonsSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         greybuttons2xSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        scriptContainer = new FullBlockScript(blockSpriteSheet);
+        scriptContainer = new FullBlockScript(blockSpriteSheet, descriptionPanel);
 
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
         camera.update();
@@ -132,6 +140,7 @@ public class EditorState extends State implements InputProcessor
         greybuttons2xSheet.dispose();
 
         fpsFont.dispose();
+        panelTex.dispose();
 
 
 
@@ -158,6 +167,7 @@ public class EditorState extends State implements InputProcessor
         loadButton.Render(spriteBatch);
         playButton.Render(spriteBatch);
 
+        descriptionPanel.Render(spriteBatch);
         fpsFont.draw(spriteBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 50, 50);
     }
 

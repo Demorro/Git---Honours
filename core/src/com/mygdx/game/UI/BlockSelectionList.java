@@ -147,6 +147,16 @@ public class BlockSelectionList {
         CloseList();
     }
 
+    public LogicBlock GetCurrentBlock()
+    {
+        if(selectionBlocks != null) {
+            if(selectionBlocks.size() > currentSelectionIndex) {
+                return selectionBlocks.get(currentSelectionIndex);
+            }
+        }
+        return null;
+    }
+
     private void ClickToScroll()
     {
         if(isOpen) {

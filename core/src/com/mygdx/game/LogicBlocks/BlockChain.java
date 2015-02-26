@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Timer;
+import com.mygdx.game.UI.BlockDescriptionPanel;
 import com.mygdx.game.UI.BlockSelectionList;
 import com.mygdx.game.UI.CancelBlockButton;
 import com.mygdx.game.UI.NextBlockButton;
@@ -375,10 +376,8 @@ public class BlockChain {
         }
     }
 
-    public void Update()
+    public void Update(BlockDescriptionPanel panel)
     {
-
-
         if(enabled) {
 
             if (nextButton.GetEnabled()) {
@@ -399,9 +398,14 @@ public class BlockChain {
 
         DestroyChildChains();
 
+        if(GetSelectionList() != null){
+            if(GetSelectionList().GetIsOpen()){
+                panel.SetDescriptionText(GetSelectionList().GetCurrentBlock().GetBlockDescription());
+            }
+        }
         if(childChains != null) {
             for (BlockChain chain : childChains) {
-                chain.Update();
+                chain.Update(panel);
             }
         }
     }
@@ -563,6 +567,14 @@ public class BlockChain {
         return blocks;
     }
 
+    public BlockSelectionList GetSelectionList(){
+        if(selectionList != null){
+            return selectionList;
+        }
+        else{
+            return null;
+        }
+    }
     public boolean GetEnabled(){return enabled;}
     public void SetEnabled(boolean enabled){this.enabled = enabled;}
     public boolean GetVisible(){return visible;}

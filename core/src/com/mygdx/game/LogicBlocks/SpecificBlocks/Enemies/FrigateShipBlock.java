@@ -31,4 +31,9 @@ public class FrigateShipBlock extends LogicBlock
 
         return nextLogicGroups;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Moderately sized frigate ships.";
+    }
 }

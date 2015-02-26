@@ -31,4 +31,9 @@ public class CapitalShipBlock extends LogicBlock
 
         return nextLogicGroups;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Hulking capital ships";
+    }
 }

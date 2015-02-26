@@ -23,4 +23,9 @@ public class PursueBlock extends LogicBlock
         nextLogicGroups.add(LogicGroups.LogicGroup.SCARYOBJECTS);
         return nextLogicGroups;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Chase the target down.";
+    }
 }

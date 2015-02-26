@@ -20,4 +20,9 @@ public class QuicklyBlock extends LogicBlock
     {
         return null;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Causes something to happen as quickly as possible";
+    }
 }

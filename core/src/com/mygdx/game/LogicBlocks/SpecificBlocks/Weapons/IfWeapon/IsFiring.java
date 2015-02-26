@@ -21,4 +21,9 @@ public class IsFiring extends LogicBlock
     {
         return null;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "If the weapon is currently firing.";
+    }
 }

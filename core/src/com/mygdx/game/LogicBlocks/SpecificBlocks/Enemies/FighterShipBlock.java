@@ -31,4 +31,9 @@ public class FighterShipBlock extends LogicBlock
 
         return nextLogicGroups;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Small and quick fighter ships.";
+    }
 }

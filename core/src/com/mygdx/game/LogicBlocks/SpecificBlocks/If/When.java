@@ -24,4 +24,9 @@ public class When extends LogicBlock
         nextLogicGroups.add(LogicGroups.LogicGroup.WEAPONS);
         return nextLogicGroups;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Actions inside a When statement are only performed if the statement condition is met.";
+    }
 }

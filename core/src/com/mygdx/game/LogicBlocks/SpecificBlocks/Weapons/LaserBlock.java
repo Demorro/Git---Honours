@@ -31,4 +31,9 @@ public class LaserBlock extends LogicBlock
         }
         return nextLogicGroups;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Quick moving, moderate damage laser beam with high accuracy.";
+    }
 }

@@ -20,4 +20,9 @@ public class SlowlyBlock extends LogicBlock
     {
         return null;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Causes something to happen slowly";
+    }
 }

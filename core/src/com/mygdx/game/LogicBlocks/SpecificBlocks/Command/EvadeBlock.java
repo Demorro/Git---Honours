@@ -23,4 +23,9 @@ public class EvadeBlock extends LogicBlock
         nextLogicGroups.add(LogicGroups.LogicGroup.SCARYOBJECTS);
         return nextLogicGroups;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Attempt to avoid the target.";
+    }
 }

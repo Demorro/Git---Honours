@@ -31,4 +31,9 @@ public class Asteroids extends LogicBlock
 
         return nextLogicGroups;
     }
+
+    @Override
+    public String GetBlockDescription(){
+        return "Asteroids that float about in space.";
+    }
 }

@@ -34,6 +34,7 @@ public abstract class LogicBlock
     private String blockText;
     private Vector2 textPosition;
 
+
     public static final Vector2 cancelButtonOffset = new Vector2(-8,-8); //The offset the cancel button should be from the top right corner of the block
 
     public LogicBlock(Texture blockSheet, String text, LogicGroups.LogicGroup group, LogicGroups.LogicBlockType type)
@@ -210,4 +211,6 @@ public abstract class LogicBlock
     {
         blockFont.dispose();
     }
+
+    public abstract String GetBlockDescription();
 }
