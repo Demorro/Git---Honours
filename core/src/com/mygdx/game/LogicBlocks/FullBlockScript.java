@@ -15,6 +15,7 @@ import jdk.nashorn.internal.ir.Block;
 import javax.swing.*;
 import javax.xml.soap.Text;
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -175,7 +176,7 @@ public class FullBlockScript
 
     public void AddNewIfBlock(BlockChain parentIfChain)
     {
-        parentIfChain.LoadIfIndentationGraphic(FullBlockScript.IfIndentation/6, chainYSeperation - 7);
+        parentIfChain.LoadIfIndentationGraphic(FullBlockScript.IfIndentation - 50, chainYSeperation - 7);
 
         BlockChain chainDirectlyAfterParent = parentIfChain.GetBelowBlockChain();
 
@@ -275,7 +276,6 @@ public class FullBlockScript
         }
     }
 
-
     private void TweenAllOtherChainsOpacity(BlockChain exclusionChain, float opacity)
     {
         ArrayList<BlockChain> otherChains = GetAllBlockChainsFromOne(exclusionChain, true);
@@ -298,7 +298,6 @@ public class FullBlockScript
             }
         }
     }
-
 
     public void DeleteActiveChain()
     {
@@ -334,7 +333,6 @@ public class FullBlockScript
         }
 
         return aboveChains;
-
     }
     private ArrayList<BlockChain> GetAllBelowChains(BlockChain activeChain){
         ArrayList<BlockChain> belowChains = new ArrayList<BlockChain>();
@@ -360,6 +358,10 @@ public class FullBlockScript
         chains.addAll(GetAllBelowChains(seedChain));
 
         return chains;
+    }
+    public ArrayList<BlockChain> GetAllBlockChainsFromFirst()
+    {
+        return GetAllBlockChainsFromOne(blockChains.get(0), false);
     }
 
     //Returns 1 is succesfully saved, 0 if cancelled out, and -1 if ERROR HAPPENED

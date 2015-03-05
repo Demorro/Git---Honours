@@ -622,7 +622,14 @@ public class BlockChain {
         position.x = blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenNextButton;
         position.y = y;
 
-        nextButton.setPosition(blockChainBounds.getX(), blockChainBounds.getY() + (LogicBlock.GetBlockHeight() - nextButton.getRegionHeight())/2);
+        //If the chain is empty, we dont want the added spacing, so it lines up right
+        if(IsEmpty()) {
+            nextButton.setPosition(blockChainBounds.getX() + blockChainBounds.getWidth(), blockChainBounds.getY() + (LogicBlock.GetBlockHeight() - nextButton.getRegionHeight()) / 2);
+        }
+        else {
+            nextButton.setPosition(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenNextButton, blockChainBounds.getY() + (LogicBlock.GetBlockHeight() - nextButton.getRegionHeight()) / 2);
+        }
+
         cancelButton.setPosition(x + blockWidth, y);
 
         SetCancelButtonPosToLastBlock();
@@ -644,6 +651,9 @@ public class BlockChain {
         currentOpacity = opacity;
         for(LogicBlock block : blocks){
             block.SetOpacity(opacity);
+        }
+        if(ifIndentationGraphic != null){
+            ifIndentationGraphic.setAlpha(opacity);
         }
         nextButton.setAlpha(opacity);
         cancelButton.setAlpha(opacity);

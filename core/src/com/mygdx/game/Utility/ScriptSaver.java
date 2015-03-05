@@ -36,17 +36,37 @@ public class ScriptSaver {
             XMLStreamWriter writer = new IndentingXMLStreamWriter(xmlOutFact.createXMLStreamWriter(fos));
             writer.writeStartDocument();
             writer.writeStartElement(internalXMLName);
-            // write stuf
-            ArrayList<BlockChain> scriptChains = script.GetBlockChains();
-            for(int i = 0; i < scriptChains.size(); i++) {
+            // write stuff
+            ArrayList<BlockChain> scriptChains = script.GetAllBlockChainsFromFirst();
+            BlockChain nextChain = scriptChains.get(0);
+            while(nextChain != null) {
                 writer.writeStartElement("Line");
-                for(int j = 0; j < scriptChains.get(i).GetBlockList().size(); j++)
+                WriteSingleChain(nextChain, writer);
+
+                if(nextChain.GetAllChildChainsRecursively() != null)
                 {
-                    writer.writeStartElement("Block");
-                    writer.writeCharacters(scriptChains.get(i).GetBlockList().get(j).GetBlockType().name());
-                    writer.writeEndElement();
+                    if(nextChain.GetAllChildChainsRecursively().size() != 0) {
+                        nextChain = nextChain.GetAllChildChainsRecursively().get(0);
+                        continue;
+                    }
                 }
+
                 writer.writeEndElement();
+
+                if(nextChain.GetBelowBlockChain() != null)
+                {
+                    //if the chain below isnt on the same indentation level, means we're going down a chain, which means we need to close the element
+                    if(BlockChain.CheckIfChainsAreInSameIndentationLevel(nextChain, nextChain.GetBelowBlockChain()) == false)
+                    {
+                        writer.writeEndElement();
+                    }
+
+                    nextChain = nextChain.GetBelowBlockChain();
+                }
+                else
+                {
+                    nextChain = null;
+                }
             }
             writer.writeEndElement();
             writer.flush();
@@ -59,6 +79,14 @@ public class ScriptSaver {
         }
     }
 
+    private static void WriteSingleChain(BlockChain chain, XMLStreamWriter writer) throws XMLStreamException {
+        for(int j = 0; j < chain.GetBlockList().size(); j++)
+        {
+            writer.writeStartElement("Block");
+            writer.writeCharacters(chain.GetBlockList().get(j).GetBlockType().name());
+            writer.writeEndElement();
+        }
+    }
 
 
     public static void LoadScript(FullBlockScript script, String scriptXMLDocPath)
