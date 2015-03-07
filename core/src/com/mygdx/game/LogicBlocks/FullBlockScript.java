@@ -124,7 +124,7 @@ public class FullBlockScript
     }
 
 
-    public void AddNewChain(float x, float y)
+    public BlockChain AddNewChain(float x, float y)
     {
         BlockChain chainToAdd = new BlockChain(x, y, blockTextureSheet, this, blockChains);
         blockChains.add(chainToAdd);
@@ -133,14 +133,15 @@ public class FullBlockScript
             chainToAdd.SetAboveBlockChain(blockChains.get(blockChains.size() - 2));
             blockChains.get(blockChains.size() - 2).SetBelowBlockChain(chainToAdd);
         }
+
+        return chainToAdd;
     }
 
-    public void AddNewChain(float x, float y, ArrayList<BlockChain> parentContainer, BlockChain chainJustFinished){
+    public BlockChain AddNewChain(float x, float y, ArrayList<BlockChain> parentContainer, BlockChain chainJustFinished){
 
-        System.out.println(parentContainer.get(parentContainer.size() - 1).IsEmpty());
         if(parentContainer.size() > 0){
             if(parentContainer.get(parentContainer.size() - 1).IsEmpty() == true){
-                return;
+                return null;
             }
         }
 
@@ -148,10 +149,14 @@ public class FullBlockScript
         parentContainer.add(chainToAdd);
         parentContainer.get(parentContainer.size() -1).LoadIterator(parentContainer.size() -1);
 
-        if(chainJustFinished.GetBelowBlockChain() != null){
-            if(BlockChain.CheckIfChainsAreInSameIndentationLevel(chainJustFinished, chainJustFinished.GetBelowBlockChain())){
-                 BlockChain.SetUpperLowerRelations(chainToAdd, chainJustFinished.GetBelowBlockChain());
+        if(chainJustFinished != null) {
+            if (chainJustFinished.GetBelowBlockChain() != null) {
+                if (BlockChain.CheckIfChainsAreInSameIndentationLevel(chainJustFinished, chainJustFinished.GetBelowBlockChain())) {
+                    BlockChain.SetUpperLowerRelations(chainToAdd, chainJustFinished.GetBelowBlockChain());
+                }
             }
+        }else{
+            System.out.println("ChainJustfinished shouldnt be null, unless you're loading");
         }
 
 
@@ -171,7 +176,44 @@ public class FullBlockScript
             }
         }
 
+        return chainToAdd;
+    }
 
+    //Only used in the loading, with certain changes to make that work
+    public BlockChain LoaderAddNewChain(float x, float y, ArrayList<BlockChain> parentContainer, BlockChain chainJustFinished){
+
+        BlockChain chainToAdd = new BlockChain(x, y, blockTextureSheet, this, parentContainer);
+        parentContainer.add(chainToAdd);
+        parentContainer.get(parentContainer.size() -1).LoadIterator(parentContainer.size() -1);
+
+        if(chainJustFinished != null) {
+            if (chainJustFinished.GetBelowBlockChain() != null) {
+                if (BlockChain.CheckIfChainsAreInSameIndentationLevel(chainJustFinished, chainJustFinished.GetBelowBlockChain())) {
+                    BlockChain.SetUpperLowerRelations(chainToAdd, chainJustFinished.GetBelowBlockChain());
+                }
+            }
+        }else{
+            System.out.println("ChainJustfinished shouldnt be null, unless you're loading");
+        }
+
+
+        if(parentContainer.size() >= 2){
+            chainToAdd.SetAboveBlockChain(parentContainer.get(parentContainer.size() - 2));
+            parentContainer.get(parentContainer.size() - 2).SetBelowBlockChain(chainToAdd);
+        }
+
+        //Sets the line added after the if indentation to be related up/downwise the previous indentation below the if indentation
+        if(parentContainer != null) {
+            if(parentContainer.get(0) != null) {
+                if (parentContainer.get(0).GetAboveBlockChain() != null) {
+                    if (parentContainer.get(0).GetAboveBlockChain().GetNextBlockAfterIf() != null) {
+                        BlockChain.SetUpperLowerRelations(chainToAdd, parentContainer.get(0).GetAboveBlockChain().GetNextBlockAfterIf());
+                    }
+                }
+            }
+        }
+
+        return chainToAdd;
     }
 
     public void AddNewIfBlock(BlockChain parentIfChain)
@@ -288,7 +330,7 @@ public class FullBlockScript
     }
 
     //Destroy chains that need to be destroyed
-    private void DestroyChains()
+    public void DestroyChains()
     {
         for(int i = 0; i < blockChains.size(); i++)
         {

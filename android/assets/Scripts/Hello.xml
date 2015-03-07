@@ -12,16 +12,15 @@
     <Block>CLOSE</Block>
     <Line>
       <Block>ATTACK</Block>
-      <Block>CAPITALSHIP</Block>
-      <Block>AUTOCANNON</Block>
+      <Block>FIGHTERSHIP</Block>
+      <Block>LASER</Block>
       <Block>QUICKLY</Block>
     </Line>
     <Line></Line>
   </Line>
   <Line>
-    <Block>ATTACK</Block>
+    <Block>PURSUE</Block>
     <Block>CAPITALSHIP</Block>
-    <Block>AUTOCANNON</Block>
     <Block>QUICKLY</Block>
   </Line>
   <Line></Line>

@@ -13,9 +13,10 @@ public class LaserBlock extends LogicBlock
 {
     public LaserBlock(Texture blockSheet, LogicBlock previousBlock) {
         super(blockSheet, "With Lasers", LogicGroups.LogicGroup.WEAPONS, LogicGroups.LogicBlockType.LASER);
-        if(previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN)
-        {
-            ResetBlockText("     Lasers     ");
+        if(previousBlock != null) {
+            if (previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN) {
+                ResetBlockText("     Lasers     ");
+            }
         }
     }
 
@@ -23,11 +24,12 @@ public class LaserBlock extends LogicBlock
     public ArrayList<LogicGroups.LogicGroup> GetNextLogicGroup(LogicBlock previousBlock)
     {
         ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
-        if(previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN) {
-            nextLogicGroups.add(LogicGroups.LogicGroup.IFWEAPON);
-        }
-        else{
-            nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
+        if(previousBlock != null) {
+            if (previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN) {
+                nextLogicGroups.add(LogicGroups.LogicGroup.IFWEAPON);
+            } else {
+                nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
+            }
         }
         return nextLogicGroups;
     }

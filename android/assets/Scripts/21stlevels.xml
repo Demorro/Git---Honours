@@ -16,6 +16,12 @@
     <Block>WHEN</Block>
     <Block>CAPITALSHIP</Block>
     <Block>CLOSE</Block>
+    <Line>
+      <Block>WHEN</Block>
+      <Block>CAPITALSHIP</Block>
+      <Block>CLOSE</Block>
+      <Line></Line>
+    </Line>
     <Line></Line>
   </Line>
   <Line></Line>

@@ -20,18 +20,15 @@ public class FrigateShipBlock extends LogicBlock
     {
         ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
 
-        if(previousBlock.GetBlockType() == LogicGroups.LogicBlockType.ATTACK)
-        {
-            nextLogicGroups.add(LogicGroups.LogicGroup.WEAPONS);
+        if(previousBlock != null) {
+            if (previousBlock.GetBlockType() == LogicGroups.LogicBlockType.ATTACK) {
+                nextLogicGroups.add(LogicGroups.LogicGroup.WEAPONS);
+            } else if (previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN) {
+                nextLogicGroups.add(LogicGroups.LogicGroup.DISTANCE);
+            } else {
+                nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
+            }
         }
-        else if(previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN){
-            nextLogicGroups.add(LogicGroups.LogicGroup.DISTANCE);
-        }
-        else
-        {
-            nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
-        }
-
         return nextLogicGroups;
     }
 

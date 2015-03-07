@@ -253,7 +253,9 @@ public class BlockChain {
                     DoChainDestruction();
                     //Check above and below for destruction
                     if(GetBelowBlockChain() != null){
-                        GetBelowBlockChain().DoChainDestruction();
+                        if(isTopChain) {
+                            GetBelowBlockChain().DoChainDestruction();
+                        }
                     }
                 }
                 if(blocks.size() > 1)
@@ -668,7 +670,7 @@ public class BlockChain {
     //Used to directly add/remove blocks, used mainly in loading
     public void DirectlyAddBlock(LogicGroups.LogicBlockType type)
     {
-        if(blocks.size() > 1)
+        if(blocks.size() >= 1)
         {
             previousBlock = blocks.get(blocks.size() - 1);
         }

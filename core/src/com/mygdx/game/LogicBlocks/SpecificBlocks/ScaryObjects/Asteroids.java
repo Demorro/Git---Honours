@@ -20,15 +20,13 @@ public class Asteroids extends LogicBlock
     {
         ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
 
-        if(previousBlock.GetBlockType() == LogicGroups.LogicBlockType.ATTACK)
-        {
-            nextLogicGroups.add(LogicGroups.LogicGroup.WEAPONS);
+        if(previousBlock != null) {
+            if (previousBlock.GetBlockType() == LogicGroups.LogicBlockType.ATTACK) {
+                nextLogicGroups.add(LogicGroups.LogicGroup.WEAPONS);
+            } else {
+                nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
+            }
         }
-        else
-        {
-            nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
-        }
-
         return nextLogicGroups;
     }
 
