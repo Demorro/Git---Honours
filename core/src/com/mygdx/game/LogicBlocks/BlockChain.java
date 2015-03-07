@@ -438,7 +438,7 @@ public class BlockChain {
 
 
 
-            /*
+
             debugFont.draw(batch, Integer.toString(lineNo),  GetX(), position.y);
             if(GetAboveBlockChain() != null) {
                 debugFont.draw(batch, "Above : " + Integer.toString(aboveBlockChain.lineNo), GetX() + 160, position.y);
@@ -452,7 +452,7 @@ public class BlockChain {
             if(parentContainer != null){
                 debugFont.draw(batch, "First in parent container : " + Integer.toString(parentContainer.get(0).lineNo),  GetX() + 680, position.y);
             }
-            */
+
 
         }
     }

@@ -1,16 +1,44 @@
 <?xml version="1.0" ?>
 <PlayerLogicScript>
   <Line>
-    <Block>ATTACK</Block>
-    <Block>CAPITALSHIP</Block>
-    <Block>AUTOCANNON</Block>
-    <Block>QUICKLY</Block>
+    <Block>WHEN</Block>
+    <Block>SHIPHP</Block>
+    <Block>LESSTHAN</Block>
+    <Block>ZERO</Block>
+    <Line></Line>
   </Line>
   <Line>
     <Block>WHEN</Block>
-    <Block>CAPITALSHIP</Block>
-    <Block>CLOSE</Block>
-    <Line></Line>
+    <Block>AUTOCANNON</Block>
+    <Block>ISFIRING</Block>
+    <Line>
+      <Block>PURSUE</Block>
+      <Block>FIGHTERSHIP</Block>
+      <Block>QUICKLY</Block>
+    </Line>
+    <Line>
+      <Block>EVADE</Block>
+      <Block>CAPITALSHIP</Block>
+      <Block>SLOWLY</Block>
+    </Line>
+    <Line>
+      <Block>ATTACK</Block>
+      <Block>CAPITALSHIP</Block>
+      <Block>AUTOCANNON</Block>
+      <Block>QUICKLY</Block>
+    </Line>
+    <Line>
+      <Block>WHEN</Block>
+      <Block>CAPITALSHIP</Block>
+      <Block>CLOSE</Block>
+      <Line>
+        <Block>ATTACK</Block>
+        <Block>CAPITALSHIP</Block>
+        <Block>AUTOCANNON</Block>
+        <Block>QUICKLY</Block>
+      </Line>
+      <Line></Line>
+    </Line>
     <Line></Line>
   </Line>
   <Line></Line>

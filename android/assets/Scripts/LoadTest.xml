@@ -2,19 +2,31 @@
 <PlayerLogicScript>
   <Line>
     <Block>WHEN</Block>
-    <Block>LASER</Block>
-    <Block>ISNTFIRING</Block>
+    <Block>CAPITALSHIP</Block>
+    <Block>CLOSE</Block>
     <Line>
-      <Block>ATTACK</Block>
+      <Block>WHEN</Block>
       <Block>CAPITALSHIP</Block>
-      <Block>AUTOCANNON</Block>
-      <Block>QUICKLY</Block>
-    </Line>
-    <Line>
-      <Block>ATTACK</Block>
-      <Block>CAPITALSHIP</Block>
-      <Block>AUTOCANNON</Block>
-      <Block>QUICKLY</Block>
+      <Block>CLOSE</Block>
+      <Line>
+        <Block>ATTACK</Block>
+        <Block>CAPITALSHIP</Block>
+        <Block>AUTOCANNON</Block>
+        <Block>QUICKLY</Block>
+      </Line>
+      <Line>
+        <Block>ATTACK</Block>
+        <Block>CAPITALSHIP</Block>
+        <Block>AUTOCANNON</Block>
+        <Block>QUICKLY</Block>
+      </Line>
+      <Line>
+        <Block>ATTACK</Block>
+        <Block>CAPITALSHIP</Block>
+        <Block>AUTOCANNON</Block>
+        <Block>QUICKLY</Block>
+      </Line>
+      <Line></Line>
     </Line>
     <Line></Line>
   </Line>

@@ -223,6 +223,7 @@ public class FullBlockScript
         BlockChain chainDirectlyAfterParent = parentIfChain.GetBelowBlockChain();
 
         BlockChain ifChildBlock = parentIfChain.AddIfChildBlock();
+        ifChildBlock.parentContainer = parentIfChain.childChains;
         BlockChain.SetUpperLowerRelations(parentIfChain, ifChildBlock);
         BlockChain underIfStatementBlock = new BlockChain(parentIfChain.GetX(), ifChildBlock.GetY() , blockTextureSheet, this, parentIfChain.parentContainer);
         BlockChain.SetUpperLowerRelations(ifChildBlock,underIfStatementBlock);

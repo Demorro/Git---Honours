@@ -158,20 +158,11 @@ public class ScriptSaver {
                         chainJustAdded.GetBelowBlockChain().DirectlyAddBlock(scriptLines.get(i).get(j));
                     }
 
-                    //If this is a when block, we better do the indentation
-                    if(chainJustAdded.GetBelowBlockChain().GetBlockList().size() > 0) {
-                        if (chainJustAdded.GetBelowBlockChain().GetBlockList().get(0).GetBlockType() == LogicGroups.LogicBlockType.WHEN) {
-                            script.AddNewIfBlock(chainJustAdded.GetBelowBlockChain());
-                            currentLineIndentationLevel++;
-                        }
-                    }
-
-
                     chainJustAdded = chainJustAdded.GetBelowBlockChain();
-                    if(chainJustAdded.parentContainer == chainJustAdded.GetAboveBlockChain().parentContainer){
-                        chainJustAdded.needsNewLine = true;
-                    }
+                    chainJustAdded.needsNewLine = true;
                     script.CheckForWhetherWeNeedNewChain();
+
+
                     script.AssertAllLinePositions();
                     continue;
                 }
@@ -180,19 +171,14 @@ public class ScriptSaver {
 
             //No blockslot, need to add one
             BlockChain chainToAdd;
-            chainToAdd = script.LoaderAddNewChain(FullBlockScript.blockChainStartPos.x, FullBlockScript.blockChainStartPos.y, currentParentContainers.peek(), chainJustAdded);
+            chainToAdd = script.LoaderAddNewChain(FullBlockScript.blockChainStartPos.x, FullBlockScript.blockChainStartPos.y, script.GetBlockChains(), chainJustAdded);
 
             for(int j = 0; j < scriptLines.get(i).size(); j++) {
                 chainToAdd.DirectlyAddBlock(scriptLines.get(i).get(j));
             }
 
-            //If this is a when block, we better do the indentation
-            if(chainToAdd.GetBlockList().size() > 0) {
-                if (chainToAdd.GetBlockList().get(0).GetBlockType() == LogicGroups.LogicBlockType.WHEN) {
-                    script.AddNewIfBlock(chainToAdd);
-                    currentLineIndentationLevel++;
-                }
-            }
+            chainToAdd.needsNewLine = true;
+            script.CheckForWhetherWeNeedNewChain();
 
             chainJustAdded = chainToAdd;
             script.AssertAllLinePositions();
@@ -202,66 +188,13 @@ public class ScriptSaver {
         if (script.GetBlockChains().size() <= 0) {
             script.AddNewChain(FullBlockScript.blockChainStartPos.x, FullBlockScript.blockChainStartPos.y);
         }
+
+
         script.AssertAllLinePositions();
 
     }
 
 
-    //Used in load scrips, depends on reader state, so you cant really use it anywhere else
-    private static void LoadBlocksIntoBlockChain(BlockChain chainToLoadInto, XMLStreamReader reader) throws XMLStreamException {
-        if(reader.isStartElement()) {
-            if(reader.getName().getLocalPart().equals("Block")){
-                reader.next();
-                if(reader.isCharacters()) {
-                    chainToLoadInto.DirectlyAddBlock(LogicGroups.LogicBlockType.valueOf(reader.getText()));
-                    System.out.println(reader.getText());
-                }
-            }
-        }
-    }
-
-
-    /*
-    public static void LoadScript(FullBlockScript script, String scriptXMLDocPath)
-    {
-        script.GetBlockChains().clear();
-        script.DeleteActiveChain();
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(scriptXMLDocPath);
-            XMLInputFactory xmlInFact = XMLInputFactory.newInstance();
-            XMLStreamReader reader = xmlInFact.createXMLStreamReader(fis);
-            while(reader.hasNext()) {
-                reader.next(); // do something here
-                if (reader.isStartElement()) {
-                    if (reader.getName().getLocalPart().equals("Line")) {
-                        script.AddNewChain(FullBlockScript.blockChainStartPos.x, FullBlockScript.blockChainStartPos.y - (script.GetBlockChains().size() * FullBlockScript.chainYSeperation));
-                    }
-                }
-                if(reader.isStartElement()) {
-                    if(reader.getName().getLocalPart().equals("Block")){
-                        reader.next();
-                        if(reader.isCharacters()) {
-                            script.GetBlockChains().get(script.GetBlockChains().size() - 1).DirectlyAddBlock(LogicGroups.LogicBlockType.valueOf(reader.getText()));
-                            System.out.println(reader.getText());
-                        }
-                    }
-                }
-            }
-        }
-        catch(IOException exc) {
-            Gdx.app.log("Error", "IOException, ScriptSaver LoadScript()");
-        }
-        catch(XMLStreamException exc) {
-            Gdx.app.log("Error", "XMLStreamException, ScriptSaver LoadScript()");
-        }
-
-        if(script.GetBlockChains().size() <= 0)
-        {
-            script.AddNewChain(FullBlockScript.blockChainStartPos.x, FullBlockScript.blockChainStartPos.y);
-        }
-    }
-    */
 
     public static ArrayList<ArrayList<LogicGroups.LogicBlockType>> LoadScriptIntoArray(String scriptXMLDocPath)
     {
