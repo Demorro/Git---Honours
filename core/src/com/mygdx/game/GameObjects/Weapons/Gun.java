@@ -36,13 +36,15 @@ public class Gun {
     private float MODERATE_FIRE_TIME_BETWEEN_SHOTS = 0.4f;
     private float FAST_FIRE_TIME_BETWEEN_SHOTS = 0.15f;
     private Utility.Speed currentFiringSpeed = Utility.Speed.SLOW;
-    private float autoFireTimeBetweenShots = 1.0f;
+    public float autoFireTimeBetweenShots = 1.0f;
     private boolean isFiring = false;
-    private float autoFireTimer = 0.0f;
+    public float autoFireTimer = 0.0f;
     private GameObject target = null;
 
     private float torpedoBulletSpin = 250;
     private Utility.Weapon weaponType ;
+
+    private boolean isFiringRightNow = false;
 
     private TextureAtlas bulletExplosionAtlas;
 
@@ -80,13 +82,20 @@ public class Gun {
         SLOW_FIRE_TIME_BETWEEN_SHOTS = slowTime;
     }
 
+    public void ClearTarget(){
+        target = null;
+        isFiringRightNow = false;
+    }
+
     public void Update(float elapsed)
     {
         autoFireTimer += elapsed;
         if(autoFireTimer > autoFireTimeBetweenShots){
+            isFiringRightNow = false;
             if(target != null){
                 if(GetIsAutoFiring()) {
                     Shoot(target.GetCenterPosition());
+                    isFiringRightNow = true;
                 }
             }
         }
@@ -117,13 +126,12 @@ public class Gun {
     public void SetIsAutoFiring(boolean _firing, Utility.Speed fireRate)
     {
         isFiring = _firing;
-
         SetFireRate(fireRate, false);
     }
 
     public boolean GetIsAutoFiring()
     {
-        return  isFiring;
+        return isFiring;
     }
 
     public void SetFireRate(Utility.Speed fireRate, boolean dontSetDown){
@@ -173,5 +181,10 @@ public class Gun {
     public Boolean CanFireRightNow()
     {
         return (autoFireTimer > autoFireTimeBetweenShots);
+    }
+
+    public Boolean IsFiringRightNow()
+    {
+        return isFiringRightNow;
     }
 }

@@ -42,6 +42,7 @@ public class Ship extends SteerableObject{
     protected ArrayList<Target> evadeTargets = new ArrayList<Target>();
 
     private float hp = 100;
+    private float maxHP = 100;
 
 
     public enum ShipGuns
@@ -100,6 +101,7 @@ public class Ship extends SteerableObject{
         setRegion(shipRegion);
 
         hp = startHealth;
+        maxHP = startHealth;
 
         this.shipBoundingRadius = boundingRadius;
         this.maxLinearSpeed = maxLinearSpeed;
@@ -267,7 +269,7 @@ public class Ship extends SteerableObject{
     {
         return hp;
     }
-
+    public float GetMaxHealth() {return maxHP;}
 
     protected SteerableObject GetClosestObject(ArrayList<? extends SteerableObject> objects, OrthographicCamera camera){
 

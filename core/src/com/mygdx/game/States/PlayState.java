@@ -132,7 +132,7 @@ public class PlayState extends State implements InputProcessor
         }
         KillOffscreenBullets();
 
-        returnToEditorButton.Update();
+        returnToEditorButton.Update(camera);
         gameTime += elapsed;
 
     }

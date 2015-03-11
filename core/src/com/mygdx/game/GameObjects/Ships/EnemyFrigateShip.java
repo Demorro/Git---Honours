@@ -41,7 +41,7 @@ public class EnemyFrigateShip extends Ship {
 
         noOfDeathExplosions = 15;
 
-        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 15, new Rectangle(316,728,16,64), GetCenterPosition(),2, Utility.Weapon.AUTOCANNON);
+        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 1.5f, new Rectangle(316,728,16,64), GetCenterPosition(),2, Utility.Weapon.AUTOCANNON);
         autoCannon.SetFastMedSlowFireRate(0.5f, 0.22f, 0.32f);
         autoCannon.SetFireRate(Utility.Speed.QUICK, false);
         autoCannon.SetTarget(player);

@@ -3,6 +3,7 @@ package com.mygdx.game.LogicBlocks;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -189,11 +190,16 @@ public class BlockChain {
     public void ListClosed()
     {
         fullScript.AnyListClosed(this);
+
         if(blocks.size() > 0) {
             FadeInCancelButtonAtLastBlock();
         }
         else {
             FadeOutCancelButton();
+        }
+
+        if(GetIsIfStatement()){
+            ClearEntireChain();
         }
     }
 
@@ -378,20 +384,20 @@ public class BlockChain {
         }
     }
 
-    public void Update(BlockDescriptionPanel panel)
+    public void Update(BlockDescriptionPanel panel, OrthographicCamera camera)
     {
         if(enabled) {
 
             if (nextButton.GetEnabled()) {
                 //nextButton.SetVisible(true);
-                nextButton.Update();
+                nextButton.Update(camera);
             }
             if (blocks.size() > 0) {
-                cancelButton.Update();
+                cancelButton.Update(camera);
             }
 
             if (selectionList != null) {
-                selectionList.Update();
+                selectionList.Update(camera);
             }
 
             chainTweenManager.update(Gdx.graphics.getDeltaTime());
@@ -407,7 +413,7 @@ public class BlockChain {
         }
         if(childChains != null) {
             for (BlockChain chain : childChains) {
-                chain.Update(panel);
+                chain.Update(panel, camera);
             }
         }
     }

@@ -22,6 +22,7 @@ import com.mygdx.game.GameObjects.SteerableObject;
 import com.mygdx.game.GameObjects.Weapons.Bullet;
 import com.mygdx.game.GameObjects.Weapons.Gun;
 import com.mygdx.game.GameObjects.Weapons.Target;
+import com.mygdx.game.LogicBlocks.BlockChain;
 import com.mygdx.game.LogicBlocks.FullBlockScript;
 import com.mygdx.game.LogicBlocks.LogicGroups;
 import com.mygdx.game.Utility.ScriptSaver;
@@ -37,7 +38,9 @@ public class PlayerShip extends Ship{
 
     private Texture gameObjectTexSheet; //Reference to game object texture sheet
 
-    private ArrayList<ArrayList<LogicGroups.LogicBlockType>> playerAI = new ArrayList<ArrayList<LogicGroups.LogicBlockType>>();
+    //private ArrayList<ArrayList<LogicGroups.LogicBlockType>> playerAI = new ArrayList<ArrayList<LogicGroups.LogicBlockType>>();
+    private FullBlockScript playerAI;
+
 
     private ArrayList<EnemyCapitalShip> caps;
     private ArrayList<EnemyFrigateShip> frigs;
@@ -66,14 +69,14 @@ public class PlayerShip extends Ship{
 
     public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, TextureAtlas destructionExplosionAtlas)
     {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 1000, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
         this.gameObjectTexSheet = gameObjectTexSheet;
 
-        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 5, new Rectangle(0,750,18,50), GetCenterPosition(),25, Utility.Weapon.AUTOCANNON);
+        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 0.5f, new Rectangle(0,750,18,50), GetCenterPosition(),25, Utility.Weapon.AUTOCANNON);
         autoCannon.SetFastMedSlowFireRate(0.12f, 0.22f, 0.32f);
-        laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 25, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
+        laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 2.5f, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
         laser.SetFastMedSlowFireRate(0.4f, 1.0f, 1.8f);
-        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 200, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE);
+        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 20, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE);
         torpedo.SetFastMedSlowFireRate(2.5f, 4.0f, 6.5f);
 
         this.caps = caps;
@@ -85,6 +88,9 @@ public class PlayerShip extends Ship{
         torpedo.SetIsAutoFiring(true);
 
 
+        //This is a dumb hack but it works. We're repurposing the script structure from the editor state to store logic in the game, (mainly due to the tech debt we racked up using it to load in xml, but either way, it needs a texture, so just give it any old texture, its never displayed
+        playerAI = new FullBlockScript(gameObjectTexSheet,null,null);
+        ScriptSaver.LoadScript(playerAI, ScriptSaver.workingScriptPath);
     }
 
     public void Update(float elapsed, OrthographicCamera camera, ArrayList<Bullet> bullets)
@@ -94,7 +100,13 @@ public class PlayerShip extends Ship{
             hasSetupLogic = true;
         }
 
-        super.Update(elapsed,camera, bullets);
+        autoCannon.ClearTarget();
+
+        pursueTargets.clear();
+        evadeTargets.clear();
+        attackTargets.clear();
+        ParseLogicScript();
+
         ResolveWeaponAttackTarget(caps, frigs, fighters, autoCannon, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, laser, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, torpedo, camera);
@@ -103,26 +115,245 @@ public class PlayerShip extends Ship{
 
         CustomLogic();
 
+        super.Update(elapsed,camera, bullets);
+
+
     }
 
-    private void CustomLogic()
+    private void ParseLogicScript()
     {
-        if(pursueTarget != null){
-            if(pursueTarget.getPosition().dst(getPosition()) < pursueDisableDistance){
-                SetBehaviorActive(pursueBehavior, false);
+        //Loop over the blocks
+        BlockChain nextChain = playerAI.GetBlockChains().get(0);
+        while(nextChain != null)
+        {
+            if(nextChain.GetBlockList().size() > 0){
+
+                //When blocks
+                if(nextChain.GetBlockList().get(0).GetBlockType() == LogicGroups.LogicBlockType.WHEN){
+                    if(IsWhenStatementTrue(ScriptSaver.ConvertBlockChainToTypeLine(nextChain)) == false)
+                    {
+                        //if the when statement isnt true, skip past this if statement
+                        nextChain = nextChain.GetNextBlockAfterIf();
+                        continue;
+                    }
+                }
+
+                //Get the first block, and then go to the relevent function to parse the line.
+                if(nextChain.GetBlockList().get(0).GetBlockType() == LogicGroups.LogicBlockType.ATTACK){ ParseAttackLine(ScriptSaver.ConvertBlockChainToTypeLine(nextChain));}
+                else if(nextChain.GetBlockList().get(0).GetBlockType() == LogicGroups.LogicBlockType.PURSUE){ ParsePersueLine(ScriptSaver.ConvertBlockChainToTypeLine(nextChain));}
+                else if(nextChain.GetBlockList().get(0).GetBlockType() == LogicGroups.LogicBlockType.EVADE){ ParseEvadeLine(ScriptSaver.ConvertBlockChainToTypeLine(nextChain));}
+            }
+
+            nextChain = nextChain.GetBelowBlockChain();
+        }
+    }
+
+    private boolean IsWhenStatementTrue(ArrayList<LogicGroups.LogicBlockType> logicLine)
+    {
+        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
+        workingLine.remove(0); //Remove the first element of the line, since we know it's when
+
+        //If the when statement is about weapons
+        if((workingLine.get(0) == LogicGroups.LogicBlockType.AUTOCANNON) || (workingLine.get(0) == LogicGroups.LogicBlockType.LASER) || (workingLine.get(0) == LogicGroups.LogicBlockType.MISSILE)){
+            return DoWhenWeapon(workingLine);
+        }
+        //If the when statment is about ships
+        else if((workingLine.get(0) == LogicGroups.LogicBlockType.CAPITALSHIP) || (workingLine.get(0) == LogicGroups.LogicBlockType.FRIGATESHIP) || (workingLine.get(0) == LogicGroups.LogicBlockType.FIGHTERSHIP)){
+            return DoWhenEnemyShip(workingLine);
+        }
+        //If the when statement is about ship health
+        else if(workingLine.get(0) == LogicGroups.LogicBlockType.SHIPHP){
+            return DoWhenShipHP(workingLine);
+        }
+        return false;
+    }
+    //Functions called inside IsWhenStatement true for the different types on when statement, takes an array with the when statement removed
+    private boolean DoWhenWeapon(ArrayList<LogicGroups.LogicBlockType> whenWeaponLine){
+        //Get the weapon
+        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(whenWeaponLine);
+        Gun weapon = null;
+        if(workingLine.get(0) == LogicGroups.LogicBlockType.AUTOCANNON){weapon = autoCannon;}
+        else if(workingLine.get(0) == LogicGroups.LogicBlockType.LASER){weapon = laser;}
+        else if(workingLine.get(0) == LogicGroups.LogicBlockType.MISSILE){weapon = torpedo;}
+        workingLine.remove(0);
+        if(weapon == null){Gdx.app.log("Error","Weapon must not be null, DoWhenWeapon, PlayerShip.cpp");}
+
+        //The final block should be is/isnt firing
+        if(workingLine.get(0) == LogicGroups.LogicBlockType.ISFIRING){
+            if(weapon.IsFiringRightNow()){
+                return true;
             }else{
-                SetBehaviorActive(pursueBehavior, true);
+                return false;
+            }
+        }
+        else if(workingLine.get(0) == LogicGroups.LogicBlockType.ISNTFIRING){
+            if(!weapon.IsFiringRightNow()){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return false;
+    }
+    private boolean DoWhenEnemyShip(ArrayList<LogicGroups.LogicBlockType> whenEnemiesLine) {
+        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(whenEnemiesLine);
+
+        //Distances for close and far
+        float closeDistance = 180.0f;
+        float farDistance = 500.0f;
+
+        boolean enemyIsFighters = false;
+        boolean enemyIsFrigates = false;
+        boolean enemyIsCaps = false;
+
+        //this block is a ship type
+        if(workingLine.get(0) == LogicGroups.LogicBlockType.FIGHTERSHIP){enemyIsFighters = true;}
+        if(workingLine.get(0) == LogicGroups.LogicBlockType.FRIGATESHIP){enemyIsFrigates = true;}
+        if(workingLine.get(0) == LogicGroups.LogicBlockType.CAPITALSHIP){enemyIsCaps = true;}
+
+        workingLine.remove(0);
+
+        //The next block is close/far
+        if(workingLine.get(0) == LogicGroups.LogicBlockType.CLOSE){
+            if(enemyIsFighters){
+                for(EnemyFighterShip ship : fighters){
+                    if(ship.GetCenterPosition().dst(GetCenterPosition()) < closeDistance){
+                        return true;
+                    }
+                }
+            }
+            else if(enemyIsFrigates){
+                for(EnemyFrigateShip ship : frigs){
+                    if(ship.GetCenterPosition().dst(GetCenterPosition()) < closeDistance){
+                        return true;
+                    }
+                }
+            }
+            if(enemyIsCaps){
+                for(EnemyCapitalShip ship : caps){
+                    if(ship.GetCenterPosition().dst(GetCenterPosition()) < closeDistance){
+                        return true;
+                    }
+                }
+            }
+        }
+        else if(workingLine.get(0) == LogicGroups.LogicBlockType.FAR){
+            if(enemyIsFighters){
+                for(EnemyFighterShip ship : fighters){
+                    if(ship.GetCenterPosition().dst(GetCenterPosition()) > farDistance){
+                        return true;
+                    }
+                }
+            }
+            else if(enemyIsFrigates){
+                for(EnemyFrigateShip ship : frigs){
+                    if(ship.GetCenterPosition().dst(GetCenterPosition()) > farDistance){
+                        return true;
+                    }
+                }
+            }
+            if(enemyIsCaps){
+                for(EnemyCapitalShip ship : caps){
+                    if(ship.GetCenterPosition().dst(GetCenterPosition()) > farDistance){
+                        return true;
+                    }
+                }
             }
         }
 
-        if(evadeTarget != null)
-        {
-            if(evadeTarget.getPosition().dst(getPosition()) > evadeDisableDistance){
-                SetBehaviorActive(evadeBehavior, false);
-            }else{
-                SetBehaviorActive(evadeBehavior, true);
+        return false;
+    }
+    private boolean DoWhenShipHP(ArrayList<LogicGroups.LogicBlockType> shipHPLine){
+        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(shipHPLine);
+
+        //First block is ship hp, so we can just pop it
+        workingLine.remove(0);
+
+        //Less than/More than/Full
+        if(workingLine.get(0) == LogicGroups.LogicBlockType.LESSTHAN){
+            workingLine.remove(0);
+            if(GetHealth() < LogicGroups.NumberBlockToInt(workingLine.get(0))){
+                return true;
             }
         }
+        else if(workingLine.get(0) == LogicGroups.LogicBlockType.MORETHAN){
+            workingLine.remove(0);
+            if(GetHealth() > LogicGroups.NumberBlockToInt(workingLine.get(0))){
+                return true;
+            }
+        }
+        else if(workingLine.get(0) == LogicGroups.LogicBlockType.FULL){
+            return (GetHealth() >= GetMaxHealth());
+        }
+
+        return false;
+    }
+
+    private void ParseAttackLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
+    {
+        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
+        workingLine.remove(0); //Remove the first element of the line, since we know it's attack
+
+        LogicGroups.LogicBlockType target = null;
+        LogicGroups.LogicBlockType weapon = null;
+        LogicGroups.LogicBlockType speed = null;
+        //The correct order for an attackline should be Attack -> Object -> Weapon -> Speed
+        if(workingLine.size() > 0){
+            target = workingLine.get(0);
+            workingLine.remove(0);
+        }
+        if(workingLine.size() > 0){
+            weapon = workingLine.get(0);
+            workingLine.remove(0);
+        }
+        if(workingLine.size() > 0){
+            speed = workingLine.get(0);
+            workingLine.remove(0);
+        }
+
+        attackTargets.add(new Target(target, weapon, speed));
+    }
+
+    private void ParsePersueLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
+    {
+        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
+        workingLine.remove(0); //Remove the first element of the line, since we know it's persue
+
+        LogicGroups.LogicBlockType target = null;
+        LogicGroups.LogicBlockType weapon = null;
+        LogicGroups.LogicBlockType speed = null;
+        //The correct order for a persueLine should be Speed -> Object -> Speed
+        if(workingLine.size() > 0){
+            target = workingLine.get(0);
+            workingLine.remove(0);
+        }
+        if(workingLine.size() > 0){
+            speed = workingLine.get(0);
+            workingLine.remove(0);
+        }
+
+        pursueTargets.add(new Target(target, weapon, speed));
+    }
+
+    private void ParseEvadeLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
+    {
+        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
+        workingLine.remove(0); //Remove the first element of the line, since we know it's evade
+
+        LogicGroups.LogicBlockType target = null;
+        LogicGroups.LogicBlockType weapon = null;
+        LogicGroups.LogicBlockType speed = null;
+        //The correct order for a evadeLine should be Speed -> Object -> Speed
+        if(workingLine.size() > 0){
+            target = workingLine.get(0);
+            workingLine.remove(0);
+        }
+        if(workingLine.size() > 0){
+            speed = workingLine.get(0);
+            workingLine.remove(0);
+        }
+
+        evadeTargets.add(new Target(target, weapon, speed));
     }
 
     //Takes the list of targets that the logic script has loaded in, and resolves what should be targetted and how much
@@ -393,87 +624,24 @@ public class PlayerShip extends Ship{
 
     }
 
-    private void ParseLogicScript()
+    private void CustomLogic()
     {
-        playerAI = ScriptSaver.LoadScriptIntoArray(ScriptSaver.workingScriptPath);
-        System.out.println(playerAI.size());
-        //Loop over the blocks
-        for(ArrayList<LogicGroups.LogicBlockType> blockChain : playerAI)
-        {
-            if(blockChain.size() > 0){
-                //Get the first block, and then go to the relevent function to parse the line.
-                if(blockChain.get(0) == LogicGroups.LogicBlockType.ATTACK){ ParseAttackLine(blockChain);}
-                else if(blockChain.get(0) == LogicGroups.LogicBlockType.PURSUE){ ParsePersueLine(blockChain);}
-                else if(blockChain.get(0) == LogicGroups.LogicBlockType.EVADE){ ParseEvadeLine(blockChain);}
+        if(pursueTarget != null){
+            if(pursueTarget.getPosition().dst(getPosition()) < pursueDisableDistance){
+                SetBehaviorActive(pursueBehavior, false);
+            }else{
+                SetBehaviorActive(pursueBehavior, true);
             }
         }
-    }
 
-    private void ParseAttackLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
-    {
-        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
-        workingLine.remove(0); //Remove the first element of the line, since we know it's attack
-
-        LogicGroups.LogicBlockType target = null;
-        LogicGroups.LogicBlockType weapon = null;
-        LogicGroups.LogicBlockType speed = null;
-        //The correct order for an attackline should be Attack -> Object -> Weapon -> Speed
-        if(workingLine.size() > 0){
-            target = workingLine.get(0);
-            workingLine.remove(0);
+        if(evadeTarget != null)
+        {
+            if(evadeTarget.getPosition().dst(getPosition()) > evadeDisableDistance){
+                SetBehaviorActive(evadeBehavior, false);
+            }else{
+                SetBehaviorActive(evadeBehavior, true);
+            }
         }
-        if(workingLine.size() > 0){
-            weapon = workingLine.get(0);
-            workingLine.remove(0);
-        }
-        if(workingLine.size() > 0){
-            speed = workingLine.get(0);
-            workingLine.remove(0);
-        }
-
-        attackTargets.add(new Target(target, weapon, speed));
-    }
-
-    private void ParsePersueLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
-    {
-        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
-        workingLine.remove(0); //Remove the first element of the line, since we know it's persue
-
-        LogicGroups.LogicBlockType target = null;
-        LogicGroups.LogicBlockType weapon = null;
-        LogicGroups.LogicBlockType speed = null;
-        //The correct order for a persueLine should be Speed -> Object -> Speed
-        if(workingLine.size() > 0){
-            target = workingLine.get(0);
-            workingLine.remove(0);
-        }
-        if(workingLine.size() > 0){
-            speed = workingLine.get(0);
-            workingLine.remove(0);
-        }
-
-        pursueTargets.add(new Target(target, weapon, speed));
-    }
-
-    private void ParseEvadeLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
-    {
-        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
-        workingLine.remove(0); //Remove the first element of the line, since we know it's evade
-
-        LogicGroups.LogicBlockType target = null;
-        LogicGroups.LogicBlockType weapon = null;
-        LogicGroups.LogicBlockType speed = null;
-        //The correct order for a evadeLine should be Speed -> Object -> Speed
-        if(workingLine.size() > 0){
-            target = workingLine.get(0);
-            workingLine.remove(0);
-        }
-        if(workingLine.size() > 0){
-            speed = workingLine.get(0);
-            workingLine.remove(0);
-        }
-
-        evadeTargets.add(new Target(target, weapon, speed));
     }
 
 

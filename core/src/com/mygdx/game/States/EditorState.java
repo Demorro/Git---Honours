@@ -32,6 +32,8 @@ import java.util.HashMap;
 public class EditorState extends State implements InputProcessor
 {
     private OrthographicCamera camera;
+    float camStartY = 0;
+    private OrthographicCamera uiCam;
 
     private Texture blockSpriteSheet = new Texture(Gdx.files.internal("Images/BlockSpriteSheet.png"));
     private Texture greyButtonsSheet = new Texture(Gdx.files.internal("Images/GreyButton.png"));
@@ -72,16 +74,28 @@ public class EditorState extends State implements InputProcessor
         descriptionPanel = new BlockDescriptionPanel(300,300,fpsFont, panelTex, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+        uiCam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 
         blockSpriteSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         greyButtonsSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         greybuttons2xSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        scriptContainer = new FullBlockScript(blockSpriteSheet, descriptionPanel);
-
-        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
-        camera.update();
 
         SetupButtons();
+
+        ArrayList<Button> buttons = new ArrayList<Button>();
+        buttons.add(saveButton);
+        buttons.add(loadButton);
+        buttons.add(playButton);
+
+        scriptContainer = new FullBlockScript(blockSpriteSheet, descriptionPanel, buttons);
+
+        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+        uiCam.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+        camera.update();
+        uiCam.update();
+
+        camStartY = camera.position.y;
+
 
         return true;
     }
@@ -93,6 +107,7 @@ public class EditorState extends State implements InputProcessor
             @Override
             protected void Trigger() {
                 if(isSaving == false) {
+                    scriptContainer.CloseAnyOpenLists();
                     int saveResult = scriptContainer.SaveScript();
                     if(saveResult >= -1){ isSaving = false; }
                     else { isSaving = false; Gdx.app.log("Error","Something went wrong in the Saving, ScriptSave.java, SaveScript function. Oops ;p");}
@@ -103,6 +118,7 @@ public class EditorState extends State implements InputProcessor
             @Override
             protected void Trigger() {
                 if(isSaving == false) {
+                    scriptContainer.CloseAnyOpenLists();
                     int loadResult = scriptContainer.LoadScript();
                     if (loadResult >= -1) {isSaving = false; }
                     else {isSaving = false; Gdx.app.log("Error", "Something went wrong in the Loading, LoadScript.java, LoadScript function. Oops ;p");
@@ -113,11 +129,11 @@ public class EditorState extends State implements InputProcessor
         playButton = new Button(greybuttons2xSheet,0,0,196,76,0,76,196,68,false, true){
             @Override
             protected void Trigger() {
+                scriptContainer.CloseAnyOpenLists();
                 scriptContainer.SaveScriptDirectly(ScriptSaver.workingScriptPath);
                 SwitchState(StateID.PLAY_STATE);
             }
         };
-
 
 
         saveButton.setPosition(Gdx.graphics.getWidth() - buttonOffsetFromRight, 64);
@@ -149,10 +165,10 @@ public class EditorState extends State implements InputProcessor
     // Abstract method intended to act as the main loop of the state.
     public void Update(HashMap<Integer,TouchInfo> touches)
     {
-        scriptContainer.Update();
-        saveButton.Update();
-        loadButton.Update();
-        playButton.Update();
+        scriptContainer.Update(camera);
+        saveButton.Update(uiCam);
+        loadButton.Update(uiCam);
+        playButton.Update(uiCam);
 
     }
     // Abstract method intended to render all objects of the state.
@@ -163,6 +179,8 @@ public class EditorState extends State implements InputProcessor
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         scriptContainer.Render(spriteBatch);
+
+        spriteBatch.setProjectionMatrix(uiCam.combined);
         saveButton.Render(spriteBatch);
         loadButton.Render(spriteBatch);
         playButton.Render(spriteBatch);
@@ -208,6 +226,9 @@ public class EditorState extends State implements InputProcessor
 
     @Override
     public boolean scrolled(int amount) {
+        int cameraScrollSpeed = 20;
+        camera.translate(0,-amount * cameraScrollSpeed);
+        camera.update();
         return false;
     }
 

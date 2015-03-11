@@ -3,6 +3,7 @@ package com.mygdx.game.Utility;
 import com.badlogic.gdx.Gdx;
 import com.mygdx.game.LogicBlocks.BlockChain;
 import com.mygdx.game.LogicBlocks.FullBlockScript;
+import com.mygdx.game.LogicBlocks.LogicBlock;
 import com.mygdx.game.LogicBlocks.LogicGroups;
 import com.mygdx.game.States.EditorState;
 import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
@@ -195,7 +196,17 @@ public class ScriptSaver {
     }
 
 
+    //Give a blockchain object and get out an array of block types
+    public static ArrayList<LogicGroups.LogicBlockType> ConvertBlockChainToTypeLine(BlockChain line)
+    {
+        ArrayList<LogicGroups.LogicBlockType> returnLine = new ArrayList<LogicGroups.LogicBlockType>();
+        for(LogicBlock block : line.GetBlockList()){
+            returnLine.add(block.GetBlockType());
+        }
+        return returnLine;
+    }
 
+    //Depreceated
     public static ArrayList<ArrayList<LogicGroups.LogicBlockType>> LoadScriptIntoArray(String scriptXMLDocPath)
     {
 

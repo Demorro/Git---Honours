@@ -1,52 +1,5 @@
 <?xml version="1.0" ?>
 <PlayerLogicScript>
-  <Line>
-    <Block>ATTACK</Block>
-    <Block>CAPITALSHIP</Block>
-    <Block>AUTOCANNON</Block>
-    <Block>QUICKLY</Block>
-  </Line>
-  <Line>
-    <Block>ATTACK</Block>
-    <Block>CAPITALSHIP</Block>
-    <Block>AUTOCANNON</Block>
-    <Block>QUICKLY</Block>
-  </Line>
-  <Line>
-    <Block>WHEN</Block>
-    <Block>CAPITALSHIP</Block>
-    <Block>CLOSE</Block>
-    <Line></Line>
-  </Line>
-  <Line>
-    <Block>WHEN</Block>
-    <Block>CAPITALSHIP</Block>
-    <Block>CLOSE</Block>
-    <Line>
-      <Block>WHEN</Block>
-      <Block>CAPITALSHIP</Block>
-      <Block>CLOSE</Block>
-      <Line>
-        <Block>ATTACK</Block>
-        <Block>CAPITALSHIP</Block>
-        <Block>AUTOCANNON</Block>
-        <Block>QUICKLY</Block>
-      </Line>
-      <Line>
-        <Block>ATTACK</Block>
-        <Block>CAPITALSHIP</Block>
-        <Block>AUTOCANNON</Block>
-        <Block>QUICKLY</Block>
-      </Line>
-      <Line></Line>
-    </Line>
-    <Line></Line>
-  </Line>
-  <Line>
-    <Block>ATTACK</Block>
-    <Block>CAPITALSHIP</Block>
-    <Block>AUTOCANNON</Block>
-    <Block>QUICKLY</Block>
-  </Line>
+  <Line></Line>
   <Line></Line>
 </PlayerLogicScript>

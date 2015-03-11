@@ -44,7 +44,7 @@ public class EnemyFighterShip extends Ship {
         SetBehaviorActive(cohesionBehavior, true);
         SetBehaviorActive(alignmentBehavior, true);
 
-        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 750, 10, new Rectangle(275,770,30,30), GetCenterPosition(), 6, Utility.Weapon.MISSILE);
+        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 750, 1, new Rectangle(275,770,30,30), GetCenterPosition(), 6, Utility.Weapon.MISSILE);
         torpedo.SetFastMedSlowFireRate(3.0f, 5.0f, 8.0f);
         torpedo.SetFireRate(Utility.Speed.QUICK, false);
         torpedo.SetTarget(player);

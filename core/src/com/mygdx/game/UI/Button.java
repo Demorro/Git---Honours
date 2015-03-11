@@ -3,12 +3,15 @@ package com.mygdx.game.UI;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Utility.Utility;
 
 /**
@@ -75,14 +78,16 @@ public abstract class Button extends Sprite {
         buttonFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }
 
-    public void Update()
+    public void Update(OrthographicCamera camera)
     {
         if(Gdx.app.getType() == Application.ApplicationType.Desktop)
         {
 
             if(Gdx.app.getInput().justTouched())
             {
-                if(this.getBoundingRectangle().contains(Utility.GetScreenSpaceInput())) {
+                Vector2 screenInput = Utility.GetScreenSpaceInput();
+                screenInput.set(screenInput.x + camera.position.x - Gdx.graphics.getWidth()/2, screenInput.y + camera.position.y - Gdx.graphics.getHeight()/2);
+                if(this.getBoundingRectangle().contains(screenInput)) {
                     isBeingHeld = true;
                     if (shouldScaleWhenDepressed) {
                         setScale(pressedScalar);
@@ -94,7 +99,9 @@ public abstract class Button extends Sprite {
         {
             if(Gdx.app.getInput().justTouched())
             {
-                if(this.getBoundingRectangle().contains(Gdx.input.getX(), Gdx.input.getY())) {
+                Vector2 screenInput = Utility.GetScreenSpaceInput();
+                screenInput.set(screenInput.x + camera.position.x - Gdx.graphics.getWidth()/2, screenInput.y + camera.position.y - Gdx.graphics.getHeight()/2);
+                if(this.getBoundingRectangle().contains(screenInput)) {
                     isBeingHeld = true;
                     if (shouldScaleWhenDepressed) {
                         setScale(pressedScalar);

@@ -4,10 +4,12 @@ import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.UI.BlockDescriptionPanel;
+import com.mygdx.game.UI.Button;
 import com.mygdx.game.Utility.ScriptSaver;
 import com.mygdx.game.Utility.SpriteAccessor;
 import jdk.nashorn.internal.ir.Block;
@@ -44,14 +46,17 @@ public class FullBlockScript
 
     private BlockDescriptionPanel descriptionPanel;
 
+    private ArrayList<Button> buttonsToDisable;
+
 
     public FullBlockScript(){ //Just for storage, no rendering if you use this constructor
         ResetScript();
     }
-    public FullBlockScript(Texture blockSheet, BlockDescriptionPanel descriptionPanel)
+    public FullBlockScript(Texture blockSheet, BlockDescriptionPanel descriptionPanel, ArrayList<Button> buttonsToDisable)
     {
         this.descriptionPanel = descriptionPanel;
         blockTextureSheet = blockSheet;
+        this.buttonsToDisable = buttonsToDisable;
         ResetScript();
     }
 
@@ -62,12 +67,12 @@ public class FullBlockScript
         blockChains.get(0).SetIsTopChain();
     }
 
-    public void Update()
+    public void Update(OrthographicCamera camera)
     {
 
         for(BlockChain chain : blockChains)
         {
-            chain.Update(descriptionPanel);
+            chain.Update(descriptionPanel,camera);
         }
 
         boolean hasAssertedPositions = false;
@@ -405,6 +410,13 @@ public class FullBlockScript
     public ArrayList<BlockChain> GetAllBlockChainsFromFirst()
     {
         return GetAllBlockChainsFromOne(blockChains.get(0), false);
+    }
+
+    public void CloseAnyOpenLists()
+    {
+        for(BlockChain chain : GetAllBlockChainsFromFirst()){
+            chain.ListClosed();
+        }
     }
 
     //Returns 1 is succesfully saved, 0 if cancelled out, and -1 if ERROR HAPPENED

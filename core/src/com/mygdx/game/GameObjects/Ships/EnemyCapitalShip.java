@@ -43,7 +43,7 @@ public class EnemyCapitalShip extends Ship {
         noOfDeathExplosions = 40;
         timeBetweenExplosionSpawns = 0.02f;
 
-        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 220, 80, new Rectangle(78,768,30,30), GetCenterPosition(), 0, Utility.Weapon.MISSILE);
+        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 220, 8, new Rectangle(78,768,30,30), GetCenterPosition(), 0, Utility.Weapon.MISSILE);
         torpedo.SetFastMedSlowFireRate(3.5f, 7.5f, 9.5f);
         torpedo.SetFireRate(Utility.Speed.QUICK, false);
         torpedo.SetTarget(player);

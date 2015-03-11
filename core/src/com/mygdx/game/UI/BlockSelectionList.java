@@ -3,6 +3,7 @@ package com.mygdx.game.UI;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -56,11 +57,11 @@ public class BlockSelectionList {
         ResetList(groupsToLoad,pos,startOpen,false, previousBlock);
     }
 
-    public void Update()
+    public void Update(OrthographicCamera camera)
     {
-        cancelButton.Update();
-        ClickToScroll();
-        HandleBlockSelection();
+        cancelButton.Update(camera);
+        ClickToScroll(camera);
+        HandleBlockSelection(camera);
         listTweenManager.update(Gdx.graphics.getDeltaTime());
     }
 
@@ -125,15 +126,17 @@ public class BlockSelectionList {
         isOpen = startOpen;
     }
 
-    private void HandleBlockSelection()
+    private void HandleBlockSelection(OrthographicCamera camera)
     {
         if(isOpen) {
             if ((isTweeningIn) || (isTweeningOut) || (isScrolling)) {
                 return;
             }
-            if ((Gdx.app.getInput().justTouched()) & (!cancelButton.getBoundingRectangle().contains(Utility.GetScreenSpaceInput()))) //Dont want to be able to cancel and select a block at the same time
+            Vector2 screenInput = Utility.GetScreenSpaceInput();
+            screenInput.set(screenInput.x + camera.position.x - Gdx.graphics.getWidth()/2, screenInput.y + camera.position.y - Gdx.graphics.getHeight()/2);
+            if ((Gdx.app.getInput().justTouched()) & (!cancelButton.getBoundingRectangle().contains(screenInput))) //Dont want to be able to cancel and select a block at the same time
             {
-                if (selectionBlocks.get(currentSelectionIndex).GetBoundingRectangle().contains(Utility.GetScreenSpaceInput())) {
+                if (selectionBlocks.get(currentSelectionIndex).GetBoundingRectangle().contains(screenInput)) {
                     SelectBlock();
                 }
             }
@@ -157,7 +160,7 @@ public class BlockSelectionList {
         return null;
     }
 
-    private void ClickToScroll()
+    private void ClickToScroll(OrthographicCamera camera)
     {
         if(isOpen) {
             if ((isTweeningIn) || (isTweeningOut) || (isScrolling)) {
@@ -165,11 +168,13 @@ public class BlockSelectionList {
             }
             if(Gdx.app.getInput().isTouched())
             {
-                if(selectionBlocks.get(GetUpperIndex()).GetBoundingRectangle().contains(Utility.GetScreenSpaceInput())) {
+                Vector2 screenInput = Utility.GetScreenSpaceInput();
+                screenInput.set(screenInput.x + camera.position.x - Gdx.graphics.getWidth()/2, screenInput.y + camera.position.y - Gdx.graphics.getHeight()/2);
+                if(selectionBlocks.get(GetUpperIndex()).GetBoundingRectangle().contains(screenInput)) {
                     ScrollUp();
                     return;
                 }
-                else if(selectionBlocks.get(GetLowerIndex()).GetBoundingRectangle().contains(Utility.GetScreenSpaceInput())) {
+                else if(selectionBlocks.get(GetLowerIndex()).GetBoundingRectangle().contains(screenInput)) {
                     ScrollDown();
                     return;
                 }

@@ -351,4 +351,21 @@ public class LogicGroups {
         }
     }
 
+    public static int NumberBlockToInt(LogicBlockType numberBlock)
+    {
+        if(numberBlock == LogicBlockType.ZERO){ return 0;}
+        else if(numberBlock == LogicBlockType.TEN){ return 10;}
+        else if(numberBlock == LogicBlockType.TWENTY){ return 20;}
+        else if(numberBlock == LogicBlockType.THIRTY){ return 30;}
+        else if(numberBlock == LogicBlockType.FORTY){ return 40;}
+        else if(numberBlock == LogicBlockType.FIFTY){ return 50;}
+        else if(numberBlock == LogicBlockType.SIXTY){ return 60;}
+        else if(numberBlock == LogicBlockType.SEVENTY){ return 70;}
+        else if(numberBlock == LogicBlockType.EIGHTY){ return 80;}
+        else if(numberBlock == LogicBlockType.NINETY){ return 90;}
+        else if(numberBlock == LogicBlockType.ONEHUNDRED){ return 100;}
+
+        return 0;
+    }
+
 }
