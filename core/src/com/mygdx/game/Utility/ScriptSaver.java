@@ -46,10 +46,10 @@ public class ScriptSaver {
                 writer.writeStartElement("Line");
                 WriteSingleChain(nextChain, writer);
 
-                if(nextChain.GetAllChildChainsRecursively() != null)
-                {
-                    if(nextChain.GetAllChildChainsRecursively().size() != 0) {
-                        nextChain = nextChain.GetAllChildChainsRecursively().get(0);
+                if(nextChain.childChains != null) {
+                    if (nextChain.childChains.size() > 0) //
+                    {
+                        nextChain = nextChain.childChains.get(0);
                         continue;
                     }
                 }
@@ -61,7 +61,7 @@ public class ScriptSaver {
                     //if the chain below isnt on the same indentation level, means we're going down a chain, which means we need to close the element
                     if(BlockChain.CheckIfChainsAreInSameIndentationLevel(nextChain, nextChain.GetBelowBlockChain()) == false)
                     {
-                        writer.writeEndElement();
+                       writer.writeEndElement();
                     }
 
                     nextChain = nextChain.GetBelowBlockChain();

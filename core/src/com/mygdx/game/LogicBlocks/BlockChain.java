@@ -203,6 +203,22 @@ public class BlockChain {
         }
     }
 
+    public void CloseAnyOpenListsForSaving(){
+        fullScript.AnyListClosed(this);
+        if(blocks.size() > 0) {
+            FadeInCancelButtonAtLastBlock();
+        }
+        else {
+            FadeOutCancelButton();
+        }
+
+        if(GetIsIfStatement()){
+            if(GetIsOnEndOfChain() == false) {
+                ClearEntireChain();
+            }
+        }
+    }
+
     private void RemoveBlockFromEndOfChain()
     {
         blockChainBounds.setWidth(blockChainBounds.getWidth() - blocks.get(blocks.size() - 1).GetFullBlockWidth());

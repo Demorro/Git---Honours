@@ -415,7 +415,7 @@ public class FullBlockScript
     public void CloseAnyOpenLists()
     {
         for(BlockChain chain : GetAllBlockChainsFromFirst()){
-            chain.ListClosed();
+            chain.CloseAnyOpenListsForSaving();
         }
     }
 

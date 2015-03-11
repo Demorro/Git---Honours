@@ -1,5 +1,16 @@
 <?xml version="1.0" ?>
 <PlayerLogicScript>
-  <Line></Line>
+  <Line>
+    <Block>WHEN</Block>
+    <Block>CAPITALSHIP</Block>
+    <Block>CLOSE</Block>
+    <Line>
+      <Block>WHEN</Block>
+      <Block>CAPITALSHIP</Block>
+      <Block>CLOSE</Block>
+      <Line></Line>
+    </Line>
+    <Line></Line>
+  </Line>
   <Line></Line>
 </PlayerLogicScript>
