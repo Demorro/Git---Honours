@@ -20,7 +20,6 @@ public class AttackBlock extends LogicBlock
     {
         ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
         nextLogicGroups.add(LogicGroups.LogicGroup.ENEMIES);
-        nextLogicGroups.add(LogicGroups.LogicGroup.SCARYOBJECTS);
         return nextLogicGroups;
     }
 

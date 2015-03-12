@@ -21,6 +21,12 @@ public class MenuState extends State
     {
         super(State.StateID.MENU_STATE);
     }
+
+    @Override
+    public void RunOnGameOpen() {
+
+    }
+
     //Abstract method that runs on state initialisation, for loading resources
     public boolean Load()
     {
@@ -33,6 +39,7 @@ public class MenuState extends State
     {
 
     }
+
     // Abstract method intended to act as the main loop of the state.
     public void Update(HashMap<Integer,TouchInfo> touches)
     {

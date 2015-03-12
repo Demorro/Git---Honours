@@ -19,6 +19,7 @@ public class StateManager
         curState = null;
         //Define what state we start with.
         SwitchState(State.StateID.EDITOR_STATE);
+        curState.RunOnGameOpen();
     }
 
     public void Update(HashMap<Integer,TouchInfo> touches)

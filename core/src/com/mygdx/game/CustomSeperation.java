@@ -74,7 +74,6 @@ public class CustomSeperation<T extends Vector<T>> extends GroupBehavior<T> impl
         // Add the acceleration
         // Optimized code for linear.mulAdd(toAgent.nor(), strength);
         linear.mulAdd(toAgent.nor(), strength / Gdx.graphics.getDeltaTime());
-        System.out.println(linear);
 
         return true;
     }

@@ -458,9 +458,7 @@ public class BlockChain {
             }
             cancelButton.Render(batch);
 
-
-
-
+            /*
             debugFont.draw(batch, Integer.toString(lineNo),  GetX(), position.y);
             if(GetAboveBlockChain() != null) {
                 debugFont.draw(batch, "Above : " + Integer.toString(aboveBlockChain.lineNo), GetX() + 160, position.y);
@@ -474,7 +472,7 @@ public class BlockChain {
             if(parentContainer != null){
                 debugFont.draw(batch, "First in parent container : " + Integer.toString(parentContainer.get(0).lineNo),  GetX() + 680, position.y);
             }
-
+            */
 
         }
     }
@@ -829,10 +827,18 @@ public class BlockChain {
 
     private boolean ShouldBeDestroyedWhenEmpty()
     {
-        //Don't delete if this chain is the first in its indentation level
-        if(GetFirstInParentContainer() != null) {
-            if (this.lineNo == GetFirstInParentContainer().lineNo) {
+        //Don't delete if this chain is the first or last in its indentation level
+        if((GetFirstInParentContainer() != null) && (parentContainer != null)) {
+            if (this.lineNo == GetFirstInParentContainer().lineNo){
                 return false;
+            }
+            else if(this.lineNo == parentContainer.get(parentContainer.size() -1).lineNo){
+                if((parentContainer.size() == 2) && (GetFirstInParentContainer().IsEmpty())) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
             } else {
                 if(GetAboveBlockChain() != null){
                     if(CheckIfChainsAreInSameIndentationLevel(this, GetAboveBlockChain()) == false){

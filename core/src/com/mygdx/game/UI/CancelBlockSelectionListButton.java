@@ -23,7 +23,6 @@ public class CancelBlockSelectionListButton extends Button
     @Override
     protected void Trigger()
     {
-        System.out.println("CancelBlockSelectionButtonTriggered");
         blockList.CancelButtonPushed();
     }
 }

@@ -39,6 +39,7 @@ public class PlayState extends State implements InputProcessor
     private SpriteBatch foreGroundBatch = new SpriteBatch();
     private SpriteBatch hudBatch = new SpriteBatch();
     private OrthographicCamera camera;
+    private OrthographicCamera uiCam;
     private Vector2 cameraVelocity = new Vector2(0,0);
     private Vector2 lastFrameCamPos = new Vector2(0,0);
 
@@ -69,6 +70,12 @@ public class PlayState extends State implements InputProcessor
     {
         super(StateID.PLAY_STATE);
     }
+
+    @Override
+    public void RunOnGameOpen() {
+
+    }
+
     //Abstract method that runs on state initialisation, for loading resources
     public boolean Load()
     {
@@ -76,14 +83,18 @@ public class PlayState extends State implements InputProcessor
         Gdx.input.setInputProcessor(this);
         fpsFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
         camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+        uiCam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 
         gameObjectTextureSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         greyButtonsSheet.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
 
         SetupButtons();
 
         camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
         camera.update();
+        uiCam.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+        uiCam.update();
 
         shipHandler = new ShipHandler(gameObjectTextureSheet, bulletPool, playerShotBullets, enemyShotBullets);
 
@@ -115,6 +126,7 @@ public class PlayState extends State implements InputProcessor
 
         camera = null;
     }
+
     // Abstract method intended to act as the main loop of the state.
     public void Update(HashMap<Integer,TouchInfo> touches)
     {
@@ -132,7 +144,7 @@ public class PlayState extends State implements InputProcessor
         }
         KillOffscreenBullets();
 
-        returnToEditorButton.Update(camera);
+        returnToEditorButton.Update(uiCam);
         gameTime += elapsed;
 
     }

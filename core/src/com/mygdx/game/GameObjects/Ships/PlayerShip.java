@@ -67,6 +67,8 @@ public class PlayerShip extends Ship{
 
     private static Vector2 collisionBoxNegativeOffset = new Vector2(20,0);
 
+    boolean shouldWander = false;
+
     public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, TextureAtlas destructionExplosionAtlas)
     {
         super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
@@ -83,6 +85,7 @@ public class PlayerShip extends Ship{
         this.frigs = frigs;
         this.fighters = fighters;
 
+
         autoCannon.SetIsAutoFiring(true);
         laser.SetIsAutoFiring(true);
         torpedo.SetIsAutoFiring(true);
@@ -91,6 +94,9 @@ public class PlayerShip extends Ship{
         //This is a dumb hack but it works. We're repurposing the script structure from the editor state to store logic in the game, (mainly due to the tech debt we racked up using it to load in xml, but either way, it needs a texture, so just give it any old texture, its never displayed
         playerAI = new FullBlockScript(gameObjectTexSheet,null,null);
         ScriptSaver.LoadScript(playerAI, ScriptSaver.workingScriptPath);
+
+        blendedSteering.add(sepationBehavior, 150.0f);
+
     }
 
     public void Update(float elapsed, OrthographicCamera camera, ArrayList<Bullet> bullets)
@@ -104,12 +110,16 @@ public class PlayerShip extends Ship{
 
         pursueTargets.clear();
         evadeTargets.clear();
+        pursueBehavior.setTarget(this);
+        evadeBehavior.setTarget(this);
         attackTargets.clear();
         ParseLogicScript();
+
 
         ResolveWeaponAttackTarget(caps, frigs, fighters, autoCannon, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, laser, camera);
         ResolveWeaponAttackTarget(caps, frigs, fighters, torpedo, camera);
+        ResolveWander();
         ResolvePersueTargets(caps, frigs, fighters, camera);
         ResolveEvadeTargets(caps, frigs, fighters, camera);
 
@@ -142,6 +152,7 @@ public class PlayerShip extends Ship{
                 if(nextChain.GetBlockList().get(0).GetBlockType() == LogicGroups.LogicBlockType.ATTACK){ ParseAttackLine(ScriptSaver.ConvertBlockChainToTypeLine(nextChain));}
                 else if(nextChain.GetBlockList().get(0).GetBlockType() == LogicGroups.LogicBlockType.PURSUE){ ParsePersueLine(ScriptSaver.ConvertBlockChainToTypeLine(nextChain));}
                 else if(nextChain.GetBlockList().get(0).GetBlockType() == LogicGroups.LogicBlockType.EVADE){ ParseEvadeLine(ScriptSaver.ConvertBlockChainToTypeLine(nextChain));}
+                else if(nextChain.GetBlockList().get(0).GetBlockType() == LogicGroups.LogicBlockType.WANDER){ ParseWanderLine(ScriptSaver.ConvertBlockChainToTypeLine(nextChain));}
             }
 
             nextChain = nextChain.GetBelowBlockChain();
@@ -199,8 +210,8 @@ public class PlayerShip extends Ship{
         ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(whenEnemiesLine);
 
         //Distances for close and far
-        float closeDistance = 180.0f;
-        float farDistance = 500.0f;
+        float closeDistance = 280.0f;
+        //float farDistance = 600.0f;
 
         boolean enemyIsFighters = false;
         boolean enemyIsFrigates = false;
@@ -240,21 +251,21 @@ public class PlayerShip extends Ship{
         else if(workingLine.get(0) == LogicGroups.LogicBlockType.FAR){
             if(enemyIsFighters){
                 for(EnemyFighterShip ship : fighters){
-                    if(ship.GetCenterPosition().dst(GetCenterPosition()) > farDistance){
+                    if(ship.GetCenterPosition().dst(GetCenterPosition()) > closeDistance){
                         return true;
                     }
                 }
             }
             else if(enemyIsFrigates){
                 for(EnemyFrigateShip ship : frigs){
-                    if(ship.GetCenterPosition().dst(GetCenterPosition()) > farDistance){
+                    if(ship.GetCenterPosition().dst(GetCenterPosition()) > closeDistance){
                         return true;
                     }
                 }
             }
             if(enemyIsCaps){
                 for(EnemyCapitalShip ship : caps){
-                    if(ship.GetCenterPosition().dst(GetCenterPosition()) > farDistance){
+                    if(ship.GetCenterPosition().dst(GetCenterPosition()) > closeDistance){
                         return true;
                     }
                 }
@@ -356,6 +367,14 @@ public class PlayerShip extends Ship{
         evadeTargets.add(new Target(target, weapon, speed));
     }
 
+    private void ParseWanderLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
+    {
+        ArrayList<LogicGroups.LogicBlockType> workingLine = new ArrayList<LogicGroups.LogicBlockType>(logicLine);
+        workingLine.remove(0); //Remove the first element of the line, since we know it's wander
+
+        shouldWander = true;
+    }
+
     //Takes the list of targets that the logic script has loaded in, and resolves what should be targetted and how much
     private void ResolveWeaponAttackTarget(ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, Gun weapon, OrthographicCamera camera)
     {
@@ -438,6 +457,9 @@ public class PlayerShip extends Ship{
     private void ResolvePersueTargets(ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, OrthographicCamera camera)
     {
         if(pursueTargets.size() > 0) {
+
+            pursueBehavior.setEnabled(true);
+
             SteerableObject closestCap = null;
             SteerableObject closestFrig = null;
             SteerableObject closestFighter = null;
@@ -470,7 +492,6 @@ public class PlayerShip extends Ship{
                     }
                 }
                 if(target.target == Utility.Target.FRIGATE){
-                    System.out.println("Frigs");
                     if(closestFrig != null) {
                         if (closestCandidateObj == null) {
                             closestCandidateObj = closestFrig;
@@ -622,6 +643,15 @@ public class PlayerShip extends Ship{
 
         }
 
+    }
+
+    private void ResolveWander(){
+        if(shouldWander){
+            noiseAddWanderBehavior.setEnabled(true);
+        }
+        else {
+            noiseAddWanderBehavior.setEnabled(false);
+        }
     }
 
     private void CustomLogic()

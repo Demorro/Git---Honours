@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class EnemyFrigateShip extends Ship {
 
     private static float shipRadius = 50;
-    private static float maxLinearVelocity = 260;
+    private static float maxLinearVelocity = 120;
     private static float maxLinearVelocityAccel = 200;
     private static float maxAngularVelocity = 30;
     private static float maxAngularVelocityAccel = 10;
@@ -34,17 +34,21 @@ public class EnemyFrigateShip extends Ship {
     public static int destroyScore = 20;
 
     public EnemyFrigateShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 220, 545, 110, 114), 250, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 220, 545, 110, 114), 30, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
 
         SetPursueTarget(player, Utility.Speed.MODERATE);
         this.player = player;
 
         noOfDeathExplosions = 15;
 
-        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 1.5f, new Rectangle(316,728,16,64), GetCenterPosition(),2, Utility.Weapon.AUTOCANNON);
+        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 2.5f, new Rectangle(316,728,16,64), GetCenterPosition(),2, Utility.Weapon.AUTOCANNON);
         autoCannon.SetFastMedSlowFireRate(0.5f, 0.22f, 0.32f);
         autoCannon.SetFireRate(Utility.Speed.QUICK, false);
         autoCannon.SetTarget(player);
+
+        blendedSteering.add(avoidObjectBehavior, 0.4f);
+        blendedSteering.add(sepationBehavior, 500.0f);
+        blendedSteering.add(noiseAddWanderBehavior, 0.1f);
 
     }
 

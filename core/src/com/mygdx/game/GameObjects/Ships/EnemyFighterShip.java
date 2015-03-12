@@ -36,7 +36,7 @@ public class EnemyFighterShip extends Ship {
     public static int destroyScore = 5;
 
     public EnemyFighterShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 10, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 1.5f, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
         SetPursueTarget(player, Utility.Speed.QUICK);
 
         this.player = player;
@@ -50,6 +50,10 @@ public class EnemyFighterShip extends Ship {
         torpedo.SetTarget(player);
 
         noOfDeathExplosions = 5;
+
+        blendedSteering.add(avoidObjectBehavior, 0.4f);
+        blendedSteering.add(sepationBehavior, 500.0f);
+        blendedSteering.add(noiseAddWanderBehavior, 0.1f);
     }
 
     public void Update(float elapsed, OrthographicCamera camera, ArrayList<Bullet> bullets)

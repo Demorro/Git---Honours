@@ -18,9 +18,8 @@ public class WanderBlock extends LogicBlock
     @Override
     public ArrayList<LogicGroups.LogicGroup> GetNextLogicGroup(LogicBlock previousBlock)
     {
-        ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
-        nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
-        return nextLogicGroups;
+        //ArrayList<LogicGroups.LogicGroup> nextLogicGroups = new ArrayList<LogicGroups.LogicGroup>();
+        return null;
     }
 
     @Override

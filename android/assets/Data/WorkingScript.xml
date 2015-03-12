@@ -1,20 +1,9 @@
 <?xml version="1.0" ?>
 <PlayerLogicScript>
   <Line>
-    <Block>ATTACK</Block>
+    <Block>EVADE</Block>
     <Block>CAPITALSHIP</Block>
-    <Block>AUTOCANNON</Block>
     <Block>QUICKLY</Block>
   </Line>
-  <Line>
-    <Block>ATTACK</Block>
-    <Block>CAPITALSHIP</Block>
-    <Block>AUTOCANNON</Block>
-    <Block>QUICKLY</Block>
-  </Line>
-</PlayerLogicScript><Line>
-  <Block>ATTACK</Block>
-  <Block>FIGHTERSHIP</Block>
-  <Block>MISSILE</Block>
-  <Block>QUICKLY</Block>
-</Line>
+  <Line></Line>
+</PlayerLogicScript>

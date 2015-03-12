@@ -58,9 +58,11 @@ public class FullBlockScript
         blockTextureSheet = blockSheet;
         this.buttonsToDisable = buttonsToDisable;
         ResetScript();
+
+        ScriptSaver.LoadScript(this, ScriptSaver.workingScriptPath);
     }
 
-    private void ResetScript()
+    public void ResetScript()
     {
         blockChains.clear();
         AddNewChain(blockChainStartPos.x, blockChainStartPos.y);

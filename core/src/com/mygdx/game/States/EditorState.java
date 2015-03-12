@@ -56,6 +56,12 @@ public class EditorState extends State implements InputProcessor
     {
         super(State.StateID.EDITOR_STATE);
     }
+
+    @Override
+    public void RunOnGameOpen() {
+        scriptContainer.ResetScript();
+    }
+
     //Abstract method that runs on state initialisation, for loading resources
     public boolean Load()
     {

@@ -62,6 +62,7 @@ public class ShipHandler {
         player = new PlayerShip(gameObjectTextureSheet, bulletPool, playerShotBullets, caps, frigs, fighters, largeExplosionAtlas);
         player.setPosition(0,0);
 
+        /*
         EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet,player, largeExplosionAtlas, bulletPool, enemyShotBullets);
         testCap.setPosition(-500,300);
         caps.add(testCap);
@@ -83,10 +84,12 @@ public class ShipHandler {
         fighters.add(testFighter);
         fighters.add(testFighter1);
         fighters.add(testFighter2);
+        */
 
         this.playerShotBullets = playerShotBullets;
         this.enemyShotBullets = enemyShotBullets;
         this.bulletPool = bulletPool;
+
 
         SetupSteerables();
     }

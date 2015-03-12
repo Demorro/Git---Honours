@@ -125,8 +125,7 @@ public class Ship extends SteerableObject{
         sepationBehavior.setDecayCoefficient(1);
         noiseAddWanderBehavior.setOwner(this);
         noiseAddWanderBehavior.setFaceEnabled(false);
-        noiseAddWanderBehavior.setEnabled(false);
-        noiseAddWanderBehavior.setWanderRate(2500);
+        noiseAddWanderBehavior.setEnabled(true);
         cohesionBehavior.setEnabled(false);
         alignmentBehavior.setEnabled(false);
 
@@ -137,11 +136,9 @@ public class Ship extends SteerableObject{
 
         blendedSteering.add(pursueBlend);
         blendedSteering.add(evadeBlend);
-        blendedSteering.add(avoidObjectBehavior, 0.4f);
+        blendedSteering.add(noiseAddWanderBehavior, 0.2f);
+        //blendedSteering.add(avoidObjectBehavior, 0.4f);
         //blendedSteering.add(sepationBehavior, 500.0f);
-        blendedSteering.add(noiseAddWanderBehavior, 0.1f);
-        blendedSteering.add(alignmentBehavior,0.5f);
-        blendedSteering.add(cohesionBehavior,0.5f);
 
         this.collisionBoxNegativeOffset = collisionBoxNegativeOffset;
         this.destructionExplosionAtlas = destructionExplosionAtlas;
@@ -171,11 +168,13 @@ public class Ship extends SteerableObject{
 
             blendedSteering.calculateSteering(steeringOutput);
 
+            /*
             if ((pursueBehavior.isEnabled()) || (evadeBehavior.isEnabled())) {
                 noiseAddWanderBehavior.setEnabled(true);
             } else {
                 noiseAddWanderBehavior.setEnabled(false);
             }
+            */
             applySteering(steeringOutput, elapsed);
 
             BulletCollision(bullets);

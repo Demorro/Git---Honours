@@ -38,6 +38,8 @@ public abstract class State
     public abstract boolean Load();
     //Put dispose logic of anything in the state here to prevent memory leaks
     public abstract void Dispose();
+    //If this state is first, runs this function runs when the game first opens, before anything, (except construction)
+    public abstract void RunOnGameOpen();
 
     // Returns the targetID variable.
     public StateID GetTarget()

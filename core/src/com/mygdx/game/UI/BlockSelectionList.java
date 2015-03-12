@@ -171,11 +171,11 @@ public class BlockSelectionList {
                 Vector2 screenInput = Utility.GetScreenSpaceInput();
                 screenInput.set(screenInput.x + camera.position.x - Gdx.graphics.getWidth()/2, screenInput.y + camera.position.y - Gdx.graphics.getHeight()/2);
                 if(selectionBlocks.get(GetUpperIndex()).GetBoundingRectangle().contains(screenInput)) {
-                    ScrollUp();
+                    ScrollDown();
                     return;
                 }
                 else if(selectionBlocks.get(GetLowerIndex()).GetBoundingRectangle().contains(screenInput)) {
-                    ScrollDown();
+                    ScrollUp();
                     return;
                 }
             }
