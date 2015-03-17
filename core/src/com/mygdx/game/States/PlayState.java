@@ -81,7 +81,7 @@ public class PlayState extends State implements InputProcessor
     {
 
         Gdx.input.setInputProcessor(this);
-        fpsFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        fpsFont =  new BitmapFont(Gdx.files.internal("Fonts/gamefont.fnt"));
         camera = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
         uiCam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 
@@ -256,6 +256,4 @@ public class PlayState extends State implements InputProcessor
     public boolean scrolled(int amount) {
         return false;
     }
-
-
 }

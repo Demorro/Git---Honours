@@ -16,7 +16,7 @@ public class BlockDescriptionPanel extends Sprite
     private static String defaultString = "Touch the green arrow to begin building your ships logic.";
     private String descriptionText = "";
     private static Vector2 offsetFromTopRight = new Vector2(30,25);
-    private static Vector2 textOffset = new Vector2(20,45);
+    private static Vector2 textOffset = new Vector2(20,30);
 
     public BlockDescriptionPanel(float xPos, float yPos, BitmapFont font, Texture panelTexture, float screenWidth, float screenHeight){
         super(panelTexture);

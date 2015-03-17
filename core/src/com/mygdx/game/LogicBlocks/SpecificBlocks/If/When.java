@@ -27,6 +27,6 @@ public class When extends LogicBlock
 
     @Override
     public String GetBlockDescription(){
-        return "Actions inside a When statement are only performed if the statement condition is met.";
+        return "Actions inside a When statement are only performed if the condition is met.";
     }
 }

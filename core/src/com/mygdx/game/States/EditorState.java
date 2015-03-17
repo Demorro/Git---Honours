@@ -71,7 +71,7 @@ public class EditorState extends State implements InputProcessor
         Tween.registerAccessor(Sprite.class, new SpriteAccessor());
         Tween.registerAccessor(BlockChain.class, new BlockChainAccessor());
 
-        fpsFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        fpsFont =  new BitmapFont(Gdx.files.internal("Fonts/gamefont.fnt"));
 
 
         fpsFont.setOwnsTexture(true);
