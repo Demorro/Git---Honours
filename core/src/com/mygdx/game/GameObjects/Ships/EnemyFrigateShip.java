@@ -1,5 +1,6 @@
 package com.mygdx.game.GameObjects.Ships;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -33,15 +34,15 @@ public class EnemyFrigateShip extends Ship {
 
     public static int destroyScore = 20;
 
-    public EnemyFrigateShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 220, 545, 110, 114), 30, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
+    public EnemyFrigateShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, Camera cam) {
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 220, 545, 110, 114), 30, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas, cam);
 
         SetPursueTarget(player, Utility.Speed.MODERATE);
         this.player = player;
 
         noOfDeathExplosions = 15;
 
-        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 2.5f, new Rectangle(316,728,16,64), GetCenterPosition(),2, Utility.Weapon.AUTOCANNON);
+        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 3, new Rectangle(316,728,16,64), GetCenterPosition(),2, Utility.Weapon.AUTOCANNON, cam);
         autoCannon.SetFastMedSlowFireRate(0.5f, 0.22f, 0.32f);
         autoCannon.SetFireRate(Utility.Speed.QUICK, false);
         autoCannon.SetTarget(player);

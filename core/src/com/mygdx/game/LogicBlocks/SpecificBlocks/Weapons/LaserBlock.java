@@ -28,7 +28,7 @@ public class LaserBlock extends LogicBlock
             if (previousBlock.GetBlockType() == LogicGroups.LogicBlockType.WHEN) {
                 nextLogicGroups.add(LogicGroups.LogicGroup.IFWEAPON);
             } else {
-                nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
+                return null;
             }
         }
         return nextLogicGroups;

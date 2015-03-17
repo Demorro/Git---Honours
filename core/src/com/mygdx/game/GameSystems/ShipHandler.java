@@ -1,6 +1,7 @@
 package com.mygdx.game.GameSystems;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -33,14 +34,15 @@ public class ShipHandler {
     private PlayerShip player;
 
     //Ship spawning
-    private static int maxCapitalShips = 1;
+    private static int maxCapitalShips = 2;
     private static int maxFrigateShips = 2;
     private static int maxFighterShips = 2;
-    private static int chanceToSpawnCapitalShip = 3; //Out of 100
+    private static int chanceToSpawnCapitalShip = 2; //Out of 100
     private static int chanceToSpawnFrigateShip = 10; //Out of 100
     private static int chanceToSpawnFighterShip = 25; //Out of 100
     private static float timeTOCheckShipSpawn = 0.5f;
     private float shipSpawnTimer = 0.0f;
+    private static int shipDestructionDistance = 2400; //If a ship is this far from the player it will be destroyed.
 
 
     //Reference to the bullet arrays
@@ -53,38 +55,19 @@ public class ShipHandler {
     //reference to the texture sheet
     Texture gameObjectTextureSheet = null;
 
-    public ShipHandler(Texture gameObjectTextureSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> playerShotBullets, ArrayList<Bullet> enemyShotBullets){
+    private Camera gameCam;
+
+    public ShipHandler(Texture gameObjectTextureSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> playerShotBullets, ArrayList<Bullet> enemyShotBullets, com.badlogic.gdx.graphics.Camera cam){
 
         this.gameObjectTextureSheet = gameObjectTextureSheet;
 
         largeExplosionAtlas = new TextureAtlas(Gdx.files.internal("Images/LargeExplosion/LargeExplosion.txt"));
 
-        player = new PlayerShip(gameObjectTextureSheet, bulletPool, playerShotBullets, caps, frigs, fighters, largeExplosionAtlas);
+        this.gameCam = cam;
+
+        player = new PlayerShip(gameObjectTextureSheet, bulletPool, playerShotBullets, caps, frigs, fighters, largeExplosionAtlas, cam);
         player.setPosition(0,0);
 
-        /*
-        EnemyCapitalShip testCap = new EnemyCapitalShip(gameObjectTextureSheet,player, largeExplosionAtlas, bulletPool, enemyShotBullets);
-        testCap.setPosition(-500,300);
-        caps.add(testCap);
-
-        EnemyFrigateShip testFrig = new EnemyFrigateShip(gameObjectTextureSheet, player, largeExplosionAtlas, bulletPool, enemyShotBullets);
-        testFrig.setPosition(400,100);
-        EnemyFrigateShip testFrig2 = new EnemyFrigateShip(gameObjectTextureSheet, player, largeExplosionAtlas, bulletPool, enemyShotBullets);
-        testFrig.setPosition(400,100);
-        testFrig2.setPosition(-350, -200);
-        frigs.add(testFrig);
-        // frigs.add(testFrig2);
-
-        EnemyFighterShip testFighter = new EnemyFighterShip(gameObjectTextureSheet, player, largeExplosionAtlas, bulletPool, enemyShotBullets);
-        testFighter.setPosition(700,200);
-        EnemyFighterShip testFighter1 = new EnemyFighterShip(gameObjectTextureSheet, player, largeExplosionAtlas, bulletPool, enemyShotBullets);
-        testFighter1.setPosition(800,200);
-        EnemyFighterShip testFighter2 = new EnemyFighterShip(gameObjectTextureSheet, player, largeExplosionAtlas, bulletPool, enemyShotBullets);
-        testFighter2.setPosition(600,200);
-        fighters.add(testFighter);
-        fighters.add(testFighter1);
-        fighters.add(testFighter2);
-        */
 
         this.playerShotBullets = playerShotBullets;
         this.enemyShotBullets = enemyShotBullets;
@@ -113,6 +96,7 @@ public class ShipHandler {
         }
 
         DestroyDeadShips();
+        DestroyOverlyFarShips();
 
         //Do spawn ships
         shipSpawnTimer += elapsed;
@@ -167,7 +151,7 @@ public class ShipHandler {
         if(caps.size() < maxCapitalShips){
             if(MathUtils.random(0,100) < chanceToSpawnCapitalShip){
                 //Spawn new capital
-                EnemyCapitalShip capitalShipToAdd = new EnemyCapitalShip(gameObjectTextureSheet,player, largeExplosionAtlas, bulletPool, enemyShotBullets);
+                EnemyCapitalShip capitalShipToAdd = new EnemyCapitalShip(gameObjectTextureSheet,player, largeExplosionAtlas, bulletPool, enemyShotBullets, gameCam);
                 Vector2 pointToSpawnAt = GenPointOutsideOfCam(camera);
                 capitalShipToAdd.setPosition(pointToSpawnAt.x, pointToSpawnAt.y);
                 caps.add(capitalShipToAdd);
@@ -179,7 +163,7 @@ public class ShipHandler {
         if(frigs.size() < maxFrigateShips){
             if(MathUtils.random(0,100) < chanceToSpawnFrigateShip){
                 //Spawn new frigate
-                EnemyFrigateShip frigateShipToAdd = new EnemyFrigateShip(gameObjectTextureSheet,player, largeExplosionAtlas, bulletPool, enemyShotBullets);
+                EnemyFrigateShip frigateShipToAdd = new EnemyFrigateShip(gameObjectTextureSheet,player, largeExplosionAtlas, bulletPool, enemyShotBullets, gameCam);
                 Vector2 pointToSpawnAt = GenPointOutsideOfCam(camera);
                 frigateShipToAdd.setPosition(pointToSpawnAt.x, pointToSpawnAt.y);
                 frigs.add(frigateShipToAdd);
@@ -191,13 +175,32 @@ public class ShipHandler {
         if(fighters.size() < maxFighterShips){
             if(MathUtils.random(0,100) < chanceToSpawnFighterShip){
                 //Spawn new fighter
-                EnemyFighterShip fighterShipToAdd = new EnemyFighterShip(gameObjectTextureSheet,player, largeExplosionAtlas, bulletPool, enemyShotBullets);
+                EnemyFighterShip fighterShipToAdd = new EnemyFighterShip(gameObjectTextureSheet,player, largeExplosionAtlas, bulletPool, enemyShotBullets, gameCam);
                 Vector2 pointToSpawnAt = GenPointOutsideOfCam(camera);
                 fighterShipToAdd.setPosition(pointToSpawnAt.x, pointToSpawnAt.y);
                 fighters.add(fighterShipToAdd);
                 SetupSteerables();
 
                 System.out.println("Spawning Fighter Ship");
+            }
+        }
+    }
+
+    //Destroys any ships that are overly far away, so new, closer ones can be spawned
+    private void DestroyOverlyFarShips(){
+        for(int i = 0; i < caps.size(); i++) {
+            if(caps.get(i).GetCenterPosition().dst(player.GetCenterPosition()) > shipDestructionDistance){
+                caps.remove(i);
+            }
+        }
+        for(int i = 0; i < frigs.size(); i++) {
+            if(frigs.get(i).GetCenterPosition().dst(player.GetCenterPosition()) > shipDestructionDistance){
+                frigs.remove(i);
+            }
+        }
+        for(int i = 0; i < fighters.size(); i++) {
+            if(fighters.get(i).GetCenterPosition().dst(player.GetCenterPosition()) > shipDestructionDistance){
+                fighters.remove(i);
             }
         }
     }

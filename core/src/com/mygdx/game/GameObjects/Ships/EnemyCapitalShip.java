@@ -1,6 +1,7 @@
 package com.mygdx.game.GameObjects.Ships;
 
 import com.badlogic.gdx.ai.steer.behaviors.Pursue;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -21,21 +22,21 @@ import java.util.ArrayList;
 public class EnemyCapitalShip extends Ship {
 
     private static float shipRadius = 150;
-    private static float maxLinearVelocity = 80;
-    private static float maxLinearVelocityAccel = 50;
+    private static float maxLinearVelocity = 100;
+    private static float maxLinearVelocityAccel = 60;
     private static float maxAngularVelocity = 30;
     private static float maxAngularVelocityAccel = 10;
 
     private PlayerShip player;
-    private float fleeRadius = 400; //If the ship is in this radius, it flees.
-    private float pursueRadius = 500; //if fleeing, and we get to this point, we start pursuing
+    private float fleeRadius = 350; //If the ship is in this radius, it flees.
+    private float pursueRadius = 450; //if fleeing, and we get to this point, we start pursuing
 
     private static Vector2 collisionBoxNegativeOffset = new Vector2(46,40);
 
     public static int destroyScore = 50;
 
-    public EnemyCapitalShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 0, 545, 200, 178) , 70, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel,collisionBoxNegativeOffset,destructionExplosionAtlas);
+    public EnemyCapitalShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, Camera cam) {
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 0, 545, 200, 178) , 70, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel,collisionBoxNegativeOffset,destructionExplosionAtlas, cam);
 
         SetPursueTarget(player, Utility.Speed.MODERATE);
         this.player = player;
@@ -43,8 +44,8 @@ public class EnemyCapitalShip extends Ship {
         noOfDeathExplosions = 40;
         timeBetweenExplosionSpawns = 0.02f;
 
-        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 220, 8, new Rectangle(78,768,30,30), GetCenterPosition(), 0, Utility.Weapon.MISSILE);
-        torpedo.SetFastMedSlowFireRate(3.5f, 7.5f, 9.5f);
+        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 220, 8, new Rectangle(78,768,30,30), GetCenterPosition(), 0, Utility.Weapon.MISSILE, cam);
+        torpedo.SetFastMedSlowFireRate(2.4f, 5.0f, 7.5f);
         torpedo.SetFireRate(Utility.Speed.QUICK, false);
         torpedo.SetTarget(player);
 
@@ -78,7 +79,9 @@ public class EnemyCapitalShip extends Ship {
 
         if((player.getPosition().dst(getPosition()) > fleeRadius)){
             if(torpedo.CanFireRightNow()) {
-                torpedo.ShootAtTarget();
+                if(gameCam.frustum.pointInFrustum(GetCenterPosition().x, GetCenterPosition().y, 0)){
+                    torpedo.ShootAtTarget();
+                }
             }
         }
     }

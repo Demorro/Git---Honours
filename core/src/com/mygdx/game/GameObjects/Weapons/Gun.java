@@ -1,12 +1,14 @@
 package com.mygdx.game.GameObjects.Weapons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool;
 import com.mygdx.game.GameObjects.GameObject;
 import com.mygdx.game.GameObjects.Ships.Ship;
@@ -48,7 +50,9 @@ public class Gun {
 
     private TextureAtlas bulletExplosionAtlas;
 
-    public Gun(Pool<Bullet> bulletPool, ArrayList<Bullet> activeBullets, Texture gameObjectTextureSheet, float bulletSpeed, float bulletDamage, Rectangle bulletTextureBounds, Vector2 firingPos, float accuracyConeVariance, Utility.Weapon weaponType)
+    private Camera gameCam;
+
+    public Gun(Pool<Bullet> bulletPool, ArrayList<Bullet> activeBullets, Texture gameObjectTextureSheet, float bulletSpeed, float bulletDamage, Rectangle bulletTextureBounds, Vector2 firingPos, float accuracyConeVariance, Utility.Weapon weaponType, Camera cam)
     {
         this.bulletPool = bulletPool;
         this.activeBullets = activeBullets;
@@ -61,6 +65,8 @@ public class Gun {
         this.autoFireTimeBetweenShots = MODERATE_FIRE_TIME_BETWEEN_SHOTS;
 
         this.weaponType = weaponType;
+
+        this.gameCam = cam;
 
         if(weaponType == Utility.Weapon.AUTOCANNON){
             bulletExplosionAtlas = new TextureAtlas(Gdx.files.internal("Images/SmallExplosion/SmallExplosion.txt"));
@@ -106,6 +112,12 @@ public class Gun {
         Shoot(target.GetCenterPosition());
     }
     public void Shoot(Vector2 targetPosition){
+
+        //Dont shoot if the targetPosition isn't on screen
+        if(!gameCam.frustum.pointInFrustum(new Vector3(targetPosition.x, targetPosition.y, 0))){
+            return;
+        }
+
         float accuracyVariance = MathUtils.random(-accuracyConeVariance,accuracyConeVariance);
 
         Vector2 firingVector = new Vector2(targetPosition.x - position.x, targetPosition.y - position.y);

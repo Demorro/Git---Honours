@@ -1,9 +1,4 @@
 <?xml version="1.0" ?>
 <PlayerLogicScript>
-  <Line>
-    <Block>EVADE</Block>
-    <Block>CAPITALSHIP</Block>
-    <Block>QUICKLY</Block>
-  </Line>
   <Line></Line>
 </PlayerLogicScript>

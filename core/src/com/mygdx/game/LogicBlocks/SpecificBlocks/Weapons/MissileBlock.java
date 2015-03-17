@@ -27,7 +27,7 @@ public class MissileBlock extends LogicBlock
             nextLogicGroups.add(LogicGroups.LogicGroup.IFWEAPON);
         }
         else{
-            nextLogicGroups.add(LogicGroups.LogicGroup.SPEED);
+            return null;
         }
         return nextLogicGroups;
     }

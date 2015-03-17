@@ -7,6 +7,7 @@ import com.badlogic.gdx.ai.steer.Steerable;
 import com.badlogic.gdx.ai.steer.SteeringAcceleration;
 import com.badlogic.gdx.ai.steer.SteeringBehavior;
 import com.badlogic.gdx.ai.steer.behaviors.*;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -94,11 +95,15 @@ public class Ship extends SteerableObject{
     private static float fadeOutSpeed = 1.5f;
     private boolean needsToBeDestroyed = false;
 
-    public Ship(Texture gameObjectTexSheet, TextureRegion shipRegion, float startHealth, float boundingRadius, float maxLinearSpeed, float maxLinearAcceleration, float maxAngularSpeed, float maxAngularAcceleration, Vector2 collisionBoxNegativeOffset, TextureAtlas destructionExplosionAtlas)
+    protected Camera gameCam;
+
+    public Ship(Texture gameObjectTexSheet, TextureRegion shipRegion, float startHealth, float boundingRadius, float maxLinearSpeed, float maxLinearAcceleration, float maxAngularSpeed, float maxAngularAcceleration, Vector2 collisionBoxNegativeOffset, TextureAtlas destructionExplosionAtlas, Camera cam)
     {
         super(gameObjectTexSheet);
         this.shipRegion = shipRegion;
         setRegion(shipRegion);
+
+        this.gameCam = cam;
 
         hp = startHealth;
         maxHP = startHealth;
@@ -325,4 +330,5 @@ public class Ship extends SteerableObject{
     {
         return needsToBeDestroyed;
     }
+
 }

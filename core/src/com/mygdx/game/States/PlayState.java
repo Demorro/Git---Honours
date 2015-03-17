@@ -96,7 +96,7 @@ public class PlayState extends State implements InputProcessor
         uiCam.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
         uiCam.update();
 
-        shipHandler = new ShipHandler(gameObjectTextureSheet, bulletPool, playerShotBullets, enemyShotBullets);
+        shipHandler = new ShipHandler(gameObjectTextureSheet, bulletPool, playerShotBullets, enemyShotBullets, camera);
 
         return true;
     }
@@ -194,7 +194,8 @@ public class PlayState extends State implements InputProcessor
         int minutes = ((int)gameTime) / 60;
         int seconds = ((int)gameTime) % 60;
 
-        fpsFont.draw(hudBatch, minutes + "m  " + seconds + "s", Gdx.graphics.getWidth() - 120, 50);
+        //fpsFont.draw(hudBatch, minutes + "m  " + seconds + "s", Gdx.graphics.getWidth() - 120, 50);
+        fpsFont.draw(hudBatch, "Health : " + (int)shipHandler.GetPlayer().GetHealth(), Gdx.graphics.getWidth() - 180, 50);
         returnToEditorButton.Render(hudBatch);
         hudBatch.end();
 

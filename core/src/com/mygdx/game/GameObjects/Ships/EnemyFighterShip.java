@@ -1,5 +1,6 @@
 package com.mygdx.game.GameObjects.Ships;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -35,8 +36,8 @@ public class EnemyFighterShip extends Ship {
 
     public static int destroyScore = 5;
 
-    public EnemyFighterShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 1.5f, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
+    public EnemyFighterShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, Camera cam) {
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 350, 545, 74, 50) , 1.5f, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas, cam);
         SetPursueTarget(player, Utility.Speed.QUICK);
 
         this.player = player;
@@ -44,7 +45,7 @@ public class EnemyFighterShip extends Ship {
         SetBehaviorActive(cohesionBehavior, true);
         SetBehaviorActive(alignmentBehavior, true);
 
-        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 750, 1, new Rectangle(275,770,30,30), GetCenterPosition(), 6, Utility.Weapon.MISSILE);
+        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 750, 2, new Rectangle(275,770,30,30), GetCenterPosition(), 6, Utility.Weapon.MISSILE, cam);
         torpedo.SetFastMedSlowFireRate(3.0f, 5.0f, 8.0f);
         torpedo.SetFireRate(Utility.Speed.QUICK, false);
         torpedo.SetTarget(player);

@@ -7,6 +7,7 @@ import com.badlogic.gdx.ai.steer.behaviors.*;
 import com.badlogic.gdx.ai.steer.behaviors.Pursue;
 import com.badlogic.gdx.ai.steer.utils.Collision;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -25,6 +26,7 @@ import com.mygdx.game.GameObjects.Weapons.Target;
 import com.mygdx.game.LogicBlocks.BlockChain;
 import com.mygdx.game.LogicBlocks.FullBlockScript;
 import com.mygdx.game.LogicBlocks.LogicGroups;
+import com.mygdx.game.LogicBlocks.SpecificBlocks.Enemies.CapitalShipBlock;
 import com.mygdx.game.Utility.ScriptSaver;
 import com.mygdx.game.Utility.Utility;
 
@@ -69,16 +71,18 @@ public class PlayerShip extends Ship{
 
     boolean shouldWander = false;
 
-    public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, TextureAtlas destructionExplosionAtlas)
+    public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, TextureAtlas destructionExplosionAtlas, Camera cam)
     {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 150, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas, cam);
         this.gameObjectTexSheet = gameObjectTexSheet;
 
-        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 0.5f, new Rectangle(0,750,18,50), GetCenterPosition(),25, Utility.Weapon.AUTOCANNON);
+        this.gameCam = cam;
+
+        autoCannon = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1000, 0.5f, new Rectangle(0,750,18,50), GetCenterPosition(),25, Utility.Weapon.AUTOCANNON, cam);
         autoCannon.SetFastMedSlowFireRate(0.12f, 0.22f, 0.32f);
-        laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 2.5f, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER);
+        laser = new Gun(bulletPool, bulletList, gameObjectTexSheet, 1600, 2.5f, new Rectangle(30,731,12,69), GetCenterPosition(), 5, Utility.Weapon.LASER, cam);
         laser.SetFastMedSlowFireRate(0.4f, 1.0f, 1.8f);
-        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 20, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE);
+        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 400, 20, new Rectangle(78,768,30,30), GetCenterPosition(), 2, Utility.Weapon.MISSILE, cam);
         torpedo.SetFastMedSlowFireRate(2.5f, 4.0f, 6.5f);
 
         this.caps = caps;
@@ -673,8 +677,5 @@ public class PlayerShip extends Ship{
             }
         }
     }
-
-
-
 
 }
