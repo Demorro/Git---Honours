@@ -153,6 +153,7 @@ public class EditorState extends State implements InputProcessor
             protected void Trigger() {
                 scriptContainer.CloseAnyOpenLists();
                 scriptContainer.ResetScript();
+                scriptContainer.SaveScriptDirectly(ScriptSaver.workingScriptPath);
                 SwitchState(StateID.EDITOR_STATE);
             }
         };
