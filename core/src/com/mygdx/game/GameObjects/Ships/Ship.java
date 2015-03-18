@@ -114,6 +114,8 @@ public class Ship extends SteerableObject{
         this.maxAngularSpeed = maxAngularSpeed;
         this.maxAngularAcceleration = maxAngularAcceleration;
 
+        this.isDying = false;
+
         blendedSteering = new BlendedSteering<Vector2>(this);
 
         avoidObjectBehavior = new CustomCollisionAvoidance<Vector2>(this,this);
@@ -239,6 +241,7 @@ public class Ship extends SteerableObject{
     private void ExplodeAndDestroy()
     {
         isExploding = true;
+        isDying = true;
     }
 
     public void Render(SpriteBatch batch)
@@ -290,8 +293,10 @@ public class Ship extends SteerableObject{
                     Vector3 screenPos = new Vector3(obj.getX(), obj.getY(), 0);
                     if (camera.frustum.boundsInFrustum(screenPos.x, screenPos.y, screenPos.z, obj.getWidth() / 2, obj.getHeight() / 2, 1)) {
                         if (obj.GetCenterPosition().dst(this.GetCenterPosition()) < closestDistance) {
-                            closestDistance = obj.GetCenterPosition().dst(this.GetCenterPosition());
-                            closestObj = obj;
+                            if(obj.isDying == false) {
+                                closestDistance = obj.GetCenterPosition().dst(this.GetCenterPosition());
+                                closestObj = obj;
+                            }
                         }
                     }
                 }

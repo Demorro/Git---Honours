@@ -37,9 +37,9 @@ public class ShipHandler {
     private static int maxCapitalShips = 2;
     private static int maxFrigateShips = 2;
     private static int maxFighterShips = 2;
-    private static int chanceToSpawnCapitalShip = 2; //Out of 100
-    private static int chanceToSpawnFrigateShip = 10; //Out of 100
-    private static int chanceToSpawnFighterShip = 25; //Out of 100
+    private static int chanceToSpawnCapitalShip = 3; //Out of 100
+    private static int chanceToSpawnFrigateShip = 15; //Out of 100
+    private static int chanceToSpawnFighterShip = 30; //Out of 100
     private static float timeTOCheckShipSpawn = 0.5f;
     private float shipSpawnTimer = 0.0f;
     private static int shipDestructionDistance = 2400; //If a ship is this far from the player it will be destroyed.

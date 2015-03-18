@@ -27,6 +27,7 @@ public class ScriptSaver {
 
     public static String scriptFolderPath = "/Scripts/";
     public static String workingScriptPath = "Data/WorkingScript.xml"; //The path that the editor state will save to so the playstate can read from it
+    public static String testScriptStoragePath = "ScriptsToSendBack/TesterScript"; //The path that the editor state will save to so the playstate can read from it
 
     private static String internalXMLName = "PlayerLogicScript";
 
@@ -73,6 +74,9 @@ public class ScriptSaver {
             }
             writer.writeEndElement();
             writer.flush();
+
+
+            fos.close();
         }
         catch(IOException exc) {
         }

@@ -36,7 +36,7 @@ public class EnemyCapitalShip extends Ship {
     public static int destroyScore = 50;
 
     public EnemyCapitalShip(Texture gameObjectTexSheet, PlayerShip player, TextureAtlas destructionExplosionAtlas, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, Camera cam) {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 0, 545, 200, 178) , 70, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel,collisionBoxNegativeOffset,destructionExplosionAtlas, cam);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet, 0, 545, 200, 178) , 60, shipRadius, maxLinearVelocity, maxLinearVelocityAccel, maxAngularVelocity, maxAngularVelocityAccel,collisionBoxNegativeOffset,destructionExplosionAtlas, cam);
 
         SetPursueTarget(player, Utility.Speed.MODERATE);
         this.player = player;
@@ -44,7 +44,7 @@ public class EnemyCapitalShip extends Ship {
         noOfDeathExplosions = 40;
         timeBetweenExplosionSpawns = 0.02f;
 
-        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 220, 8, new Rectangle(78,768,30,30), GetCenterPosition(), 0, Utility.Weapon.MISSILE, cam);
+        torpedo = new Gun(bulletPool, bulletList, gameObjectTexSheet, 220, 12, new Rectangle(78,768,30,30), GetCenterPosition(), 0, Utility.Weapon.MISSILE, cam);
         torpedo.SetFastMedSlowFireRate(2.4f, 5.0f, 7.5f);
         torpedo.SetFireRate(Utility.Speed.QUICK, false);
         torpedo.SetTarget(player);

@@ -40,6 +40,8 @@ public class SteerableObject extends GameObject implements Steerable<Vector2>, P
     private static float dstToUpdateRot = 5.0f; //Distance the movement vector has to be to rotate the ship to it.
     private long frameId = 0;
 
+    public boolean isDying = false; //If this object sti.l exists, but is currently dying and shouldnt be targeted
+
     public SteerableObject(Texture gameObjectTexSheet)
     {
         super(gameObjectTexSheet);

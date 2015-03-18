@@ -22,6 +22,7 @@ import com.mygdx.game.UI.BlockDescriptionPanel;
 import jdk.internal.util.xml.impl.Input;
 
 import javax.swing.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ public class EditorState extends State implements InputProcessor
     private Button saveButton;
     private Button loadButton;
     private Button playButton;
+    private Button newScriptButton;
 
     private boolean isSaving = false; //If the save (or load!) dialog is open
 
@@ -136,8 +138,22 @@ public class EditorState extends State implements InputProcessor
             @Override
             protected void Trigger() {
                 scriptContainer.CloseAnyOpenLists();
+
                 scriptContainer.SaveScriptDirectly(ScriptSaver.workingScriptPath);
+
+                //Save a backup script with the timestamp for script evaluation
+                java.util.Date date= new java.util.Date();
+                scriptContainer.SaveScriptDirectly(ScriptSaver.testScriptStoragePath + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds()+  ".xml");
+
                 SwitchState(StateID.PLAY_STATE);
+            }
+        };
+        newScriptButton = new Button(greyButtonsSheet,0,0,98,36,0,39,98,34,false, false){
+            @Override
+            protected void Trigger() {
+                scriptContainer.CloseAnyOpenLists();
+                scriptContainer.ResetScript();
+                SwitchState(StateID.EDITOR_STATE);
             }
         };
 
@@ -153,6 +169,10 @@ public class EditorState extends State implements InputProcessor
         playButton.setPosition(Gdx.graphics.getWidth() - buttonOffsetFromRight - loadButton.getWidth() - buttonOffsetFromRight, 22);
         playButton.SetText("Play");
         playButton.SetTextOffset(0, 4);
+
+        newScriptButton.setPosition(15,15);
+        newScriptButton.SetText("Clear");
+        newScriptButton.SetTextOffset(0, 4);
     }
     //Abstract method that runs on state destruction, for cleaning up memory
     public void Dispose()
@@ -175,6 +195,7 @@ public class EditorState extends State implements InputProcessor
         saveButton.Update(uiCam);
         loadButton.Update(uiCam);
         playButton.Update(uiCam);
+        newScriptButton.Update(uiCam);
 
     }
     // Abstract method intended to render all objects of the state.
@@ -190,9 +211,10 @@ public class EditorState extends State implements InputProcessor
         saveButton.Render(spriteBatch);
         loadButton.Render(spriteBatch);
         playButton.Render(spriteBatch);
+        newScriptButton.Render(spriteBatch);
 
         descriptionPanel.Render(spriteBatch);
-        fpsFont.draw(spriteBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 50, 50);
+        fpsFont.draw(spriteBatch, "FPS : " + Gdx.graphics.getFramesPerSecond(), 135, 46);
     }
 
     @Override

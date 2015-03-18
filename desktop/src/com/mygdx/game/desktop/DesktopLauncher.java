@@ -20,6 +20,7 @@ public class DesktopLauncher {
 		config.fullscreen = false;
 		config.backgroundFPS = 0;
 		config.foregroundFPS = 0;
+		config.title = "Vis_Prog";
 		new LwjglApplication(new MyGdxGame(), config);
 	}
 }

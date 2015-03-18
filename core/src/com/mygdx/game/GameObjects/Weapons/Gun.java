@@ -101,7 +101,6 @@ public class Gun {
             if(target != null){
                 if(GetIsAutoFiring()) {
                     Shoot(target.GetCenterPosition());
-                    isFiringRightNow = true;
                 }
             }
         }
@@ -129,6 +128,8 @@ public class Gun {
         activeBullets.add(item);
 
         autoFireTimer = 0.0f;
+
+        isFiringRightNow = true;
     }
 
     public void SetIsAutoFiring(boolean _firing)

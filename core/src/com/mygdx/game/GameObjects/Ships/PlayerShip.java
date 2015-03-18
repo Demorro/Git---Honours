@@ -110,13 +110,12 @@ public class PlayerShip extends Ship{
             hasSetupLogic = true;
         }
 
-        autoCannon.ClearTarget();
-
         pursueTargets.clear();
         evadeTargets.clear();
         pursueBehavior.setTarget(this);
         evadeBehavior.setTarget(this);
         attackTargets.clear();
+        shouldWander = false;
         ParseLogicScript();
 
 
@@ -321,12 +320,9 @@ public class PlayerShip extends Ship{
             weapon = workingLine.get(0);
             workingLine.remove(0);
         }
-        if(workingLine.size() > 0){
-            speed = workingLine.get(0);
-            workingLine.remove(0);
-        }
 
-        attackTargets.add(new Target(target, weapon, speed));
+
+        attackTargets.add(new Target(target, weapon, LogicGroups.LogicBlockType.QUICKLY)); //Used to be able so set speed on weapons, but cant now, so its just quicks
     }
 
     private void ParsePersueLine(ArrayList<LogicGroups.LogicBlockType> logicLine)
