@@ -2,5 +2,8 @@
 <PlayerLogicScript>
   <Line>
     <Block>ATTACK</Block>
+    <Block>FIGHTERSHIP</Block>
+    <Block>LASER</Block>
   </Line>
+  <Line></Line>
 </PlayerLogicScript>

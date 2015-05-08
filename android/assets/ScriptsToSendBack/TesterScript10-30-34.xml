@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <PlayerLogicScript>
   <Line>
-    <Block>ATTACK</Block>
+    <Block>PURSUE</Block>
   </Line>
 </PlayerLogicScript>

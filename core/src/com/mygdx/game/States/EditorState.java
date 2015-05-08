@@ -73,7 +73,8 @@ public class EditorState extends State implements InputProcessor
         Tween.registerAccessor(Sprite.class, new SpriteAccessor());
         Tween.registerAccessor(BlockChain.class, new BlockChainAccessor());
 
-        fpsFont =  new BitmapFont(Gdx.files.internal("Fonts/gamefont.fnt"));
+        //fpsFont =  new BitmapFont(Gdx.files.internal("Fonts/gamefont.fnt"));
+        fpsFont = new BitmapFont(Gdx.files.internal("Fonts/gamefont.fnt"));
 
 
         fpsFont.setOwnsTexture(true);
@@ -198,6 +199,10 @@ public class EditorState extends State implements InputProcessor
         playButton.Update(uiCam);
         newScriptButton.Update(uiCam);
 
+        if(Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.ESCAPE))
+        {
+            Gdx.app.exit();
+        }
     }
     // Abstract method intended to render all objects of the state.
     public void Draw(SpriteBatch spriteBatch)

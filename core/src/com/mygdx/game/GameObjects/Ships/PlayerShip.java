@@ -73,7 +73,7 @@ public class PlayerShip extends Ship{
 
     public PlayerShip(Texture gameObjectTexSheet, Pool<Bullet> bulletPool, ArrayList<Bullet> bulletList, ArrayList<EnemyCapitalShip> caps, ArrayList<EnemyFrigateShip> frigs, ArrayList<EnemyFighterShip> fighters, TextureAtlas destructionExplosionAtlas, Camera cam)
     {
-        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 150, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas, cam);
+        super(gameObjectTexSheet, new TextureRegion(gameObjectTexSheet,0,0,100,76), 100, shipRadius, maxLinearVelocity,maxLinearVelocityAccel,maxAngularVelocity,maxAngularVelocityAccel, collisionBoxNegativeOffset, destructionExplosionAtlas, cam);
         this.gameObjectTexSheet = gameObjectTexSheet;
 
         this.gameCam = cam;

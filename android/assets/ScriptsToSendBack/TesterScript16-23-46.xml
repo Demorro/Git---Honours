@@ -1,6 +1,4 @@
 <?xml version="1.0" ?>
 <PlayerLogicScript>
-  <Line>
-    <Block>ATTACK</Block>
-  </Line>
+  <Line></Line>
 </PlayerLogicScript>

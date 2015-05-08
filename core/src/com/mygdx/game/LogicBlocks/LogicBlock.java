@@ -40,7 +40,7 @@ public abstract class LogicBlock
     public LogicBlock(Texture blockSheet, String text, LogicGroups.LogicGroup group, LogicGroups.LogicBlockType type)
     {
         blockSpriteSheet = blockSheet;
-        blockFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        blockFont =  new BitmapFont(Gdx.files.internal("Fonts/LogicFont.fnt"));
         blockFont.setOwnsTexture(true);
         blockFont.setColor(fontColor);
         blockFont.setScale(fontSize);
@@ -55,7 +55,7 @@ public abstract class LogicBlock
     public LogicBlock(Texture blockSheet, String text, LogicGroups.LogicGroup group, LogicGroups.LogicBlockType type, float x, float y)
     {
         blockSpriteSheet = blockSheet;
-        blockFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        blockFont =  new BitmapFont(Gdx.files.internal("Fonts/LogicFont.fnt"));
         blockFont.setColor(fontColor);
         blockFont.setScale(fontSize);
         blockFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear); //Set Smooth Text

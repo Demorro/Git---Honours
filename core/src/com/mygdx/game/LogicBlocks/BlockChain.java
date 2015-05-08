@@ -82,7 +82,7 @@ public class BlockChain {
         this.fullScript = fullScript;
         blockTextureSheet = blockSpriteSheet;
 
-        debugFont =  new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+        debugFont =  new BitmapFont(Gdx.files.internal("Fonts/LogicFont.fnt"));
         debugFont.setOwnsTexture(true);
         debugFont.setColor(0,1,1,1);
         debugFont.setScale(1.0f);
@@ -701,7 +701,8 @@ public class BlockChain {
 
         LogicBlock newBlock = LogicGroups.ConstructSpecificBlock(type, blockTextureSheet, previousBlock);
         newBlock.SetPosition(blockChainBounds.getX() + blockChainBounds.getWidth(), position.y - (LogicBlock.blockHeight - nextButton.getHeight()) /2 );
-        blockChainBounds.width = blockChainBounds.getWidth() + newBlock.GetFullBlockWidth();
+        blockChainBounds.width = blockChainBounds
+                .getWidth() + newBlock.GetFullBlockWidth();
         blocks.add(newBlock);
 
         if(newBlock.GetNextLogicGroup(previousBlock) == null)
@@ -709,11 +710,28 @@ public class BlockChain {
             isOnEndOfChain = true;
             nextButton.SetEnabled(false);
             nextButton.SetVisible(false);
+            if((nextGroups != null) && (newBlock != null)){
+                if(newBlock.GetNextLogicGroup(previousBlock) != null) {
+                    nextGroups.clear();
+                    nextGroups.addAll(newBlock.GetNextLogicGroup(previousBlock));
+                    selectionList.ResetList(nextGroups, new Vector2(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenBlocks, position.y), false, false, previousBlock);
+                }
+            }
         }
 
         nextButton.setX(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenNextButton);
 
         FadeInCancelButtonAtLastBlock();
+
+        if((nextGroups != null) && (newBlock != null)){
+            if(newBlock.GetNextLogicGroup(previousBlock) != null) {
+                nextGroups.clear();
+                nextGroups.addAll(newBlock.GetNextLogicGroup(previousBlock));
+                if(previousBlock != null) {
+                    selectionList.ResetList(nextGroups, new Vector2(blockChainBounds.getX() + blockChainBounds.getWidth() + spacingBetweenBlocks, position.y), false, false, previousBlock);
+                }
+            }
+        }
     }
 
     public boolean GetIsIfStatement() {

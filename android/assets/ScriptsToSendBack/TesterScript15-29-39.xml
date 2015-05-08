@@ -2,5 +2,7 @@
 <PlayerLogicScript>
   <Line>
     <Block>ATTACK</Block>
+    <Block>CAPITALSHIP</Block>
   </Line>
+  <Line></Line>
 </PlayerLogicScript>

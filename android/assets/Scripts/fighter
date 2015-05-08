@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<PlayerLogicScript>
+  <Line>
+    <Block>ATTACK</Block>
+    <Block>FIGHTERSHIP</Block>
+    <Block>LASER</Block>
+  </Line>
+  <Line>
+    <Block>WHEN</Block>
+    <Block>FIGHTERSHIP</Block>
+    <Block>CLOSE</Block>
+    <Line>
+      <Block>ATTACK</Block>
+      <Block>FIGHTERSHIP</Block>
+      <Block>AUTOCANNON</Block>
+    </Line>
+    <Line></Line>
+  </Line>
+  <Line>
+    <Block>WANDER</Block>
+  </Line>
+  <Line></Line>
+</PlayerLogicScript>

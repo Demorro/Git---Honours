@@ -46,12 +46,12 @@ public abstract class Button extends Sprite {
 
         if(font2xSize)
         {
-            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont2x.fnt"));
+            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8BitFont2x.fnt"));
             buttonFont.setOwnsTexture(true);
         }
         else
         {
-            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/LogicFont.fnt"));
             buttonFont.setOwnsTexture(true);
         }
         buttonFont.setColor(Color.BLACK);
@@ -68,11 +68,11 @@ public abstract class Button extends Sprite {
 
         if(font2xSize)
         {
-            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont2x.fnt"));
+            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8BitFont2x.fnt"));
         }
         else
         {
-            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/8Bitfont.fnt"));
+            buttonFont = new BitmapFont(Gdx.files.internal("Fonts/LogicFont.fnt"));
         }
         buttonFont.setColor(Color.BLACK);
         buttonFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
